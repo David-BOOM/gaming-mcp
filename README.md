@@ -109,6 +109,8 @@ The project establishes four standardized benchmark tiers to evaluate autonomous
 
 ```
 gaming-mcp/
+├── AGENTS.md                    # Universal repository rules for developers & AI agents
+├── GEMINI.md                    # Antigravity agent workspace rules
 ├── docs/
 │   ├── implementation_plan.md   # Complete architectural specification & blueprints
 │   └── audit_report.md          # Multi-perspective quality review & council audit
