@@ -1,0 +1,13 @@
+$scriptPath = "C:\Users\david\.gemini\config\plugins\science\skills\literature_search_arxiv\scripts\search_arxiv.py"
+$outDir = "C:\Users\david\Desktop\Projects\gaming-mcp\research\arxiv"
+
+uv run $scriptPath --query 'abs:"large language model" AND abs:game AND abs:agent' --max_results 10 --sort_by submittedDate --sort_order descending > "$outDir\search1.json"
+uv run $scriptPath --query 'abs:"game playing" AND abs:"language model"' --max_results 10 --sort_by submittedDate --sort_order descending > "$outDir\search2.json"
+uv run $scriptPath --query 'ti:"game agent" AND abs:"LLM"' --max_results 10 --sort_by submittedDate --sort_order descending > "$outDir\search3.json"
+uv run $scriptPath --query 'abs:"computer use" AND abs:agent AND abs:game' --max_results 10 --sort_by submittedDate --sort_order descending > "$outDir\search4.json"
+uv run $scriptPath --query 'abs:Minecraft AND abs:"language model" AND abs:agent' --max_results 10 --sort_by submittedDate --sort_order descending > "$outDir\search5.json"
+uv run $scriptPath --query 'abs:"multimodal agent" AND abs:game' --max_results 10 --sort_by submittedDate --sort_order descending > "$outDir\search6.json"
+uv run $scriptPath --query 'abs:"game environment" AND abs:"reinforcement learning" AND abs:"language model"' --max_results 10 > "$outDir\search7.json"
+uv run $scriptPath --query 'ti:Voyager OR ti:SIMA OR ti:Genie AND abs:game AND abs:agent' --max_results 10 > "$outDir\search8.json"
+uv run $scriptPath --query 'abs:"tool use" AND abs:agent AND abs:game' --max_results 10 > "$outDir\search9.json"
+uv run $scriptPath --query 'abs:"model context protocol" OR abs:MCP AND abs:agent' --max_results 10 > "$outDir\search10.json"

@@ -1,0 +1,548 @@
+# ==============================================================================
+# Open-Source Project Essentials & Specifications (NEVER IGNORE)
+# ==============================================================================
+# Implementation plans, architectural designs, and roadmaps
+!implementation_plan.md
+!implementation_plan*.md
+!walkthrough.md
+!walkthrough*.md
+!plans/
+!plans/**
+!docs/
+!docs/**
+!architecture/
+!architecture/**
+!specs/
+!specs/**
+!design/
+!design/**
+!rfcs/
+!rfcs/**
+!adr/
+!adr/**
+!roadmap.md
+!ROADMAP.md
+
+# Open-source repository governance, licenses & community guidelines
+!README.md
+!README*.md
+!LICENSE
+!LICENSE*
+!LICENSES/
+!LICENSES/**
+!.licenses/
+!.licenses/**
+!CONTRIBUTING.md
+!CODE_OF_CONDUCT.md
+!CHANGELOG.md
+!SECURITY.md
+
+# Open-source prompt libraries, agent skills, tool schemas & examples
+!examples/
+!examples/**
+!samples/
+!samples/**
+!prompts/
+!prompts/**
+!skills/
+!skills/**
+!schemas/
+!schemas/**
+!tests/
+!tests/**
+!fixtures/
+!fixtures/**
+
+# Example configurations and templates
+!.env.example
+!.env.template
+!*.example.*
+!*.template.*
+
+# Source code files must never be ignored by token or credential patterns
+!*token*.py
+!*token*.ts
+!*token*.js
+!*token*.rs
+!*token*.go
+!*auth*.py
+!*auth*.ts
+!*auth*.js
+!*secret*.py
+!*secret*.ts
+!*secret*.js
+
+# ==============================================================================
+# 1. Research, Literature & Academic Artifacts
+# ==============================================================================
+# research/
+papers/
+literature/
+# arxiv*/
+# citations/
+*.pdf
+*.epub
+*.mobi
+*.djvu
+*.bib
+arxiv_*.json
+
+# ==============================================================================
+# 2. API Tokens, Keys, Credentials & Sensitive Secrets
+# ==============================================================================
+# Environment variable files
+.env
+.env.*
+*.env
+!.env.example
+!.env.template
+
+# Secret configs and token stores (Target specific credential files, NOT source code)
+*.token
+*.secret
+*.key
+*.pem
+*.pfx
+*.p12
+*.cer
+*.crt
+*.der
+*.id_rsa
+id_rsa*
+
+# Credential and token data files
+secrets.*
+secrets/
+*secrets*.json
+*secrets*.yaml
+*secrets*.yml
+*secrets*.toml
+*credentials*.json
+*credentials*.yaml
+*credentials*.yml
+*tokens*.json
+*api_key*.json
+*api_key*.txt
+*apikey*.json
+*apikey*.txt
+client_secret*.json
+service-account*.json
+service_account*.json
+tokens.json
+auth.json
+oauth*.json
+
+# Provider-specific key files
+anthropic_key*.txt
+openai_key*.txt
+gemini_key*.txt
+huggingface_token*.txt
+hf_token*
+discord_token*.txt
+discord_webhook*.txt
+
+# Private keys and SSH/GPG credentials
+.ssh/
+.gnupg/
+.netrc
+
+# Cloud provider CLI credentials
+.aws/
+.azure/
+.gcloud/
+
+# ==============================================================================
+# 3. Copyrighted Video Game Assets, ROMs, BIOS & Media
+# ==============================================================================
+# Game ROMs, disk images, and cartridges
+roms/
+games/
+iso/
+isos/
+*.rom
+*.iso
+*.bin
+*.cue
+*.img
+*.chd
+*.cso
+*.wbfs
+*.gcm
+*.rvz
+
+# Retro console formats
+*.nes
+*.sfc
+*.smc
+*.gb
+*.gbc
+*.gba
+*.nds
+*.3ds
+*.cia
+*.n64
+*.z64
+*.v64
+*.srm
+*.pkg
+*.pbp
+*.xex
+*.xbe
+
+# Console BIOS and firmware dumps
+bios/
+firmware/
+*.bios
+scph*.bin
+bios.bin
+
+# Save states, memory cards, and save files
+saves/
+savestates/
+states/
+*.sav
+*.state
+*.state*
+*.mcr
+*.gme
+*.dsv
+
+# Minecraft world saves and region data
+world/
+worlds/
+*.mca
+*.schematic
+*.litematic
+
+# Proprietary game archives and game packages
+assets/proprietary/
+game_assets/
+*.pak
+*.vpk
+*.wad
+*.bsa
+*.ba2
+*.bsp
+*.upk
+*.assets
+
+# Screen recordings, gameplay captures, screenshots & audio dumps
+captures/
+recordings/
+screenshots/
+replays/
+demos/
+frames/
+screen_dumps/
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.webm
+*.flv
+*.wav
+*.mp3
+*.ogg
+*.flac
+*.aac
+
+# ==============================================================================
+# 4. Game Accounts, Authentication Caches & Server Configurations
+# ==============================================================================
+# Steam account tokens and profiles
+loginusers.vdf
+ssfn*
+Steam/
+
+# Minecraft client & Microsoft authentication caches
+launcher_profiles.json
+launcher_accounts.json
+usercache.json
+microsoft_auth.json
+minecraft_tokens.json
+
+# Game server configs with plaintext passwords / tokens
+server.properties
+rcon.password
+netplay.cfg
+!server.properties.example
+
+# Third-party platform auth caches & bot tokens
+discord_token*
+discord_webhook*
+riot_auth*
+gog_auth*
+EpicGames/
+
+# ==============================================================================
+# 5. Game Mods, Dedicated Server Jars & Emulators
+# ==============================================================================
+# Dedicated server binaries (e.g. Minecraft server jars, EULA acceptance)
+server.jar
+minecraft_server*.jar
+fabric-server*.jar
+forge-*.jar
+paper-*.jar
+eula.txt
+
+# Game mod files, resource packs, shaders
+mods/
+resourcepacks/
+shaderpacks/
+plugins/
+
+# RetroArch / Libretro cores and local configurations
+cores/
+retroarch.cfg
+retroarch-core-options.cfg
+
+# Game executables & mobile app packages
+*.x86_64
+*.app
+*.ipa
+*.apk
+*.obb
+
+# Memory inspection, hook dumps & Cheat Engine tables
+*.ct
+*.cheat
+mem_dumps/
+memory_offsets.json
+
+# ==============================================================================
+# 6. Screen Perception, OCR, Trajectories & Agent Rollouts
+# ==============================================================================
+# Perception engine dumps (Set-of-Marks, OCR extracts, frame buffers)
+som_dumps/
+ocr_dumps/
+perception_cache/
+raw_frames/
+screen_buffers/
+
+# Agent rollout trajectories, action history, and episode recordings
+trajectories/
+episodes/
+rollouts/
+agent_logs/
+prompt_history/
+chat_history/
+prompts/local/
+skills/private/
+*.trajectory.jsonl
+*.rollout.jsonl
+*.trace.jsonl
+
+# ==============================================================================
+# 7. Vector Databases, Embeddings & RAG Stores
+# ==============================================================================
+vector_store/
+chroma/
+chromadb/
+qdrant/
+milvus/
+*.chroma
+*.faiss
+*.lance
+*.db-journal
+*.db-wal
+*.db-shm
+
+# ==============================================================================
+# 8. Machine Learning Weights, Checkpoints & Datasets
+# ==============================================================================
+weights/
+checkpoints/
+models/
+*.pt
+*.pth
+*.safetensors
+*.ckpt
+*.gguf
+*.onnx
+*.tflite
+datasets/raw/
+data/raw/
+
+# ML experiment tracking & telemetry
+wandb/
+mlruns/
+runs/
+lightning_logs/
+ray_results/
+*.wandb
+events.out.tfevents.*
+
+# ==============================================================================
+# 9. Network Tunnels, Packet Dumps & Diagnostic Traces
+# ==============================================================================
+# Packet captures (may contain user network traffic or auth handshakes)
+*.pcap
+*.pcapng
+*.cap
+
+# Tunneling services & VPN configs
+ngrok.yml
+cloudflared/
+tunnel_credentials.json
+*.ovpn
+wireguard.conf
+wg*.conf
+
+# Crash dumps & diagnostic traces
+CrashDumps/
+minidump/
+*.dmp
+*.dump
+*.diag
+
+# ==============================================================================
+# 10. Local Configuration Overrides, Scratchpads & Shell History
+# ==============================================================================
+# Local config overrides
+config.local.*
+settings.local.*
+*.local.json
+*.local.yaml
+*.local.yml
+*.local.toml
+!config.example.*
+!settings.example.*
+
+# Local scratchpads, drafts and temporary experiments
+scratch/
+.scratch/
+*.draft.md
+*.local.md
+todo.local.md
+local_test*.py
+scratch.*
+temp_*.py
+
+# Shell command history
+*.history
+.bash_history
+.zsh_history
+ConsoleHost_history.txt
+
+# ==============================================================================
+# 11. Python Environment & Build Artifacts
+# ==============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing & Linting caches
+.cache
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+
+# ==============================================================================
+# 12. Node.js & TypeScript Artifacts
+# ==============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# ==============================================================================
+# 13. Compiled Binaries, Drivers & Libraries (C++, C#, Rust, Go)
+# ==============================================================================
+target/
+bin/
+obj/
+*.exe
+*.dll
+*.dylib
+*.pdb
+*.sys
+*.inf
+*.cat
+
+# ==============================================================================
+# 14. Logs & Temporary Files
+# ==============================================================================
+logs/
+*.log
+*.tmp
+*.temp
+tmp/
+temp/
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+*.swp
+*.swo
+
+# ==============================================================================
+# 15. Operating System & Editor Files
+# ==============================================================================
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+
+# IDEs and Editors
+.idea/
+*.iml
+*.sublime-workspace
+*.sublime-project
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Local AI Agent & Assistant caches
+.gemini/
+.agent/
+.system_generated/
