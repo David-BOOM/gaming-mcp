@@ -886,7 +886,7 @@ Autonomous agents operating with operating-system-level input injection pose dis
 c:\Users\david\Desktop\Projects\gaming-mcp\
 ├── pyproject.toml                     # Modern PEP 621 dependencies & build targets
 ├── README.md                          # Comprehensive documentation & quickstart
-├── LICENSE                            # MIT License
+├── LICENSE                            # Apache License 2.0
 ├── config.example.json                # Reference server & adapter configuration
 │
 ├── src\gaming_mcp\

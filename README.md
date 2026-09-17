@@ -119,7 +119,7 @@ gaming-mcp/
 │   └── ...                      # Research tooling and query caches
 ├── .licenses/                   # Attribution and licensing documentation
 ├── .gitignore                   # Comprehensive exclusion rules for credentials and ROMs
-├── LICENSE                      # Project license (MIT)
+├── LICENSE                      # Project license (Apache 2.0)
 └── README.md                    # Project overview and architectural guide
 ```
 
@@ -127,4 +127,4 @@ gaming-mcp/
 
 ## License
 
-This project is licensed under the terms of the [MIT License](LICENSE).
+This project is licensed under the terms of the [Apache License 2.0](LICENSE).
