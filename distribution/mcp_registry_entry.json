@@ -1,0 +1,91 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/server.json",
+  "name": "gaming-mcp",
+  "displayName": "Gaming MCP Server",
+  "description": "Sovereign Model Context Protocol (MCP) server enabling LLM agents to observe and control video games via Universal Computer Use (DXGI zero-copy screen capture, Win32 hardware scan codes, ViGEmBus virtual gamepad) and high-fidelity game bridges (Minecraft, Libretro, Gymnasium).",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "category": "gaming",
+  "homepage": "https://github.com/David-BOOM/gaming-mcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/David-BOOM/gaming-mcp"
+  },
+  "author": {
+    "name": "David",
+    "email": "placeholder@example.com"
+  },
+  "keywords": [
+    "mcp",
+    "gaming",
+    "llm",
+    "agent",
+    "computer-use",
+    "vla",
+    "minecraft",
+    "retro",
+    "gymnasium",
+    "dxgi",
+    "vigembus",
+    "voyager"
+  ],
+  "package": {
+    "registry": "pypi",
+    "name": "gaming-mcp",
+    "version": "0.1.0",
+    "command": "gaming-mcp",
+    "runtime": "python",
+    "python_version": ">=3.11"
+  },
+  "transports": [
+    "stdio",
+    "sse",
+    "http"
+  ],
+  "defaultTransport": "stdio",
+  "capabilities": {
+    "tools": true,
+    "resources": true,
+    "prompts": true,
+    "cancellation": true,
+    "progress": true
+  },
+  "adapters": [
+    {
+      "id": "computer_use",
+      "name": "Universal VLA Computer Use",
+      "description": "Universal OS-level screen capture, hardware scan codes, and ViGEmBus virtual gamepad actuation."
+    },
+    {
+      "id": "minecraft",
+      "name": "Minecraft Bridge",
+      "description": "Node.js Mineflayer IPC bridge providing 3D voxel navigation, block harvesting, and recipe crafting."
+    },
+    {
+      "id": "retro",
+      "name": "Retro Emulation Adapter",
+      "description": "Libretro and stable-retro emulator core bindings with RAM introspection and state snapshotting."
+    },
+    {
+      "id": "gymnasium",
+      "name": "Gymnasium RL Adapter",
+      "description": "OpenAI Gymnasium reinforcement learning environment wrapper with space introspection and stepping."
+    }
+  ],
+  "clientConfig": {
+    "command": "uv",
+    "args": [
+      "run",
+      "--with",
+      "gaming-mcp",
+      "gaming-mcp",
+      "--adapter",
+      "computer_use",
+      "--transport",
+      "stdio"
+    ],
+    "env": {
+      "PYTHONUNBUFFERED": "1"
+    }
+  }
+}

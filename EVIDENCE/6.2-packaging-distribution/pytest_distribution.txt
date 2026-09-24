@@ -1,0 +1,18 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.9, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\david\Desktop\Projects\gaming-mcp\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\david\Desktop\Projects\gaming-mcp
+configfile: pyproject.toml
+plugins: anyio-4.15.1, asyncio-1.4.0, cov-7.1.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 7 items
+
+tests/test_distribution.py::test_distribution_files_exist PASSED         [ 14%]
+tests/test_distribution.py::test_claude_desktop_config_schema PASSED     [ 28%]
+tests/test_distribution.py::test_cursor_config_schema PASSED             [ 42%]
+tests/test_distribution.py::test_mcp_registry_entry_schema PASSED        [ 57%]
+tests/test_distribution.py::test_diataxis_docs_suite_exists PASSED       [ 71%]
+tests/test_distribution.py::test_zero_emojis_in_distribution_and_docs PASSED [ 85%]
+tests/test_distribution.py::test_pyproject_pep621_metadata PASSED        [100%]
+
+============================== 7 passed in 0.03s ==============================

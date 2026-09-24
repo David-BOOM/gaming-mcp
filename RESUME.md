@@ -19,17 +19,15 @@ Read this file FIRST upon cold-start, session reboot, rate-limit recovery, or co
 ## 2. Current Execution Pointer
 
 * **Current Phase:** Phase 6: Hardening, Evaluation Benchmarks & Distribution (Weeks 11-12)
-* **Active Milestone:** Milestone 6.1: Comprehensive Multi-Genre Benchmark Evaluation & Milestone 6.2: Packaging & Ecosystem Distribution
+* **Active Milestone:** Milestone 6.1: Comprehensive Multi-Genre Benchmark Evaluation (Milestone 6.2: Packaging & Ecosystem Distribution VERIFIED)
 * **Active Subtasks:**
   - Subtask 6.1a -- 4-Tier Game Evaluation Matrix (Freeciv turn-based, Minesweeper grid, Minecraft survival, Retro platformer)
   - Subtask 6.1b -- Token Economics & Latency Benchmark (dHash frame gating token reduction, DXGI vs MSS latency)
-  - Subtask 6.2a -- PyPI Wheel Packaging, Clean Build, and Validation
-  - Subtask 6.2b -- Client Configurations (Claude Desktop, Cursor) and MCP Server Registry Submission
+  - Subtask 6.2a -- PyPI Wheel Packaging, Clean Build, and Validation (VERIFIED)
+  - Subtask 6.2b -- Client Configurations (Claude Desktop, Cursor) and MCP Server Registry Submission (VERIFIED)
 * **Immediate Next Action:**
-  1. Implement automated benchmark harness under `tests/test_benchmarks/` validating <15ms DXGI capture latency, >75% dHash token reduction, and 4-tier game simulation matrices.
-  2. Validate packaging and build with `hatchling` / `uv build`.
-  3. Generate client configuration guides and distribution templates.
-  4. Run verification ladder (`ruff`, `mypy --strict`, `pytest`, zero-emoji audit).
+  1. Complete Subtask 6.1a and 6.1b multi-genre benchmarks and latency evaluations.
+  2. Finalize verification ladder and evidence artifacts.
 
 ---
 

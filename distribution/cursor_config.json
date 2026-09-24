@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "gaming-mcp": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--with",
+        "gaming-mcp",
+        "gaming-mcp",
+        "--adapter",
+        "computer_use",
+        "--transport",
+        "stdio"
+      ],
+      "env": {
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}

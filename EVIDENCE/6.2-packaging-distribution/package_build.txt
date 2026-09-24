@@ -1,0 +1,9 @@
+
+    Directory: C:\Users\david\Desktop\Projects\gaming-mcp\dist
+
+Mode        LastWriteTime Length Name
+----        ------------- ------ ----
+-a---  25/9/2026  6:40 am      1 .gitignore
+-a---  25/9/2026  6:41 am 124613 gaming_mcp-0.1.0-py3-none-any.whl
+-a---  25/9/2026  6:41 am 243203 gaming_mcp-0.1.0.tar.gz
+
