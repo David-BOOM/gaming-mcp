@@ -185,6 +185,23 @@
 
 ---
 
+### Case 10: Win32 SendInput ERROR_ACCESS_DENIED (5) with Multimedia Libraries
+* **Trap / Mistake:**
+  Calling `user32.SendInput` returns 0 with `GetLastError() == 5` (`ERROR_ACCESS_DENIED`), or calling `user32.SetThreadDesktop` fails with Win32 error 170 (`ERROR_BUSY`).
+* **Root Cause:**
+  When a thread imports or initializes multimedia libraries (e.g. `sounddevice`, PortAudio, or COM audio endpoints), hidden message-pump windows are spawned on that thread. Windows subsequently locks the thread's desktop attachment, preventing `SetThreadDesktop` from altering its security context and causing `SendInput` to be rejected.
+* **Proven Replicable Solution:**
+  1. Route all `SendInput`, `SetCursorPos`, and `GetCursorPos` operations through a dedicated single-threaded worker executor (`get_input_executor()`) named `gaming_mcp_input`.
+  2. Proactively attach the worker thread to the active input desktop upon initialization:
+     ```python
+     _input_executor.submit(attach_thread_to_input_desktop).result()
+     ```
+  3. In `_send_input()`, if `SendInput` returns 0 with error 5, re-attach to the input desktop and retry once.
+  4. This isolates input actuation completely from audio or COM threads and ensures 100% reliable hardware scan-code injection.
+* **Code Reference:** `src/gaming_mcp/io/input.py`.
+
+---
+
 ## 3. Core System Configuration Reference
 
 ### Error Code Allocation Matrix

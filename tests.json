@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-09-25T00:48:40Z",
+  "last_updated": "2026-09-25T01:03:00Z",
   "suites": [
     {
       "path": "tests/test_scaffolding.py",
@@ -72,9 +72,41 @@
       "skipped": 0,
       "duration_seconds": 0.10,
       "coverage_percent": 89.0
+    },
+    {
+      "path": "tests/test_io/test_curves.py",
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.10,
+      "coverage_percent": 98.0
+    },
+    {
+      "path": "tests/test_io/test_input.py",
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.35,
+      "coverage_percent": 84.0
+    },
+    {
+      "path": "tests/test_io/test_gamepad.py",
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.15,
+      "coverage_percent": 92.0
+    },
+    {
+      "path": "tests/test_io/test_timing.py",
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.40,
+      "coverage_percent": 81.0
     }
   ],
-  "total_passed": 47,
+  "total_passed": 69,
   "total_failed": 0,
   "total_skipped": 0,
   "overall_coverage_percent": 89.0

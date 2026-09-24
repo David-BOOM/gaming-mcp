@@ -5,9 +5,9 @@
 
 ---
 
-## Current Milestone: Milestone 2.1 -- Hardware-Accelerated Display and Audio Capture
+## Current Milestone: Milestone 2.3 -- Visual Grounding, Safety and Privacy
 
-Phase 1 (Core Foundation & Protocol Dispatcher) is fully verified (commits 7e028f7 and 7ffbba7) with 30/30 tests passing and 93% overall coverage. Active focus is Phase 2 Milestone 2.1.
+Phase 1 (Core Foundation & Protocol Dispatcher) and Phase 2 Milestones 2.1 and 2.2 are fully verified with 69/69 tests passing and 89% overall coverage. Active focus is Phase 2 Milestone 2.3.
 
 ### Completed Tasks
 
@@ -35,20 +35,22 @@ Phase 1 (Core Foundation & Protocol Dispatcher) is fully verified (commits 7e028
 - [x] Gemini 3.8 Flash Autonomous Team Loop (T2, L3) Prompt (GEMINI38-TEAM-LOOP-PROMPT.md), Persistent Memory (MEMORY.md), Resumption Pointer (RESUME.md), and Machine State (LOOP_STATE.json, PROGRESS.md)
 - [x] Phase 1 Milestone 1.1: Core MCP Protocol Engine (stdio/SSE transports, cancellation, progress tokens, typed registries)
 - [x] Phase 1 Milestone 1.2: Adapter SPI & Router Architecture (GameAdapter SPI, dynamic AdapterRouter, Pydantic v2 configuration)
+- [x] Phase 2 Milestone 2.1: Hardware-Accelerated Display and Audio Capture (DXGI D3D11 duplication, MSS fallback, 64-bit dHash perceptual gating, WASAPI loopback capture)
+- [x] Phase 2 Milestone 2.2: Dual-Layer Actuation and Action Chunking (Win32 SendInput PS/2 hardware scan codes, ViGEmBus guarded virtual gamepad, Flash & Hogan minimum-jerk curves, microsecond action chunk scheduler)
 
 ### Active Phase: Phase 2 -- Universal VLA Computer Use Engine
 
-- [/] Milestone 2.1: Hardware-Accelerated Display and Audio Capture
-  - [/] Subtask 2.1a: DXGI Desktop Duplication ctypes wrapper
-  - [ ] Subtask 2.1b: MSS cross-platform fallback capturer
+- [x] Milestone 2.1: Hardware-Accelerated Display and Audio Capture
+  - [x] Subtask 2.1a: DXGI Desktop Duplication ctypes wrapper
+  - [x] Subtask 2.1b: MSS cross-platform fallback capturer
   - [x] Subtask 2.1c: 64-bit dHash perceptual gating (src/gaming_mcp/io/vision.py)
-  - [/] Subtask 2.1d: WASAPI master loopback audio capture (sounddevice/scipy installed, host devices verified)
-- [ ] Milestone 2.2: Dual-Layer Actuation and Action Chunking
-  - [ ] Subtask 2.2a: Win32 SendInput PS/2 hardware scan codes
-  - [ ] Subtask 2.2b: ViGEmBus virtual Xbox 360 controller wrapper (guarded stub fallback for Python 3.12)
-  - [ ] Subtask 2.2c: Minimum-jerk mouse trajectory splining
-  - [ ] Subtask 2.2d: Microsecond action chunk scheduler
-- [ ] Milestone 2.3: Visual Grounding, Safety and Privacy
+  - [x] Subtask 2.1d: WASAPI master loopback audio capture
+- [x] Milestone 2.2: Dual-Layer Actuation and Action Chunking
+  - [x] Subtask 2.2a: Win32 SendInput PS/2 hardware scan codes (src/gaming_mcp/io/input.py)
+  - [x] Subtask 2.2b: ViGEmBus virtual Xbox 360 controller wrapper (src/gaming_mcp/io/gamepad.py)
+  - [x] Subtask 2.2c: Minimum-jerk mouse trajectory splining (src/gaming_mcp/utils/curves.py)
+  - [x] Subtask 2.2d: Microsecond action chunk scheduler (src/gaming_mcp/io/timing.py)
+- [/] Milestone 2.3: Visual Grounding, Safety and Privacy
   - [x] Subtask 2.3a: Set-of-Marks coordinate grid overlay (src/gaming_mcp/utils/image.py)
   - [ ] Subtask 2.3b: Window rect clipping and process blacklist
   - [ ] Subtask 2.3c: Emergency hardware kill-switch (Ctrl+Alt+Shift+Pause/Break)

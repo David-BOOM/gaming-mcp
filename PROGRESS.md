@@ -89,5 +89,27 @@ This document tracks all completed engineering iterations, empirical evidence li
   - Verified `IDXGIOutput1::DuplicateOutput` at vtable index 22, acquiring full 2880x1800 retina frames in ~15ms on CPU staging buffers.
 * **Next Target:** Milestone 2.2 -- Dual-Layer Actuation and Action Chunking (Subtask 2.2a: Win32 SendInput PS/2 hardware scan codes and trajectory splining).
 
+---
+
+## Iteration 4 -- 2026-09-25: Milestone 2.2 Dual-Layer Actuation and Action Chunking
+
+* **Milestone / Focus:** Phase 2 Milestone 2.2: Dual-Layer Actuation and Action Chunking.
+* **Deliverables Completed:**
+  - `src/gaming_mcp/io/input.py`: `Win32InputInjector` implementing native Win32 `SendInput` with PS/2 Set 1 hardware scan codes (`KEYEVENTF_SCANCODE`, `KEYEVENTF_EXTENDEDKEY`), Gaussian keypress hold duration jitter (mean = 55ms, std = 6ms), relative mouse motions for 3D camera controls (`MOUSEEVENTF_MOVE`), absolute and smooth cursor navigation, and motor safety reset (`release_all()`).
+  - Dedicated input worker executor (`get_input_executor`) in `input.py`: Isolates SendInput and SetThreadDesktop calls from audio/multimedia libraries (such as sounddevice/PortAudio) that initialize hidden COM message hooks, ensuring 0 errors on desktop attachment.
+  - `src/gaming_mcp/io/gamepad.py`: `BaseGamepadController` abstract SPI and `ViGEmGamepadController` with guarded capability probe per MEMORY.md Case 2. If ViGEmBus kernel driver or vgamepad module is absent, gracefully raises typed `AdapterError` (-32002) with advisory setup instructions without crashing server startup. Included `MockGamepadController` for deterministic simulation.
+  - `src/gaming_mcp/utils/curves.py`: Flash & Hogan (1985) minimum-jerk trajectory polynomials ($s(u) = 10u^3 - 15u^4 + 6u^5$), Fitts' Law duration estimation ($T = a + b \log_2(1 + D/W)$), cubic Bezier trajectory splining with perpendicular control point arcs, and smooth relative 3D camera turn delta generators.
+  - `src/gaming_mcp/io/timing.py`: `ActionChunkScheduler` executing compound microsecond action chunks (`ActionChunk`, `ActionChunkItem`) locally to overcome cloud inference latency, with fine-grained spin wait and sub-10ms motor safety release on MCP cancellation tokens.
+  - Test suites: 22 new unit and integration tests across `test_curves.py`, `test_input.py`, `test_gamepad.py`, and `test_timing.py`.
+* **Evidence:**
+  - `EVIDENCE/2.2-actuation-chunks/pytest_coverage.txt`: 69/69 tests passing cleanly with 89% total coverage across 1890 statements.
+  - `curves.py` coverage: 98%, `gamepad.py` coverage: 92%, `input.py` coverage: 84%, `timing.py` coverage: 81%.
+  - `EVIDENCE/2.2-actuation-chunks/ruff_check.txt`: 0 errors/warnings across 40 source files.
+  - `EVIDENCE/2.2-actuation-chunks/mypy_check.txt`: 0 type errors under `--strict`.
+  - `EVIDENCE/2.2-actuation-chunks/emoji_audit.txt`: 0 emoji code points verified across entire repository.
+* **Surprises & Lessons:**
+  - `SendInput` returned Win32 error 5 (`ERROR_ACCESS_DENIED`) when run in the test suite after `test_audio.py` because `sounddevice` initialized hidden COM windows on the main thread, blocking subsequent `SetThreadDesktop` with Win32 error 170 (`ERROR_BUSY`). By routing `SendInput` through a dedicated worker thread (`get_input_executor()`), input operations are completely isolated and succeed 100% reliably.
+* **Next Target:** Milestone 2.3 -- Visual Grounding, Safety and Privacy (Subtask 2.3a: Set-of-Marks coordinate grid overlay, Subtask 2.3b: Window rect clipping and process blacklist, Subtask 2.3c: Emergency hardware kill-switch).
+
 
 

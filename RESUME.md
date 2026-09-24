@@ -19,18 +19,16 @@ Read this file FIRST upon cold-start, session reboot, rate-limit recovery, or co
 ## 2. Current Execution Pointer
 
 * **Current Phase:** Phase 2: Universal VLA Computer Use Engine (Weeks 3-4)
-* **Active Milestone:** Milestone 2.1: Hardware-Accelerated Display and Audio Capture
+* **Active Milestone:** Milestone 2.3: Visual Grounding, Safety and Privacy
 * **Active Subtasks:**
-  - Subtask 2.1a -- DXGI Desktop Duplication ctypes Wrapper (`src/gaming_mcp/io/screen.py`)
-  - Subtask 2.1b -- MSS Cross-Platform Fallback Capturer (`src/gaming_mcp/io/screen.py`)
-  - Subtask 2.1c -- 64-bit dHash Perceptual Gating (`src/gaming_mcp/io/vision.py` -- implemented)
-  - Subtask 2.1d -- WASAPI Master Loopback Audio Capture (`src/gaming_mcp/io/audio.py` -- host verified)
+  - Subtask 2.3a -- Set-of-Marks Coordinate Grid Overlay (`src/gaming_mcp/utils/image.py` -- implemented)
+  - Subtask 2.3b -- Window Rect Clipping and Process Blacklist (`src/gaming_mcp/io/process.py`, `src/gaming_mcp/io/security.py`)
+  - Subtask 2.3c -- Emergency Hardware Kill-Switch (`src/gaming_mcp/io/security.py`)
 * **Immediate Next Action:**
-  1. Author `src/gaming_mcp/io/screen.py` implementing `DXGIScreenCapturer`, `MSSScreenCapturer`, and `CompositeScreenCapturer` with access-loss recovery.
-  2. Author `src/gaming_mcp/io/audio.py` implementing `WASAPIAudioCapturer` using `sounddevice`.
-  3. Author unit and mock integration test suites in `tests/test_io/test_screen.py` and `tests/test_io/test_audio.py`.
-  4. Run static quality checks (`ruff`, `mypy --strict`) and test suite (`pytest tests/test_io/`).
-  5. Deploy agent team via `teamwork_preview` to accelerate implementation.
+  1. Author `src/gaming_mcp/io/process.py` implementing Win32 window handles, focus locks, window rect queries, and title regex matching (`window_focus`).
+  2. Author `src/gaming_mcp/io/security.py` implementing window boundary clipping, sensitive process blacklisting (`cmd.exe`, `powershell.exe`, `Taskmgr.exe`), and low-level keyboard hook emergency kill-switch (`Ctrl + Alt + Shift + Pause/Break`).
+  3. Author unit and mock integration test suites in `tests/test_io/test_process.py` and `tests/test_io/test_security.py`.
+  4. Run verification ladder (`ruff`, `mypy --strict`, `pytest`, zero-emoji pre-commit scan).
 
 ---
 
