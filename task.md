@@ -32,10 +32,11 @@ The project is in the formal planning, research synthesis, and architectural spe
 - [x] README.md with project overview, research foundations, and architectural highlights
 - [x] Plan refinement pass: Cross-platform strategy, dependency specification, error handling, CI/CD pipeline, configuration schema, concurrency model, observability
 
+- [x] Part VII architectural decisions resolved (hybrid SendInput/ViGEmBus actuation, adaptive Turbo-JPEG with dHash gating, sequential phased focus priority)
+
 ### Pending Tasks (Pre-Implementation)
 
-- [ ] Owner decisions on Part VII design choices (actuation engine default, image format, initial focus priority)
-- [ ] Final owner approval to transition from Planning to Implementation stage
+- [ ] Final owner approval to transition from Planning to Implementation stage (Phase 1 scaffolding)
 
 ### Next Phase: Implementation (Awaiting Approval)
 

@@ -249,12 +249,36 @@ Clients can subscribe to high-frequency state updates without polling:
 ##### D. Human Elicitation Gate for High-Risk Actions
 If an agent attempts an irreversible in-game action (such as deleting a character, overwriting a save file, or executing microtransactions):
 ```json
+// Server elicitation request:
 {
   "jsonrpc": "2.0",
   "method": "elicitation/createMessage",
   "params": {
     "prompt": "The agent is attempting to delete world save 'Hardcore_World_1'. Confirm execution?",
-    "options": ["Confirm", "Abort"]
+    "requestedSchema": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": ["confirm", "abort"],
+          "description": "User authorization decision"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Optional user feedback or operational rationale"
+        }
+      },
+      "required": ["action"]
+    }
+  },
+  "id": 99
+}
+
+// Client response:
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "action": "confirm"
   },
   "id": 99
 }
@@ -884,106 +908,145 @@ Autonomous agents operating with operating-system-level input injection pose dis
 
 ```
 c:\Users\david\Desktop\Projects\gaming-mcp\
-├── pyproject.toml                     # Modern PEP 621 dependencies & build targets
-├── README.md                          # Comprehensive documentation & quickstart
-├── LICENSE                            # Apache License 2.0
-├── config.example.json                # Reference server & adapter configuration
-│
-├── src\gaming_mcp\
-│   ├── __init__.py                    # Version declaration (0.1.0)
-│   ├── __main__.py                    # CLI execution entry point (python -m gaming_mcp)
-│   ├── server.py                      # Core MCP JSON-RPC protocol server dispatcher
-│   ├── config.py                      # Pydantic schemas for global & adapter configs
-│   │
-│   ├── core\
-│   │   ├── __init__.py
-│   │   ├── registry.py                # Generic BaseRegistry with lifecycle management
-│   │   ├── tools.py                   # Dynamic ToolRegistry & execution wrappers
-│   │   ├── resources.py               # Reactive ResourceRegistry & subscriber loops
-│   │   ├── prompts.py                 # PromptRegistry for strategy playbooks
-│   │   ├── sampling.py                # MCP Sampling client (server -> host LLM queries)
-│   │   ├── elicitation.py             # Human-in-the-loop authorization gate
-│   │   └── exceptions.py              # Custom typed exception hierarchy
-│   │
-│   ├── adapters\
-│   │   ├── __init__.py
-│   │   ├── base.py                    # GameAdapter abstract SPI base class
-│   │   ├── router.py                  # Dynamic adapter loader & hot-swapper
-│   │   ├── computer_use.py            # Universal OS VLA adapter (Anthropic compatible)
-│   │   ├── minecraft.py               # Minecraft headless Mineflayer / RCON adapter
-│   │   ├── retro.py                   # Libretro / Stable-Retro emulator adapter
-│   │   ├── gymnasium.py               # OpenAI Gymnasium reinforcement learning adapter
-│   │   └── engine_ipc.py              # Unity ML-Agents / Godot socket IPC adapter
-│   │
-│   ├── io\
-│   │   ├── __init__.py
-│   │   ├── screen.py                  # DXGI GPU zero-copy & MSS screen capture
-│   │   ├── audio.py                   # WASAPI master output loopback capture
-│   │   ├── input.py                   # Win32 SendInput & hardware scan-code injector
-│   │   ├── gamepad.py                 # ViGEmBus virtual Xbox 360 / DS4 controller
-│   │   ├── vision.py                  # Set-of-Marks grid, OCR, & dHash gating
-│   │   ├── process.py                 # Win32 window handles, focus locks, & rects
-│   │   ├── timing.py                  # Action chunk scheduler & microsecond timers
-│   │   └── security.py                # Emergency kill-switch & boundary enforcement
-│   │
-│   ├── skills\
-│   │   ├── __init__.py
-│   │   ├── models.py                  # SkillRecord, Parameter, & Step schemas
-│   │   ├── library.py                 # CRUD operations on persistent skill store
-│   │   ├── vector_store.py            # Local embedding index for semantic skill retrieval
-│   │   └── executor.py                # Macro step executor with self-healing feedback
-│   │
-│   └── utils\
-│       ├── __init__.py
-│       ├── image.py                   # Turbo JPEG / PNG encoders & base64 transforms
-│       ├── curves.py                  # Bezier curve & human-like trajectory math
-│       └── logging.py                 # Structured JSON logging & diagnostics
-│
-├── bridges\
-│   └── mineflayer\
-│       ├── package.json               # Node.js bridge dependencies
-│       ├── index.js                   # Mineflayer bot runtime & NDJSON IPC server
-│       └── pathfinder.js              # A* navigation routines & inventory helpers
-│
-├── tests\
-│   ├── __init__.py
-│   ├── conftest.py                    # Pytest async fixtures & mock hardware drivers
-│   ├── test_server.py                 # Protocol handshake & JSON-RPC conformance
-│   ├── test_registries.py             # Tool, resource, prompt registry validations
-│   ├── test_screen_capture.py         # Frame buffer timing & resolution verification
-│   ├── test_audio_capture.py          # WASAPI loopback & spectrogram tests
-│   ├── test_input_injection.py        # Scan-code & virtual gamepad state tests
-│   ├── test_adapters\
-│   │   ├── test_computer_use.py       # Universal adapter end-to-end mocks
-│   │   ├── test_minecraft.py          # Mineflayer IPC message translation
-│   │   └── test_retro.py              # Libretro frame stepping & RAM extraction
-│   └── test_skills.py                 # Skill persistence, search, & replay verification
-│
-├── examples\
-│   ├── claude_desktop_config.json     # Configuration for Anthropic Claude Desktop
-│   ├── play_minesweeper_agent.py      # Demo: Universal agent playing Windows Minesweeper
-│   └── play_minecraft_bot.py          # Demo: Autonomous lumberjack in Minecraft
-│
-└── docs\
-    ├── architecture.md                # System topology and sequence diagrams
-    ├── adapters.md                    # Guide to writing custom game adapters
-    └── mcp_conformance.md             # Protocol specification compliance report
++-- AGENTS.md                          # Universal repository rules for developers and AI agents
++-- GEMINI.md                          # Antigravity agent workspace rules
++-- README.md                          # Comprehensive documentation and quickstart
++-- LICENSE                            # Apache License 2.0
++-- implementation_plan.md             # Canonical architectural specification (this document)
++-- task.md                            # Project task tracker and milestone status
++-- pyproject.toml                     # Modern PEP 621 dependencies and build targets
++-- config.example.json                # Reference server and adapter configuration
++-- .pre-commit-config.yaml            # Pre-commit hook configuration
++-- .gitignore                         # Comprehensive exclusion rules
+|
++-- .github\
+|   +-- workflows\
+|       +-- ci.yml                     # Lint, test, and MCP Inspector CI pipeline
+|
++-- .licenses\
+|   +-- literature_search_arxiv_LICENSE.txt
+|   +-- literature_search_openalex_LICENSE.txt
+|
++-- src\gaming_mcp\
+|   +-- __init__.py                    # Version declaration (0.1.0)
+|   +-- __main__.py                    # CLI execution entry point (python -m gaming_mcp)
+|   +-- server.py                      # Core MCP JSON-RPC protocol server dispatcher
+|   +-- config.py                      # Pydantic schemas for global and adapter configs
+|   |
+|   +-- core\
+|   |   +-- __init__.py
+|   |   +-- registry.py                # Generic BaseRegistry with lifecycle management
+|   |   +-- tools.py                   # Dynamic ToolRegistry and execution wrappers
+|   |   +-- resources.py               # Reactive ResourceRegistry and subscriber loops
+|   |   +-- prompts.py                 # PromptRegistry for strategy playbooks
+|   |   +-- sampling.py                # MCP Sampling client (server -> host LLM queries)
+|   |   +-- elicitation.py             # Human-in-the-loop authorization gate
+|   |   +-- exceptions.py              # Custom typed exception hierarchy
+|   |
+|   +-- adapters\
+|   |   +-- __init__.py
+|   |   +-- base.py                    # GameAdapter abstract SPI base class
+|   |   +-- router.py                  # Dynamic adapter loader and hot-swapper
+|   |   +-- computer_use.py            # Universal OS VLA adapter (Anthropic compatible)
+|   |   +-- minecraft.py               # Minecraft headless Mineflayer / RCON adapter
+|   |   +-- retro.py                   # Libretro / Stable-Retro emulator adapter
+|   |   +-- gymnasium.py               # OpenAI Gymnasium reinforcement learning adapter
+|   |   +-- engine_ipc.py              # Unity ML-Agents / Godot socket IPC adapter
+|   |
+|   +-- io\
+|   |   +-- __init__.py
+|   |   +-- screen.py                  # DXGI GPU zero-copy and MSS screen capture
+|   |   +-- audio.py                   # WASAPI master output loopback capture
+|   |   +-- input.py                   # Win32 SendInput and hardware scan-code injector
+|   |   +-- gamepad.py                 # ViGEmBus virtual Xbox 360 / DS4 controller
+|   |   +-- vision.py                  # Set-of-Marks grid, OCR, and dHash gating
+|   |   +-- process.py                 # Win32 window handles, focus locks, and rects
+|   |   +-- timing.py                  # Action chunk scheduler and microsecond timers
+|   |   +-- security.py                # Emergency kill-switch and boundary enforcement
+|   |
+|   +-- skills\
+|   |   +-- __init__.py
+|   |   +-- models.py                  # SkillRecord, Parameter, and Step schemas
+|   |   +-- library.py                 # CRUD operations on persistent skill store
+|   |   +-- vector_store.py            # Local embedding index for semantic skill retrieval
+|   |   +-- executor.py                # Macro step executor with self-healing feedback
+|   |
+|   +-- utils\
+|       +-- __init__.py
+|       +-- image.py                   # Turbo JPEG / PNG encoders and base64 transforms
+|       +-- curves.py                  # Bezier curve and human-like trajectory math
+|       +-- logging.py                 # Structured JSON logging and diagnostics
+|
++-- bridges\
+|   +-- mineflayer\
+|       +-- package.json               # Node.js bridge dependencies
+|       +-- index.js                   # Mineflayer bot runtime and NDJSON IPC server
+|       +-- pathfinder.js              # A* navigation routines and inventory helpers
+|
++-- tests\
+|   +-- __init__.py
+|   +-- conftest.py                    # Pytest async fixtures and mock hardware drivers
+|   +-- test_server.py                 # Protocol handshake and JSON-RPC conformance
+|   +-- test_registries.py             # Tool, resource, prompt registry validations
+|   +-- test_screen_capture.py         # Frame buffer timing and resolution verification
+|   +-- test_audio_capture.py          # WASAPI loopback and spectrogram tests
+|   +-- test_input_injection.py        # Scan-code and virtual gamepad state tests
+|   +-- test_adapters\
+|   |   +-- test_computer_use.py       # Universal adapter end-to-end mocks
+|   |   +-- test_minecraft.py          # Mineflayer IPC message translation
+|   |   +-- test_retro.py              # Libretro frame stepping and RAM extraction
+|   +-- test_skills.py                 # Skill persistence, search, and replay verification
+|
++-- examples\
+|   +-- claude_desktop_config.json     # Configuration for Anthropic Claude Desktop
+|   +-- play_minesweeper_agent.py      # Demo: Universal agent playing Windows Minesweeper
+|   +-- play_minecraft_bot.py          # Demo: Autonomous lumberjack in Minecraft
+|
++-- docs\
+|   +-- implementation_plan.md         # Redirect to root-level canonical plan
+|   +-- audit_report.md                # Multi-perspective quality review and council audit
+|   +-- architecture.md                # System topology and sequence diagrams
+|   +-- adapters.md                    # Guide to writing custom game adapters
+|   +-- mcp_conformance.md             # Protocol specification compliance report
+|
++-- research\
+    +-- summary.md                     # Research index
+    +-- arxiv\
+        +-- arxiv_game_agents_summary.md  # arXiv paper summaries
+        +-- search*.json               # Raw arXiv API query caches
 ```
 
 ---
 
 ## Part V: Fine-Grained Engineering Roadmap & Phased Delivery
 
+```mermaid
+flowchart LR
+    P1["Phase 1: Foundation Core<br/>(Weeks 1-2)<br/>MCP Protocol & Dispatcher"]
+    P2["Phase 2: Universal VLA<br/>(Weeks 3-4)<br/>DXGI, ViGEm & Computer Use"]
+    P3["Phase 3: Minecraft Bridge<br/>(Weeks 5-6)<br/>Mineflayer NDJSON IPC"]
+    P4["Phase 4: Retro & Gym<br/>(Weeks 7-8)<br/>Libretro & Gymnasium"]
+    P5["Phase 5: Skill Library<br/>(Weeks 9-10)<br/>Voyager Vector Memory"]
+    P6["Phase 6: Hardening & Ship<br/>(Weeks 11-12)<br/>SmartPlay & Distribution"]
+
+    P1 --> P2
+    P2 --> P3
+    P2 --> P4
+    P3 --> P5
+    P4 --> P5
+    P5 --> P6
 ```
-Gantt Roadmap (Weeks 1 to 12)
-Week:   01  02  03  04  05  06  07  08  09  10  11  12
-Phase 1: [====]                                       Foundation Core & MCP Server
-Phase 2:     [====]                                   Universal Computer Use (VLA)
-Phase 3:         [====]                               Minecraft High-Fidelity Bridge
-Phase 4:             [====]                           RetroArch & Gymnasium Adapters
-Phase 5:                 [====]                       Skill Library & Reflexive Memory
-Phase 6:                     [====]                   Benchmarking, Hardening & Ship
-```
+
+### Schedule and Predecessor Dependency Matrix
+
+| Phase | Timeline | Primary Focus | Predecessors | Key Deliverables & Exit Gate |
+|-------|----------|---------------|--------------|------------------------------|
+| Phase 1 | Weeks 1-2 | Foundation Core & MCP Server | None (Kickoff) | Server lifecycle, stdio/SSE transports, typed registries, MCP Inspector pass |
+| Phase 2 | Weeks 3-4 | Universal Computer Use (VLA) | Phase 1 | DXGI capture (<8ms), ViGEmBus, dHash gating, Minesweeper autonomous play |
+| Phase 3 | Weeks 5-6 | Minecraft High-Fidelity Bridge | Phase 2 | Node.js Mineflayer bridge, A* pathfinding, diamond pickaxe survival loop |
+| Phase 4 | Weeks 7-8 | Retro & Gymnasium Adapters | Phase 2 | Libretro cores, frame stepping, save states, Super Mario 1-1 completion |
+| Phase 5 | Weeks 9-10 | Skill Library & Reflexive Memory | Phase 3, Phase 4 | SQLite vector store, semantic skill retrieval, self-repair execution loop |
+| Phase 6 | Weeks 11-12 | Hardening, Benchmarks & Ship | Phase 5 | SmartPlay benchmark suite, CI/CD multi-OS matrix, PyPI release v1.0.0 |
 
 ### Phase 1: Core Foundation & Protocol Dispatcher (Weeks 1-2)
 * Milestone 1.1: MCP Protocol Engine
@@ -1100,23 +1163,41 @@ To objectively measure the agent's performance, gaming-mcp defines four evaluati
 
 ---
 
-## Part VII: Critical Design Decisions & User Feedback Items
+## Part VII: Architectural Decisions and Resolved Standards
 
+This section establishes the production architectural standards adopted for the gaming-mcp server, detailing the engineering rationale, runtime configuration defaults, and graceful degradation paths.
 
-> [!IMPORTANT]
-> Decision 1: Default Actuation Engine for Windows
-> Recommendation: Enable ViGEmBus Virtual Gamepad as the preferred actuation mechanism for 3D commercial titles, with fallback to hardware scan-code SendInput. ViGEmBus provides true 360-degree analog stick values and is undetectable by games that block software mouse/keyboard hooks.
-> User Choice: Confirm whether to require the ViGEmBus driver installation as part of initial setup, or keep SendInput as the default zero-dependency mode.
+### 1. Actuation Engine Standard for Windows (Decision 1 Resolved)
+* **Adopted Standard**: Hybrid Auto-Detect with Zero-External-Dependency SendInput Baseline.
+* **Technical Rationale**:
+  * Requiring the kernel-level ViGEmBus driver as a mandatory prerequisite creates friction for users wanting zero-install evaluation.
+  * Conversely, restricting the server to keyboard/mouse ignores the vast landscape of 3D controller-optimized games where analog thumbsticks provide continuous 360-degree camera movement and pressure-sensitive triggers.
+* **Production Implementation**:
+  1. Primary Baseline: Win32 `SendInput` utilizing PS/2 Set 1 hardware scan codes (`KEYEVENTF_SCANCODE`) is active out of the box with zero external driver prerequisites.
+  2. Enhanced Tier: At startup, the server probes for the `ViGEmBus` driver (via `vgamepad`). If present, virtual Xbox 360 / DualShock 4 controller emulation is automatically registered and unlocked.
+  3. Graceful Advisory: If `ViGEmBus` is not installed, gamepad tool calls return an informative `AdapterError` (-32002) with the driver download URL, while keyboard/mouse operations proceed without interruption.
+  4. Configuration Override: `input.preferred_backend` in `config.json` supports `"auto"`, `"scancode"`, `"vigem"`, or `"pyautogui"`.
 
-> [!IMPORTANT]
-> Decision 2: Image Compression and Token Optimization Strategy
-> Recommendation: Default to Turbo-JPEG at Quality 85 with dHash Perceptual Delta Gating and Set-of-Marks (SoM) Grid Layer enabled. Raw PNGs average 3-5 MB per frame, which strains rate limits and causes network latency. JPEG + dHash reduces frame payload to less than 150 KB and avoids transmitting static unchanged screens.
-> User Choice: Confirm preference for default image format (JPEG + dHash vs. Lossless PNG).
+### 2. Image Compression and Token Economics Standard (Decision 2 Resolved)
+* **Adopted Standard**: Adaptive Turbo-JPEG at Quality 85 with 64-bit dHash Perceptual Delta Gating and On-Demand Set-of-Marks (SoM) Grid Overlay.
+* **Technical Rationale**:
+  * Uncompressed PNG screenshots average 3-5 MB per frame. At 0.5 Hz inference polling, an agent consumes ~2.7M multimodal tokens per hour, hitting provider rate limits within minutes.
+  * Turbo-JPEG (quality 85) produces 120-180 KB frames with SIMD encoding latency under 12 ms, indistinguishable for LLM visual reasoning.
+  * 64-bit difference hashing (dHash) eliminates transmission of static scenes entirely when Hamming distance is below 3 (<2.5% visual delta), saving up to 80% in token overhead during menus, loading screens, and pauses.
+* **Production Implementation**:
+  1. Default format is Turbo-JPEG (quality 85) with downscaling to 1024x576.
+  2. Static scenes return a lightweight text confirmation: `"Scene static: delta < 1.5%"`.
+  3. The `screenshot` tool retains a `format: "jpeg" | "png"` parameter, allowing agents to request lossless PNGs on demand when reading fine text or pixel-art inventory grids.
+  4. Configuration Override: `screen.default_format`, `screen.jpeg_quality`, and `screen.dhash_threshold` in `config.json`.
 
-> [!IMPORTANT]
-> Decision 3: Initial Focus Priority
-> Recommendation: Prioritize Phase 2 (Universal Computer Use) first so that the server is immediately useful across any game currently installed on the host machine, followed directly by Phase 3 (Minecraft) for high-level programmatic benchmarks.
-> User Choice: Confirm if this prioritization matches your primary project goal.
+### 3. Phased Implementation Sequence and Focus Priority (Decision 3 Resolved)
+* **Adopted Standard**: Sequential Delivery Order (Phase 1 -> Phase 2 -> Phase 3 -> Phase 4 -> Phase 5 -> Phase 6).
+* **Technical Rationale**:
+  * Phase 1 (Core Foundation & Protocol Dispatcher) is the non-negotiable prerequisite that establishes protocol conformance and test harness stability.
+  * Phase 2 (Universal VLA Computer Use Engine) provides immediate game-agnostic utility across any commercial title already installed on the host machine.
+  * Phase 3 (Minecraft High-Fidelity Bridge) and Phase 4 (Retro / Gymnasium) introduce programmatic baseline environments for objective benchmarks.
+  * Phase 5 (Voyager Skill Library) adds lifelong learning and macro self-repair.
+  * Phase 6 (Hardening & Distribution) packages the server for community adoption on PyPI and the official MCP Server Registry.
 
 ---
 
