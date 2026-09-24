@@ -1,28 +1,28 @@
 {
   "project": "gaming-mcp",
   "current_phase": 1,
-  "current_milestone": "1.1",
-  "active_task": "1.1a-scaffolding",
-  "iteration_count": 0,
+  "current_milestone": "1.2",
+  "active_task": "1.2a-game-adapter-spi",
+  "iteration_count": 2,
   "last_checkpoint_commit": null,
   "tasks": {
     "1.1": {
       "name": "MCP Protocol Engine",
       "phase": 1,
-      "status": "in_progress",
+      "status": "verified",
       "subtasks": [
-        {"id": "1.1a", "name": "Project Scaffolding and Dependencies", "status": "pending"},
-        {"id": "1.1b", "name": "Server Lifecycle and Transports (stdio, SSE)", "status": "pending"},
-        {"id": "1.1c", "name": "Typed Registries (Tools, Resources, Prompts)", "status": "pending"},
-        {"id": "1.1d", "name": "Cancellation and Progress Notifications", "status": "pending"}
+        {"id": "1.1a", "name": "Project Scaffolding and Dependencies", "status": "verified"},
+        {"id": "1.1b", "name": "Server Lifecycle and Transports (stdio, SSE)", "status": "verified"},
+        {"id": "1.1c", "name": "Typed Registries (Tools, Resources, Prompts)", "status": "verified"},
+        {"id": "1.1d", "name": "Cancellation and Progress Notifications", "status": "verified"}
       ]
     },
     "1.2": {
       "name": "Adapter SPI & Router Architecture",
       "phase": 1,
-      "status": "pending",
+      "status": "in_progress",
       "subtasks": [
-        {"id": "1.2a", "name": "GameAdapter Base SPI", "status": "pending"},
+        {"id": "1.2a", "name": "GameAdapter Base SPI", "status": "in_progress"},
         {"id": "1.2b", "name": "Dynamic Adapter Router", "status": "pending"},
         {"id": "1.2c", "name": "Configuration Loader (Pydantic v2)", "status": "pending"}
       ]

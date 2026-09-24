@@ -1,0 +1,56 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.9, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\david\Desktop\Projects\gaming-mcp\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\david\Desktop\Projects\gaming-mcp
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.15.1, asyncio-1.4.0, cov-7.1.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 24 items
+
+tests/test_cancellation.py::test_cancellation_task_lifecycle PASSED      [  4%]
+tests/test_cancellation.py::test_cancellation_triggers_motor_reset PASSED [  8%]
+tests/test_cancellation.py::test_async_cancellation_callback_and_error_tolerance PASSED [ 12%]
+tests/test_registries.py::test_tool_registry_registration_and_execution PASSED [ 16%]
+tests/test_registries.py::test_tool_registry_exception_handling PASSED   [ 20%]
+tests/test_registries.py::test_tool_cancellation_tracking PASSED         [ 25%]
+tests/test_registries.py::test_resource_registry_and_subscriptions PASSED [ 29%]
+tests/test_registries.py::test_prompt_registry PASSED                    [ 33%]
+tests/test_scaffolding.py::test_package_version PASSED                   [ 37%]
+tests/test_scaffolding.py::test_default_configuration PASSED             [ 41%]
+tests/test_scaffolding.py::test_config_loader_from_file PASSED           [ 45%]
+tests/test_scaffolding.py::test_config_loader_env_override PASSED        [ 50%]
+tests/test_scaffolding.py::test_cli_argument_parsing PASSED              [ 54%]
+tests/test_scaffolding.py::test_typed_exceptions_jsonrpc_mapping PASSED  [ 58%]
+tests/test_scaffolding.py::test_structured_logger_formatting PASSED      [ 62%]
+tests/test_scaffolding.py::test_structured_formatter_record_fields PASSED [ 66%]
+tests/test_scaffolding.py::test_unstructured_logger PASSED               [ 70%]
+tests/test_scaffolding.py::test_async_main PASSED                        [ 75%]
+tests/test_server.py::test_server_initialization_and_builtins PASSED     [ 79%]
+tests/test_server.py::test_server_telemetry_payload PASSED               [ 83%]
+tests/test_server.py::test_process_memory_helper PASSED                  [ 87%]
+tests/test_server.py::test_server_shutdown_and_motor_reset PASSED        [ 91%]
+tests/test_server.py::test_server_transport_dispatch PASSED              [ 95%]
+tests/test_server.py::test_server_transport_runners PASSED               [100%]
+
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.12.9-final-0 _______________
+
+Name                                  Stmts   Miss  Cover   Missing
+-------------------------------------------------------------------
+src\gaming_mcp\__init__.py                1      0   100%
+src\gaming_mcp\__main__.py               39     17    56%   76-93, 97
+src\gaming_mcp\adapters\__init__.py       0      0   100%
+src\gaming_mcp\config.py                 77      2    97%   177, 190
+src\gaming_mcp\core\__init__.py           2      0   100%
+src\gaming_mcp\core\cancellation.py      42      1    98%   65
+src\gaming_mcp\core\exceptions.py        45      0   100%
+src\gaming_mcp\core\registries.py       147      7    95%   111, 238-248, 260, 268, 329
+src\gaming_mcp\io\__init__.py             0      0   100%
+src\gaming_mcp\server.py                108     11    90%   49-51, 82-89, 96-97, 156-157
+src\gaming_mcp\skills\__init__.py         0      0   100%
+src\gaming_mcp\utils\__init__.py          2      0   100%
+src\gaming_mcp\utils\logging.py          30      0   100%
+-------------------------------------------------------------------
+TOTAL                                   493     38    92%
+============================= 24 passed in 1.38s ==============================

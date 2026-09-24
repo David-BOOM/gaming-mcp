@@ -586,6 +586,7 @@ $RECYCLE.BIN/
 # Local AI Agent & Assistant caches
 .gemini/
 .agent/
+.agents/
 .system_generated/
 .antigravity/
 .claude/

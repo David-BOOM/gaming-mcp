@@ -19,16 +19,15 @@ Read this file FIRST upon cold-start, session reboot, rate-limit recovery, or co
 ## 2. Current Execution Pointer
 
 * **Current Phase:** Phase 1: Core Foundation & Protocol Dispatcher (Weeks 1-2)
-* **Active Milestone:** Milestone 1.1: MCP Protocol Engine
-* **Active Subtask:** Subtask 1.1a -- Project Scaffolding and Foundation Core (`pyproject.toml`, directory tree, `src/gaming_mcp/server.py`)
+* **Active Milestone:** Milestone 1.2: Adapter SPI & Router Architecture
+* **Active Subtask:** Subtask 1.2a -- GameAdapter Base SPI (`src/gaming_mcp/adapters/base.py`)
 * **Immediate Next Action:**
-  1. Author `pyproject.toml` per Part IX of `implementation_plan.md`.
-  2. Create source tree: `src/gaming_mcp/` (`core/`, `io/`, `adapters/`, `skills/`).
-  3. Implement `src/gaming_mcp/server.py` with standard JSON-RPC 2.0 lifecycle handlers.
-  4. Write initial tests in `tests/test_server.py`.
-  5. Run `pytest` to establish baseline test green.
-  6. Run pre-commit Unicode check to verify 0 emojis.
-  7. Commit as `feat(core): scaffold project structure and mcp protocol engine`.
+  1. Implement abstract `GameAdapter` base class and `AdapterMetadata` in `src/gaming_mcp/adapters/base.py`.
+  2. Implement dynamic `AdapterRouter` in `src/gaming_mcp/adapters/router.py` with runtime hot-swapping and health checking.
+  3. Connect adapter routing into `GamingMCPServer`.
+  4. Write comprehensive tests in `tests/test_adapters/test_router.py`.
+  5. Run static and unit test verification ladder.
+  6. Commit as `feat(adapters): implement GameAdapter SPI and dynamic AdapterRouter`.
 
 ---
 

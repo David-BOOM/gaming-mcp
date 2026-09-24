@@ -1,0 +1,41 @@
+{
+  "last_updated": "2026-09-24T18:32:00Z",
+  "suites": [
+    {
+      "path": "tests/test_scaffolding.py",
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.20,
+      "coverage_percent": 90.0
+    },
+    {
+      "path": "tests/test_cancellation.py",
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.05,
+      "coverage_percent": 98.0
+    },
+    {
+      "path": "tests/test_registries.py",
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.08,
+      "coverage_percent": 95.0
+    },
+    {
+      "path": "tests/test_server.py",
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.10,
+      "coverage_percent": 90.0
+    }
+  ],
+  "total_passed": 24,
+  "total_failed": 0,
+  "total_skipped": 0,
+  "overall_coverage_percent": 92.0
+}
