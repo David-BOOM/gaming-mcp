@@ -1,13 +1,13 @@
 # Gaming MCP Server -- Task Tracker
 
 **Last Updated:** 2026-09-25
-**Project Stage:** Phase 4 Implementation (Retro and Gymnasium Adapters)
+**Project Stage:** Phase 5 Implementation (Voyager-Inspired Skill Library & Reflexive Memory)
 
 ---
 
-## Current Milestone: Milestone 4.1 -- Libretro Core Integration & Milestone 4.2 -- Gymnasium RL Environment Wrapper
+## Current Milestone: Milestone 5.1 -- Persistent Skill Store & Local Vector Index
 
-Phases 1, 2, and 3 are fully verified with 93/93 tests passing repository-wide with 85% overall coverage and zero emoji infractions. Active focus is Phase 4: Libretro Core Integration (4.1) and Gymnasium RL Environment Wrapper (4.2).
+Phases 1 through 4 are fully verified with 130/130 tests passing repository-wide with 86% overall coverage and zero emoji infractions. Active focus is Phase 5: Persistent Skill Store & Local Vector Index (5.1) and Autonomous Macro Synthesis & Self-Repair (5.2).
 
 ### Completed Tasks
 
@@ -39,23 +39,22 @@ Phases 1, 2, and 3 are fully verified with 93/93 tests passing repository-wide w
 - [x] Phase 2 Milestone 2.2: Dual-Layer Actuation and Action Chunking (Win32 SendInput PS/2 hardware scan codes, ViGEmBus guarded virtual gamepad, Flash & Hogan minimum-jerk curves, microsecond action chunk scheduler)
 - [x] Phase 2 Milestone 2.3: Visual Grounding, Safety and Privacy (Set-of-Marks coordinate grid overlay, Win32 window manager and boundary clamping, process blacklist guard, emergency hardware kill-switch)
 - [x] Phase 2 Milestone 2.4: Universal Computer Use Adapter Integration (ComputerUseAdapter, 7 tools, 2 resources, prompt, e2e test suite)
-
-### Completed Tasks
-
 - [x] Phase 3 Milestone 3.1: Node.js Mineflayer IPC Bridge (Mineflayer NDJSON daemon, supervisor, reconnect)
 - [x] Phase 3 Milestone 3.2: Minecraft Spatial and Inventory Abstractions (11 tools, recursive recipe graph, reactive subscriptions)
+- [x] Phase 4 Milestone 4.1: Libretro Core Integration (RetroAdapter, RAM introspection, save/load state snapshotting, frame-stepping)
+- [x] Phase 4 Milestone 4.2: Gymnasium RL Environment Wrapper (GymnasiumAdapter, spaces introspection, reset, step, render)
 
-### Active Phase: Phase 4 -- Retro & Gymnasium Adapters
+### Active Phase: Phase 5 -- Voyager-Inspired Skill Library & Reflexive Memory
 
-- [/] Milestone 4.1: Libretro Core Integration
-  - [/] Subtask 4.1a: stable-retro Core Bindings & Emulator Session Manager
-  - [ ] Subtask 4.1b: Frame Stepping, RAM Introspection, and Save State Tools
-- [/] Milestone 4.2: Gymnasium RL Environment Wrapper
-  - [/] Subtask 4.2a: Gymnasium Environment Adapter & Vector Observation Exporter
+- [/] Milestone 5.1: Persistent Skill Store and Local Vector Index
+  - [ ] Subtask 5.1a: SQLite Macro Database Schema
+  - [ ] Subtask 5.1b: Semantic Embedding Retrieval Engine
+- [/] Milestone 5.2: Autonomous Macro Synthesis and Self-Repair
+  - [ ] Subtask 5.2a: Dynamic Macro Compilation
+  - [ ] Subtask 5.2b: Execution Interception and Self-Repair Loop
 
 ### Upcoming Phases
 
-- [ ] Phase 5: Voyager-Inspired Skill Library (SQLite vector store, semantic retrieval, self-repair)
 - [ ] Phase 6: Hardening, Benchmarking, and Distribution (SmartPlay, CI/CD, PyPI)
 
 ---

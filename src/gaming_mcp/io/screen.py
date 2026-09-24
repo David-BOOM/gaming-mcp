@@ -184,9 +184,7 @@ class DXGIScreenCapturer:
             d3d11 = ctypes.windll.d3d11
 
             p_factory = ctypes.c_void_p()
-            hr = dxgi.CreateDXGIFactory1(
-                ctypes.byref(IID_IDXGIFactory1), ctypes.byref(p_factory)
-            )
+            hr = dxgi.CreateDXGIFactory1(ctypes.byref(IID_IDXGIFactory1), ctypes.byref(p_factory))
             if hr != 0 or not p_factory.value:
                 logger.warning("CreateDXGIFactory1 failed: hr=%s", hex(hr & 0xFFFFFFFF))
                 return False

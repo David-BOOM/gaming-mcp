@@ -34,9 +34,7 @@ class MockScreenCapturer:
     def active_backend(self) -> str:
         return "mock_capturer"
 
-    def capture_frame(
-        self, region: tuple[int, int, int, int] | None = None
-    ) -> np.ndarray:
+    def capture_frame(self, region: tuple[int, int, int, int] | None = None) -> np.ndarray:
         self.call_count += 1
         self.last_region = region
         # Create a 200x200 RGB synthetic test pattern
@@ -145,15 +143,13 @@ class MockWindowManager(Win32WindowManager):
 
 
 @pytest.fixture
-def mock_adapter() -> (
-    tuple[
-        ComputerUseAdapter,
-        MockScreenCapturer,
-        MockInputInjector,
-        MockGamepadController,
-        MockWindowManager,
-    ]
-):
+def mock_adapter() -> tuple[
+    ComputerUseAdapter,
+    MockScreenCapturer,
+    MockInputInjector,
+    MockGamepadController,
+    MockWindowManager,
+]:
     config = GamingMCPConfig()
     config.security.enable_kill_switch = False  # Keep disabled in unit test to avoid hook threads
 

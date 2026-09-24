@@ -304,9 +304,7 @@ class ComputerUseAdapter(GameAdapter):
         if self._custom_gamepad:
             self.gamepad = self._custom_gamepad
         else:
-            self.gamepad = get_gamepad_controller(
-                prefer_mock=self.config.input.prefer_mock_gamepad
-            )
+            self.gamepad = get_gamepad_controller(prefer_mock=self.config.input.prefer_mock_gamepad)
 
         # 4. Audio Capturer
         if self._custom_audio:
@@ -351,9 +349,7 @@ class ComputerUseAdapter(GameAdapter):
             self.kill_switch.start()
 
         # 8. Perceptual Gater
-        self.perceptual_gater = PerceptualGater(
-            threshold=self.config.screen.dhash_threshold
-        )
+        self.perceptual_gater = PerceptualGater(threshold=self.config.screen.dhash_threshold)
 
         self.is_initialized = True
         logger.info("ComputerUseAdapter initialized successfully")
@@ -508,9 +504,7 @@ class ComputerUseAdapter(GameAdapter):
             "screen_capturer_backend": (
                 self.screen_capturer.active_backend if self.screen_capturer else None
             ),
-            "audio_recording": (
-                self.audio_capturer.is_recording if self.audio_capturer else False
-            ),
+            "audio_recording": (self.audio_capturer.is_recording if self.audio_capturer else False),
             "gamepad_type": type(self.gamepad).__name__ if self.gamepad else None,
             "kill_switch_armed": self.kill_switch.is_running if self.kill_switch else False,
             "bound_window": self.bound_window_rect,
@@ -620,9 +614,7 @@ class ComputerUseAdapter(GameAdapter):
 
         return {
             "isError": False,
-            "content": [
-                {"type": "text", "text": f"Mouse clicked {button} at ({x}, {y})"}
-            ],
+            "content": [{"type": "text", "text": f"Mouse clicked {button} at ({x}, {y})"}],
         }
 
     async def _tool_mouse_drag(
@@ -714,8 +706,7 @@ class ComputerUseAdapter(GameAdapter):
                 {
                     "type": "text",
                     "text": (
-                        f"Executed action chunk with {executed_count} actions "
-                        f"in {elapsed_ms:.1f}ms"
+                        f"Executed action chunk with {executed_count} actions in {elapsed_ms:.1f}ms"
                     ),
                 }
             ],
@@ -823,9 +814,7 @@ class ComputerUseAdapter(GameAdapter):
         }
 
     async def _resource_screen_info(self) -> dict[str, Any]:
-        fg_window = (
-            self.window_manager.get_foreground_window() if self.window_manager else None
-        )
+        fg_window = self.window_manager.get_foreground_window() if self.window_manager else None
         return {
             "active_backend": (
                 self.screen_capturer.active_backend if self.screen_capturer else None

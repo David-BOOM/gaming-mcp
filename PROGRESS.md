@@ -219,3 +219,43 @@ This document tracks all completed engineering iterations, empirical evidence li
   - Running pytest directly via the virtual environment interpreter (`.\.venv\Scripts\python.exe -m pytest`) avoids network stalls and subshell resolution issues that can occur when calling `uv run` on environments with complex dependency locks.
   - `vgamepad` C-extension remains an open blocker on Python 3.12 (`vigembus-python312-wheel-dependency`); keeping this blocker honest and accurately tracked in `LOOP_STATE.json` with guarded abstract SPI degradation ensures transparent system boundaries.
 * **Next Target:** Phase 4 Milestone 4.1: Libretro Core Integration and Milestone 4.2: Gymnasium RL Environment Wrapper.
+
+---
+
+## Iteration 10 -- 2026-09-25: Phase 4 Completion -- Milestones 4.1 & 4.2 (Retro and Gymnasium Adapters)
+
+* **Milestone / Focus:** Phase 4: Retro & Gymnasium Adapters (Milestone 4.1: Libretro Core Integration, Milestone 4.2: Gymnasium RL Environment Wrapper). Complete Phase 4 Exit Gate achieved.
+* **Deliverables Completed:**
+  - `src/gaming_mcp/adapters/retro.py` (Milestone 4.1):
+    - `RetroAdapter`: GameAdapter SPI implementation for retro game emulation.
+    - Capability probing: Automatically inspects host runtime for `stable_retro` or `retro`. If absent or in `mock_mode`, seamlessly runs `SimulatedRetroCore`.
+    - `SimulatedRetroCore`: High-fidelity NES emulation core simulating Super Mario Bros with 256x240 RGB frame buffer rendering (sky, ground, bricks, pipes, clouds, Mario, HUD), walking and sprint dash physics, jumping arcs, timer countdown, and exact NES Super Mario Bros RAM registers (0x075A lives, 0x075E coins, 0x0086 x-pos, 0x006D page, 0x07D7 score).
+    - `NativeRetroBackend`: Wrapper interfacing with native `stable_retro` environments.
+    - Tools registered: `retro_send_pad` (gamepad bitmask actuation), `retro_save_state` (snapshot memory/state), `retro_load_state` (restore snapshot), `retro_read_ram` (direct RAM byte reading).
+    - Resources registered: `retro://screen` (lossless PNG frame buffer), `retro://ram/variables` (score, lives, coordinates, timer telemetry).
+    - Prompt registered: `retro_speedrun_strategy`.
+  - `src/gaming_mcp/adapters/gymnasium.py` (Milestone 4.2):
+    - `GymnasiumAdapter`: GameAdapter SPI implementation for OpenAI Gymnasium RL environments.
+    - Capability probing via `probe_gymnasium_backend`: Inspects for `gymnasium` and `gym`, falling back gracefully to `SimulatedCartPoleEnv`.
+    - `SimulatedCartPoleEnv`: High-fidelity simulation of CartPole-v1 using classical Barto, Sutton, and Anderson (1983) equations of motion, 4D state vector, discrete actions, termination bounds, truncation limits, and 600x400 RGB visual rendering with Pillow.
+    - `NativeGymnasiumEnv`: Wrapper dynamically interfacing with official Gymnasium or legacy Gym environments.
+    - Tools registered: `gym_step` (action execution, observation, reward, termination), `gym_reset` (seed support, initial observation), `gym_action_space` (specification, type, bounds), `gym_observation_space` (specification, shape, bounds), `gym_render` (base64 image).
+    - Resources registered: `gym://observation` (real-time observation stream), `gym://state` (cumulative reward, metrics, telemetry).
+    - Prompt registered: `gym_policy_optimization`.
+    - Reactive subscriptions: push notifications on reset and step.
+  - `src/gaming_mcp/config.py`: Added strictly typed `RetroConfig` and `GymnasiumConfig` Pydantic models.
+  - `src/gaming_mcp/adapters/__init__.py`: Exported `RetroAdapter`, `SimulatedRetroCore`, `GymnasiumAdapter`, and `SimulatedCartPoleEnv`.
+  - `tests/test_adapters/test_retro.py`: 18 automated unit and integration tests verifying all retro tools, state save/load, RAM introspection, frame buffer, and router integration.
+  - `tests/test_adapters/test_gymnasium.py`: 19 automated tests verifying simulated physics, spaces introspection, reset/step cycles, render formats, reactive push notifications, and server integration.
+* **Evidence:**
+  - `EVIDENCE/4.1-retro-adapter/pytest_summary.txt`: 18/18 retro adapter tests passing in 0.73s.
+  - `EVIDENCE/4.2-gymnasium-adapter/pytest_summary.txt`: 19/19 gymnasium adapter tests passing in 0.75s.
+  - `EVIDENCE/phase4/full_test_suite.txt`: 130/130 tests passing repository-wide in 7.58s with 86% overall coverage across 4024 statements.
+  - `EVIDENCE/4.2-gymnasium-adapter/ruff_check.txt`: All checks passed with 0 errors.
+  - `EVIDENCE/4.2-gymnasium-adapter/mypy_check.txt`: Success, 0 issues found under strict typing.
+  - `EVIDENCE/4.2-gymnasium-adapter/emoji_audit.txt`: 0 emoji infractions confirmed.
+* **Surprises & Lessons:**
+  - In NumPy 2.x on Python 3.12, float32 arrays serialized to Python lists retain 32-bit floating point precision representations (e.g. `0.10000000149011612`); assertions in unit tests should utilize `pytest.approx` to account for standard float32 to float64 IEEE-754 precision bounds.
+  - High-fidelity simulated physics environments eliminate test environment fragility and allow full offline verification on systems without heavy RL framework dependencies.
+* **Next Target:** Phase 5 Milestone 5.1: Persistent Skill Store & Local Vector Index (Subtask 5.1a: SQLite Macro Database Schema, Subtask 5.1b: Semantic Embedding Retrieval Engine).
+

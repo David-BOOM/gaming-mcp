@@ -422,4 +422,3 @@ async def test_minecraft_surroundings_resource(mock_mc_config: MinecraftConfig) 
         assert len(data["entities"]) > 0
     finally:
         await adapter.shutdown()
-

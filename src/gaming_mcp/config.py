@@ -210,6 +210,54 @@ class MinecraftConfig(BaseModel):
     )
 
 
+class RetroConfig(BaseModel):
+    """Configuration for Libretro / stable-retro emulator adapter."""
+
+    game: str = Field(
+        default="SuperMarioBros-Nes",
+        description="Target game identifier or ROM name",
+    )
+    core: str = Field(
+        default="fceumm",
+        description="Libretro emulator core identifier",
+    )
+    state_dir: str = Field(
+        default="states",
+        description="Directory for saving and loading emulator state snapshots",
+    )
+    mock_mode: bool = Field(
+        default=False,
+        description="Run in high-fidelity mock/simulation mode without physical emulator core",
+    )
+    frame_skip: int = Field(
+        default=1,
+        ge=1,
+        le=10,
+        description="Number of frames to skip per actuation step",
+    )
+
+
+class GymnasiumConfig(BaseModel):
+    """Configuration for OpenAI Gymnasium RL environment adapter."""
+
+    env_id: str = Field(
+        default="CartPole-v1",
+        description="Gymnasium environment identifier",
+    )
+    render_mode: str = Field(
+        default="rgb_array",
+        description="Rendering mode for observation visual frames ('rgb_array', 'human')",
+    )
+    max_episode_steps: int | None = Field(
+        default=500,
+        description="Maximum steps allowed per episode before truncation",
+    )
+    mock_mode: bool = Field(
+        default=False,
+        description="Run in high-fidelity mock/simulation mode without native gymnasium library",
+    )
+
+
 class AdapterConfig(BaseModel):
     """Configuration for game adapter integrations."""
 
@@ -221,8 +269,14 @@ class AdapterConfig(BaseModel):
         default_factory=MinecraftConfig,
         description="Configuration for Minecraft Mineflayer adapter",
     )
-    retro: dict[str, Any] | None = None
-    gymnasium: dict[str, Any] | None = None
+    retro: RetroConfig = Field(
+        default_factory=RetroConfig,
+        description="Configuration for Libretro emulator adapter",
+    )
+    gymnasium: GymnasiumConfig = Field(
+        default_factory=GymnasiumConfig,
+        description="Configuration for Gymnasium RL environment adapter",
+    )
 
 
 class GamingMCPConfig(BaseModel):

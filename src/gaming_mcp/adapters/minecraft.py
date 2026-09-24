@@ -83,9 +83,7 @@ class EquipGearInput(BaseModel):
         default="hand",
         description="Armor or inventory slot to equip into",
     )
-    item_name: str = Field(
-        description="Item identifier to equip (e.g. 'iron_sword', 'shield')"
-    )
+    item_name: str = Field(description="Item identifier to equip (e.g. 'iron_sword', 'shield')")
 
 
 class AttackTargetInput(BaseModel):
@@ -172,9 +170,7 @@ class LookAtInput(BaseModel):
     pitch: float | None = Field(
         default=None, description="Optional vertical pitch angle in degrees (-90 to 90)"
     )
-    yaw: float | None = Field(
-        default=None, description="Optional horizontal yaw angle in degrees"
-    )
+    yaw: float | None = Field(default=None, description="Optional horizontal yaw angle in degrees")
 
 
 class UseItemInput(BaseModel):
@@ -698,10 +694,7 @@ class MinecraftBridge:
                 self.last_health = params.get("health")
                 self.last_food = params.get("food")
 
-            handlers = (
-                self._event_listeners.get(method, [])
-                + self._event_listeners.get("*", [])
-            )
+            handlers = self._event_listeners.get(method, []) + self._event_listeners.get("*", [])
             for handler in handlers:
                 try:
                     res = handler(params)
@@ -748,16 +741,12 @@ class MinecraftBridge:
         self._is_running = False
         self._is_connected = False
         returncode = self._process.returncode if self._process else "unknown"
-        logger.critical(
-            "Mineflayer daemon terminated unexpectedly (returncode: %s)", returncode
-        )
+        logger.critical("Mineflayer daemon terminated unexpectedly (returncode: %s)", returncode)
 
         # Reject pending futures
         for _req_id, fut in list(self._pending_requests.items()):
             if not fut.done():
-                fut.set_exception(
-                    AdapterError(f"Daemon terminated with exit code {returncode}")
-                )
+                fut.set_exception(AdapterError(f"Daemon terminated with exit code {returncode}"))
         self._pending_requests.clear()
 
         can_reconnect = (
@@ -848,9 +837,7 @@ class MinecraftAdapter(GameAdapter):
         self.is_initialized = True
         logger.info("MinecraftAdapter initialized successfully")
 
-    def subscribe_resource(
-        self, uri: str, callback: Callable[[str, dict[str, Any]], None]
-    ) -> None:
+    def subscribe_resource(self, uri: str, callback: Callable[[str, dict[str, Any]], None]) -> None:
         """Register a reactive listener callback for resource updates."""
         if uri not in self._subscriptions:
             self._subscriptions[uri] = set()
@@ -881,9 +868,7 @@ class MinecraftAdapter(GameAdapter):
     def _on_bot_event(self, data: dict[str, Any]) -> None:
         event = data.get("event")
         if event == "health":
-            self._notify_resource_subscribers(
-                "minecraft://player/stats", data.get("data", {})
-            )
+            self._notify_resource_subscribers("minecraft://player/stats", data.get("data", {}))
         elif event in ("spawn", "entity_moved"):
             self._notify_resource_subscribers(
                 "minecraft://world/surroundings", data.get("data", {})

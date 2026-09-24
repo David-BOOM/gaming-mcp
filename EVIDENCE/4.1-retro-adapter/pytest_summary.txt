@@ -1,0 +1,29 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.9, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\david\Desktop\Projects\gaming-mcp\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\david\Desktop\Projects\gaming-mcp
+configfile: pyproject.toml
+plugins: anyio-4.15.1, asyncio-1.4.0, cov-7.1.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 18 items
+
+tests/test_adapters/test_retro.py::test_retro_adapter_metadata PASSED    [  5%]
+tests/test_adapters/test_retro.py::test_retro_adapter_lifecycle_simulation PASSED [ 11%]
+tests/test_adapters/test_retro.py::test_retro_capability_probing_fallback PASSED [ 16%]
+tests/test_adapters/test_retro.py::test_retro_capability_probing_native_failure_fallback PASSED [ 22%]
+tests/test_adapters/test_retro.py::test_tool_retro_send_pad_movement PASSED [ 27%]
+tests/test_adapters/test_retro.py::test_tool_retro_send_pad_sprint_and_jump PASSED [ 33%]
+tests/test_adapters/test_retro.py::test_tool_retro_send_pad_case_insensitive_and_pause PASSED [ 38%]
+tests/test_adapters/test_retro.py::test_tool_retro_save_and_load_state PASSED [ 44%]
+tests/test_adapters/test_retro.py::test_tool_retro_read_ram PASSED       [ 50%]
+tests/test_adapters/test_retro.py::test_resource_screen PASSED           [ 55%]
+tests/test_adapters/test_retro.py::test_resource_ram_variables PASSED    [ 61%]
+tests/test_adapters/test_retro.py::test_prompt_speedrun_strategy PASSED  [ 66%]
+tests/test_adapters/test_retro.py::test_error_handling_uninitialized PASSED [ 72%]
+tests/test_adapters/test_retro.py::test_error_handling_invalid_button PASSED [ 77%]
+tests/test_adapters/test_retro.py::test_error_handling_load_nonexistent_slot PASSED [ 83%]
+tests/test_adapters/test_retro.py::test_error_handling_read_ram_bounds PASSED [ 88%]
+tests/test_adapters/test_retro.py::test_retro_adapter_router_and_server_integration PASSED [ 94%]
+tests/test_adapters/test_retro.py::test_native_retro_backend_mock PASSED [100%]
+
+============================= 18 passed in 0.70s ==============================

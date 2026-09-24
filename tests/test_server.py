@@ -125,4 +125,3 @@ async def test_server_transport_runners() -> None:
     await server.run_streamable_http(host="0.0.0.0", port=9001)
     server.mcp_server.run_streamable_http_async.assert_awaited_once_with(host="0.0.0.0", port=9001)
     assert server.is_running is False
-

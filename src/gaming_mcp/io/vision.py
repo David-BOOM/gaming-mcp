@@ -124,9 +124,7 @@ class PerceptualGater:
             hamming_distance is 64.
         """
         current_hash = compute_dhash(image, region=region, mask_rects=mask_rects)
-        active_threshold = (
-            override_threshold if override_threshold is not None else self.threshold
-        )
+        active_threshold = override_threshold if override_threshold is not None else self.threshold
 
         if self.last_hash is None:
             self.last_hash = current_hash

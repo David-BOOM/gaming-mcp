@@ -18,16 +18,17 @@ Read this file FIRST upon cold-start, session reboot, rate-limit recovery, or co
 
 ## 2. Current Execution Pointer
 
-* **Current Phase:** Phase 4: Retro & Gymnasium Adapters (Weeks 7-8)
-* **Active Milestone:** Milestone 4.1: Libretro Core Integration & Milestone 4.2: Gymnasium RL Environment Wrapper
+* **Current Phase:** Phase 5: Voyager-Inspired Skill Library & Reflexive Memory (Weeks 9-10)
+* **Active Milestone:** Milestone 5.1: Persistent Skill Store and Local Vector Index
 * **Active Subtasks:**
-  - Subtask 4.1a -- stable-retro Core Bindings & Emulator Session Manager
-  - Subtask 4.1b -- Frame Stepping, RAM Introspection, and Save State Tools (`retro_send_pad`, `retro_save_state`, `retro_load_state`, `retro_read_memory`)
-  - Subtask 4.2a -- Gymnasium Environment Adapter (`gym_step`, `gym_reset`, `gym_action_space`, `gym_observation_space`)
+  - Subtask 5.1a -- SQLite Macro Database Schema (`MacroDefinition`, execution traces, parameters schema)
+  - Subtask 5.1b -- Semantic Embedding Retrieval Engine (zero-dependency cosine similarity and persistent vector index)
+  - Subtask 5.2a -- Dynamic Macro Compilation
+  - Subtask 5.2b -- Execution Interception and Self-Repair Loop
 * **Immediate Next Action:**
-  1. Implement `src/gaming_mcp/adapters/retro.py` for Libretro / stable-retro integration with capability probing and headless mock simulation mode.
-  2. Implement `src/gaming_mcp/adapters/gymnasium.py` wrapping standard Gymnasium environments into MCP tools and resources.
-  3. Author unit and integration tests under `tests/test_adapters/test_retro.py` and `tests/test_adapters/test_gymnasium.py`.
+  1. Design and author `src/gaming_mcp/skills/store.py` providing SQLite-backed macro definitions, parameter schemas, and execution statistics.
+  2. Design and author `src/gaming_mcp/skills/embeddings.py` providing lightweight local semantic vector search.
+  3. Author automated unit tests under `tests/test_skills/`.
   4. Run verification ladder (`ruff`, `mypy --strict`, `pytest`, zero-emoji audit).
 
 ---
@@ -53,8 +54,8 @@ Read this file FIRST upon cold-start, session reboot, rate-limit recovery, or co
 | Phase 1 | Core Foundation & Protocol Dispatcher | VERIFIED | `EVIDENCE/phase1/` |
 | Phase 2 | Universal VLA Computer Use Engine | VERIFIED | `EVIDENCE/2.4-computer-use-adapter/` |
 | Phase 3 | Minecraft High-Fidelity Bridge | VERIFIED | `EVIDENCE/phase3/` |
-| Phase 4 | Retro & Gymnasium Adapters | IN_PROGRESS | `EVIDENCE/phase4/` |
-| Phase 5 | Voyager-Inspired Skill Library | PENDING | `EVIDENCE/phase5/` |
+| Phase 4 | Retro & Gymnasium Adapters | VERIFIED | `EVIDENCE/phase4/` |
+| Phase 5 | Voyager-Inspired Skill Library | IN_PROGRESS | `EVIDENCE/phase5/` |
 | Phase 6 | Hardening, Benchmarking & Distribution | PENDING | `EVIDENCE/phase6/` |
 
 ---

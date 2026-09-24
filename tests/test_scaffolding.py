@@ -210,4 +210,3 @@ async def test_async_main(default_config: GamingMCPConfig) -> None:
     with patch("gaming_mcp.server.GamingMCPServer.start", new_callable=AsyncMock) as mock_start:
         await async_main(default_config)
         mock_start.assert_awaited_once()
-
