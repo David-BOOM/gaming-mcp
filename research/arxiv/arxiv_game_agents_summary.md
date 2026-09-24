@@ -35,7 +35,7 @@
 ### Generative Agents: Interactive Simulacra of Human Behavior
 **Authors:** Joon Sung Park, Joseph C. O'Brien, Carrie J. Cai, Meredith Ringel Morris, Percy Liang, Michael S. Bernstein (2023)
 **URL:** [arXiv Link](https://arxiv.org/abs/2304.03442)
-**Key Contributions & Methods:** Introduces generative agents—computational software agents that simulate believable human behavior. The agents inhabit a 2D RPG game world (Smallville). The architecture includes an observation loop, memory stream, reflection, and planning components.
+**Key Contributions & Methods:** Introduces generative agents--computational software agents that simulate believable human behavior. The agents inhabit a 2D RPG game world (Smallville). The architecture includes an observation loop, memory stream, reflection, and planning components.
 **Relevance to MCP:** The memory, reflection, and planning architecture is a canonical design pattern for multi-agent game servers.
 
 ### Playing Atari with Deep Reinforcement Learning

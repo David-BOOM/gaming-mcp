@@ -1,4 +1,4 @@
-# Workspace Rules — Gaming MCP Server
+# Workspace Rules -- Gaming MCP Server
 
 These rules are active across the entire `gaming-mcp` project and apply to all agents and automated workflows:
 
