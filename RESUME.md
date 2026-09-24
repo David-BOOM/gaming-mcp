@@ -18,17 +18,17 @@ Read this file FIRST upon cold-start, session reboot, rate-limit recovery, or co
 
 ## 2. Current Execution Pointer
 
-* **Current Phase:** Phase 5: Voyager-Inspired Skill Library & Reflexive Memory (Weeks 9-10)
-* **Active Milestone:** Milestone 5.1: Persistent Skill Store and Local Vector Index
+* **Current Phase:** Phase 6: Hardening, Evaluation Benchmarks & Distribution (Weeks 11-12)
+* **Active Milestone:** Milestone 6.1: Comprehensive Multi-Genre Benchmark Evaluation & Milestone 6.2: Packaging & Ecosystem Distribution
 * **Active Subtasks:**
-  - Subtask 5.1a -- SQLite Macro Database Schema (`MacroDefinition`, execution traces, parameters schema)
-  - Subtask 5.1b -- Semantic Embedding Retrieval Engine (zero-dependency cosine similarity and persistent vector index)
-  - Subtask 5.2a -- Dynamic Macro Compilation
-  - Subtask 5.2b -- Execution Interception and Self-Repair Loop
+  - Subtask 6.1a -- 4-Tier Game Evaluation Matrix (Freeciv turn-based, Minesweeper grid, Minecraft survival, Retro platformer)
+  - Subtask 6.1b -- Token Economics & Latency Benchmark (dHash frame gating token reduction, DXGI vs MSS latency)
+  - Subtask 6.2a -- PyPI Wheel Packaging, Clean Build, and Validation
+  - Subtask 6.2b -- Client Configurations (Claude Desktop, Cursor) and MCP Server Registry Submission
 * **Immediate Next Action:**
-  1. Design and author `src/gaming_mcp/skills/store.py` providing SQLite-backed macro definitions, parameter schemas, and execution statistics.
-  2. Design and author `src/gaming_mcp/skills/embeddings.py` providing lightweight local semantic vector search.
-  3. Author automated unit tests under `tests/test_skills/`.
+  1. Implement automated benchmark harness under `tests/test_benchmarks/` validating <15ms DXGI capture latency, >75% dHash token reduction, and 4-tier game simulation matrices.
+  2. Validate packaging and build with `hatchling` / `uv build`.
+  3. Generate client configuration guides and distribution templates.
   4. Run verification ladder (`ruff`, `mypy --strict`, `pytest`, zero-emoji audit).
 
 ---
@@ -55,8 +55,8 @@ Read this file FIRST upon cold-start, session reboot, rate-limit recovery, or co
 | Phase 2 | Universal VLA Computer Use Engine | VERIFIED | `EVIDENCE/2.4-computer-use-adapter/` |
 | Phase 3 | Minecraft High-Fidelity Bridge | VERIFIED | `EVIDENCE/phase3/` |
 | Phase 4 | Retro & Gymnasium Adapters | VERIFIED | `EVIDENCE/phase4/` |
-| Phase 5 | Voyager-Inspired Skill Library | IN_PROGRESS | `EVIDENCE/phase5/` |
-| Phase 6 | Hardening, Benchmarking & Distribution | PENDING | `EVIDENCE/phase6/` |
+| Phase 5 | Voyager-Inspired Skill Library | VERIFIED | `EVIDENCE/phase5/` |
+| Phase 6 | Hardening, Benchmarking & Distribution | IN_PROGRESS | `EVIDENCE/benchmark/` |
 
 ---
 

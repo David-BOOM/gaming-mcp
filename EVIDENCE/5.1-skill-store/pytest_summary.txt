@@ -1,0 +1,30 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.9, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\david\Desktop\Projects\gaming-mcp\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\david\Desktop\Projects\gaming-mcp
+configfile: pyproject.toml
+plugins: anyio-4.15.1, asyncio-1.4.0, cov-7.1.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 19 items
+
+tests/test_skills/test_store.py::test_schema_initialization_and_migrations PASSED [  5%]
+tests/test_skills/test_store.py::test_save_and_get_skill PASSED          [ 10%]
+tests/test_skills/test_store.py::test_save_skill_with_embedding PASSED   [ 15%]
+tests/test_skills/test_store.py::test_unique_name_constraint PASSED      [ 21%]
+tests/test_skills/test_store.py::test_update_existing_skill PASSED       [ 26%]
+tests/test_skills/test_store.py::test_list_skills_and_tag_filtering PASSED [ 31%]
+tests/test_skills/test_store.py::test_delete_skill PASSED                [ 36%]
+tests/test_skills/test_store.py::test_execution_tracking PASSED          [ 42%]
+tests/test_skills/test_store.py::test_record_execution_nonexistent_skill PASSED [ 47%]
+tests/test_skills/test_store.py::test_on_disk_persistence PASSED         [ 52%]
+tests/test_skills/test_embeddings.py::test_embedding_determinism PASSED  [ 57%]
+tests/test_skills/test_embeddings.py::test_embedding_unit_normalization PASSED [ 63%]
+tests/test_skills/test_embeddings.py::test_empty_and_whitespace_input PASSED [ 68%]
+tests/test_skills/test_embeddings.py::test_case_insensitivity_and_subwords PASSED [ 73%]
+tests/test_skills/test_embeddings.py::test_vector_index_search_ranking PASSED [ 78%]
+tests/test_skills/test_embeddings.py::test_vector_index_search_with_sequence_of_tuples PASSED [ 84%]
+tests/test_skills/test_embeddings.py::test_vector_index_edge_cases PASSED [ 89%]
+tests/test_skills/test_embeddings.py::test_vector_index_cosine_similarity_properties PASSED [ 94%]
+tests/test_skills/test_embeddings.py::test_engine_embed_and_rank_candidates PASSED [100%]
+
+============================= 19 passed in 0.18s ==============================

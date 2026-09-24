@@ -1,10 +1,10 @@
 {
   "project": "gaming-mcp",
-  "current_phase": 5,
-  "current_milestone": "5.1",
-  "active_task": "5.1a-sqlite-macro-db",
-  "iteration_count": 10,
-  "last_checkpoint_commit": "67ac04b",
+  "current_phase": 6,
+  "current_milestone": "6.1",
+  "active_task": "6.1a-game-evaluation-matrix",
+  "iteration_count": 11,
+  "last_checkpoint_commit": "8a86cff",
   "tasks": {
     "1.1": {
       "name": "MCP Protocol Engine",
@@ -106,27 +106,27 @@
     "5.1": {
       "name": "Persistent Skill Store and Local Vector Index",
       "phase": 5,
-      "status": "pending",
+      "status": "verified",
       "subtasks": [
-        {"id": "5.1a", "name": "SQLite Macro Database Schema", "status": "pending"},
-        {"id": "5.1b", "name": "Semantic Embedding Retrieval Engine", "status": "pending"}
+        {"id": "5.1a", "name": "SQLite Macro Database Schema", "status": "verified"},
+        {"id": "5.1b", "name": "Semantic Embedding Retrieval Engine", "status": "verified"}
       ]
     },
     "5.2": {
       "name": "Autonomous Macro Synthesis and Self-Repair",
       "phase": 5,
-      "status": "pending",
+      "status": "verified",
       "subtasks": [
-        {"id": "5.2a", "name": "Dynamic Macro Compilation", "status": "pending"},
-        {"id": "5.2b", "name": "Execution Interception and Self-Repair Loop", "status": "pending"}
+        {"id": "5.2a", "name": "Dynamic Macro Compilation", "status": "verified"},
+        {"id": "5.2b", "name": "Execution Interception and Self-Repair Loop", "status": "verified"}
       ]
     },
     "6.1": {
       "name": "Comprehensive Multi-Genre Benchmark Evaluation",
       "phase": 6,
-      "status": "pending",
+      "status": "in_progress",
       "subtasks": [
-        {"id": "6.1a", "name": "4-Tier Game Evaluation Matrix", "status": "pending"},
+        {"id": "6.1a", "name": "4-Tier Game Evaluation Matrix", "status": "in_progress"},
         {"id": "6.1b", "name": "Token Economics and Latency Benchmark", "status": "pending"}
       ]
     },

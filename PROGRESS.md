@@ -259,3 +259,47 @@ This document tracks all completed engineering iterations, empirical evidence li
   - High-fidelity simulated physics environments eliminate test environment fragility and allow full offline verification on systems without heavy RL framework dependencies.
 * **Next Target:** Phase 5 Milestone 5.1: Persistent Skill Store & Local Vector Index (Subtask 5.1a: SQLite Macro Database Schema, Subtask 5.1b: Semantic Embedding Retrieval Engine).
 
+---
+
+## Iteration 11 -- 2026-09-25: Phase 5 Completion -- Voyager-Inspired Skill Library & Reflexive Memory
+
+* **Milestone / Focus:** Phase 5: Voyager-Inspired Skill Library & Reflexive Memory (Milestone 5.1: Persistent Skill Store & Local Vector Index, Milestone 5.2: Autonomous Macro Synthesis & Self-Repair). Complete Phase 5 Exit Gate achieved.
+* **Deliverables Completed:**
+  - `src/gaming_mcp/skills/embeddings.py` (Milestone 5.1):
+    - `LocalEmbeddingEngine`: Zero-dependency deterministic feature hashing extracting word unigrams and character n-grams (3-4 grams) with SHA-256 signed projection to 256-dimensional unit-norm vectors.
+    - `VectorIndex`: High-performance pure NumPy cosine similarity search engine supporting batch matrix dot products with score ranking and thresholding.
+  - `src/gaming_mcp/skills/store.py` (Milestone 5.1):
+    - `SkillStore`: SQLite persistent database engine supporting `:memory:` and disk files with WAL mode, foreign keys, versioned migrations (`schema_migrations`), `skills` table, and `skill_executions` history table.
+    - Full CRUD API with parameter schemas, execution history, execution statistics, and BLOB vector conversions.
+  - `src/gaming_mcp/skills/models.py` (Milestones 5.1 & 5.2):
+    - Strictly typed Pydantic v2 schemas: `ParameterDefinition`, `SkillStep` / `MacroStep` (with automatic dual-alias synchronization), `SkillDefinition`, `StepExecutionResult`, and `SkillExecutionRecord`.
+  - `src/gaming_mcp/skills/compiler.py` (Milestone 5.2):
+    - `MacroCompiler`: Parameter template compiler supporting recursive variable interpolation (`{param}`) into dictionaries, lists, and strings with type coercion and validation.
+  - `src/gaming_mcp/skills/repair.py` (Milestone 5.2):
+    - `MacroExecutor`: Step-by-step macro execution engine against `ToolRegistry` with task cancellation checks (`_is_cancelled`).
+    - Self-repair loop: Step failure interception, error classification, automated retry policies (linear/exponential backoff), fallback compensation steps, and failure diagnosis generation.
+  - `src/gaming_mcp/skills/manager.py` (Milestone 5.2):
+    - `SkillManager`: MCP service registering:
+      * Tools: `skill_search`, `skill_register`, `skill_execute`, `skill_delete`, `skill_get`, `skill_list`.
+      * Resources: `skills://registry`, `skills://history`.
+      * Prompt: `skill_synthesis_playbook`.
+  - `src/gaming_mcp/skills/__init__.py`: Exported all core skills primitives.
+  - Test suites (50 unit and integration tests under `tests/test_skills/`):
+    - `test_store.py`: 10 tests for SQLite CRUD, migrations, tags, and execution tracking.
+    - `test_embeddings.py`: 9 tests for deterministic vectors, normalization, and cosine ranking.
+    - `test_compiler.py`: 14 tests for templating, coercion, and validation errors.
+    - `test_executor.py`: 7 tests for sequential execution, error interception, and self-repair.
+    - `test_manager.py`: 10 tests for MCP tool dispatch, resource reading, and prompts.
+* **Evidence:**
+  - `EVIDENCE/5.1-skill-store/pytest_summary.txt`: 19/19 tests passing in 0.19s.
+  - `EVIDENCE/5.2-macro-synthesis/pytest_summary.txt`: 31/31 tests passing in 0.22s.
+  - `EVIDENCE/phase5/full_test_suite.txt`: 50/50 tests passing in 0.38s.
+  - Full repository test suite: 180/180 tests passing in 10.26s with 87% overall coverage across 4857 statements.
+  - `ruff check`: All checks passed with 0 errors.
+  - `mypy --strict`: Success, 0 issues found across 64 source files.
+  - Unicode zero-emoji audit: 0 infractions confirmed across all repository files.
+* **Surprises & Lessons:**
+  - Standardizing `MacroStep` as an alias for `SkillStep` with bidirectional Pydantic validators (`tool_name` <-> `action`, `arguments` <-> `parameters`) ensures zero-friction interoperability between macro compilers and persistent storage layers.
+* **Next Target:** Phase 6 Milestone 6.1: Comprehensive Multi-Genre Benchmark Evaluation (Subtask 6.1a: 4-Tier Game Evaluation Matrix, Subtask 6.1b: Token Economics and Latency Benchmark) and Milestone 6.2: Packaging and Ecosystem Distribution.
+
+

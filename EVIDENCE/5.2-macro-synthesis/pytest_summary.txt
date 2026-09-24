@@ -1,0 +1,42 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.9, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\david\Desktop\Projects\gaming-mcp\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\david\Desktop\Projects\gaming-mcp
+configfile: pyproject.toml
+plugins: anyio-4.15.1, asyncio-1.4.0, cov-7.1.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 31 items
+
+tests/test_skills/test_compiler.py::test_compiler_initialization PASSED  [  3%]
+tests/test_skills/test_compiler.py::test_type_coercion_primitives PASSED [  6%]
+tests/test_skills/test_compiler.py::test_type_coercion_complex_structures PASSED [  9%]
+tests/test_skills/test_compiler.py::test_type_coercion_invalid_values PASSED [ 12%]
+tests/test_skills/test_compiler.py::test_parameter_resolution_and_defaults PASSED [ 16%]
+tests/test_skills/test_compiler.py::test_parameter_resolution_raw_dicts_and_passthrough PASSED [ 19%]
+tests/test_skills/test_compiler.py::test_interpolate_value_exact_match PASSED [ 22%]
+tests/test_skills/test_compiler.py::test_interpolate_value_embedded_strings PASSED [ 25%]
+tests/test_skills/test_compiler.py::test_interpolate_value_nested_structures PASSED [ 29%]
+tests/test_skills/test_compiler.py::test_interpolate_value_undefined_variable PASSED [ 32%]
+tests/test_skills/test_compiler.py::test_validate_step_schema_empty_tool_name PASSED [ 35%]
+tests/test_skills/test_compiler.py::test_validate_step_schema_non_dict_arguments PASSED [ 38%]
+tests/test_skills/test_compiler.py::test_validate_step_schema_strict_registry PASSED [ 41%]
+tests/test_skills/test_compiler.py::test_compile_skill_complete_flow PASSED [ 45%]
+tests/test_skills/test_executor.py::test_executor_sequential_success PASSED [ 48%]
+tests/test_skills/test_executor.py::test_executor_compilation_failure PASSED [ 51%]
+tests/test_skills/test_executor.py::test_executor_self_repair_retry_success PASSED [ 54%]
+tests/test_skills/test_executor.py::test_executor_self_repair_compensation_success PASSED [ 58%]
+tests/test_skills/test_executor.py::test_executor_unrecoverable_failure_and_diagnosis PASSED [ 61%]
+tests/test_skills/test_executor.py::test_executor_on_error_ignore PASSED [ 64%]
+tests/test_skills/test_executor.py::test_executor_cancellation PASSED    [ 67%]
+tests/test_skills/test_manager.py::test_manager_registration PASSED      [ 70%]
+tests/test_skills/test_manager.py::test_tool_skill_register_and_get PASSED [ 74%]
+tests/test_skills/test_manager.py::test_tool_skill_register_validation_errors PASSED [ 77%]
+tests/test_skills/test_manager.py::test_tool_skill_list_and_filter PASSED [ 80%]
+tests/test_skills/test_manager.py::test_tool_skill_search_semantic PASSED [ 83%]
+tests/test_skills/test_manager.py::test_tool_skill_execute_success PASSED [ 87%]
+tests/test_skills/test_manager.py::test_tool_skill_execute_not_found PASSED [ 90%]
+tests/test_skills/test_manager.py::test_tool_skill_delete PASSED         [ 93%]
+tests/test_skills/test_manager.py::test_resources_reading PASSED         [ 96%]
+tests/test_skills/test_manager.py::test_prompt_skill_synthesis_playbook PASSED [100%]
+
+============================= 31 passed in 0.23s ==============================

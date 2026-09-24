@@ -1,13 +1,13 @@
 # Gaming MCP Server -- Task Tracker
 
 **Last Updated:** 2026-09-25
-**Project Stage:** Phase 5 Implementation (Voyager-Inspired Skill Library & Reflexive Memory)
+**Project Stage:** Phase 6 Implementation (Hardening, Benchmarking & Distribution)
 
 ---
 
-## Current Milestone: Milestone 5.1 -- Persistent Skill Store & Local Vector Index
+## Current Milestone: Milestone 6.1 -- Comprehensive Multi-Genre Benchmark Evaluation & Milestone 6.2 -- Packaging & Distribution
 
-Phases 1 through 4 are fully verified with 130/130 tests passing repository-wide with 86% overall coverage and zero emoji infractions. Active focus is Phase 5: Persistent Skill Store & Local Vector Index (5.1) and Autonomous Macro Synthesis & Self-Repair (5.2).
+Phases 1 through 5 are fully verified with 180/180 tests passing repository-wide with 87% overall coverage and zero emoji infractions. Active focus is Phase 6: Multi-Genre Benchmark Evaluation (6.1) and Packaging & Ecosystem Distribution (6.2).
 
 ### Completed Tasks
 
@@ -43,19 +43,17 @@ Phases 1 through 4 are fully verified with 130/130 tests passing repository-wide
 - [x] Phase 3 Milestone 3.2: Minecraft Spatial and Inventory Abstractions (11 tools, recursive recipe graph, reactive subscriptions)
 - [x] Phase 4 Milestone 4.1: Libretro Core Integration (RetroAdapter, RAM introspection, save/load state snapshotting, frame-stepping)
 - [x] Phase 4 Milestone 4.2: Gymnasium RL Environment Wrapper (GymnasiumAdapter, spaces introspection, reset, step, render)
+- [x] Phase 5 Milestone 5.1: Persistent Skill Store and Local Vector Index (SQLite SkillStore, LocalEmbeddingEngine, VectorIndex)
+- [x] Phase 5 Milestone 5.2: Autonomous Macro Synthesis and Self-Repair (MacroCompiler, MacroExecutor, SkillManager, self-repair loop)
 
-### Active Phase: Phase 5 -- Voyager-Inspired Skill Library & Reflexive Memory
+### Active Phase: Phase 6 -- Hardening, Evaluation Benchmarks & Distribution
 
-- [/] Milestone 5.1: Persistent Skill Store and Local Vector Index
-  - [ ] Subtask 5.1a: SQLite Macro Database Schema
-  - [ ] Subtask 5.1b: Semantic Embedding Retrieval Engine
-- [/] Milestone 5.2: Autonomous Macro Synthesis and Self-Repair
-  - [ ] Subtask 5.2a: Dynamic Macro Compilation
-  - [ ] Subtask 5.2b: Execution Interception and Self-Repair Loop
-
-### Upcoming Phases
-
-- [ ] Phase 6: Hardening, Benchmarking, and Distribution (SmartPlay, CI/CD, PyPI)
+- [/] Milestone 6.1: Comprehensive Multi-Genre Benchmark Evaluation
+  - [/] Subtask 6.1a: 4-Tier Game Evaluation Matrix (Freeciv, Minesweeper, Minecraft, Retro/Doom)
+  - [ ] Subtask 6.1b: Token Economics and Latency Benchmark (dHash token savings, DXGI vs MSS latency)
+- [ ] Milestone 6.2: Packaging and Ecosystem Distribution
+  - [ ] Subtask 6.2a: PyPI Wheel Packaging, Clean Build, and Validation
+  - [ ] Subtask 6.2b: Claude Desktop / Cursor Configs and MCP Server Registry Submission Preparation
 
 ---
 
