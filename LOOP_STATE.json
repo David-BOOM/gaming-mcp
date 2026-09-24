@@ -4,7 +4,7 @@
   "current_milestone": "6.1",
   "active_task": "6.1a-game-evaluation-matrix",
   "iteration_count": 11,
-  "last_checkpoint_commit": "8a86cff",
+  "last_checkpoint_commit": "fdec605",
   "tasks": {
     "1.1": {
       "name": "MCP Protocol Engine",
