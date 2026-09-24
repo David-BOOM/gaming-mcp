@@ -19,16 +19,15 @@ Read this file FIRST upon cold-start, session reboot, rate-limit recovery, or co
 ## 2. Current Execution Pointer
 
 * **Current Phase:** Phase 2: Universal VLA Computer Use Engine (Weeks 3-4)
-* **Active Milestone:** Milestone 2.3: Visual Grounding, Safety and Privacy
+* **Active Milestone:** Milestone 2.4: Universal Computer Use Adapter Integration
 * **Active Subtasks:**
-  - Subtask 2.3a -- Set-of-Marks Coordinate Grid Overlay (`src/gaming_mcp/utils/image.py` -- implemented)
-  - Subtask 2.3b -- Window Rect Clipping and Process Blacklist (`src/gaming_mcp/io/process.py`, `src/gaming_mcp/io/security.py`)
-  - Subtask 2.3c -- Emergency Hardware Kill-Switch (`src/gaming_mcp/io/security.py`)
+  - Subtask 2.4a -- ComputerUseAdapter Implementation and Tool Registrations (`src/gaming_mcp/adapters/computer_use.py`)
+  - Subtask 2.4b -- End-to-End Test Suite and Verification (`tests/test_adapters/test_computer_use.py`)
 * **Immediate Next Action:**
-  1. Author `src/gaming_mcp/io/process.py` implementing Win32 window handles, focus locks, window rect queries, and title regex matching (`window_focus`).
-  2. Author `src/gaming_mcp/io/security.py` implementing window boundary clipping, sensitive process blacklisting (`cmd.exe`, `powershell.exe`, `Taskmgr.exe`), and low-level keyboard hook emergency kill-switch (`Ctrl + Alt + Shift + Pause/Break`).
-  3. Author unit and mock integration test suites in `tests/test_io/test_process.py` and `tests/test_io/test_security.py`.
-  4. Run verification ladder (`ruff`, `mypy --strict`, `pytest`, zero-emoji pre-commit scan).
+  1. Author `src/gaming_mcp/adapters/computer_use.py` implementing `ComputerUseAdapter` which encapsulates screen capture (composite DXGI/MSS), audio capture (WASAPI loopback), input injection (Win32 SendInput), virtual gamepad (ViGEmBus), action chunk scheduler, and security guards. Exposes tools `screenshot`, `mouse_click`, `mouse_drag`, `send_keys`, `execute_action_chunk`, `gamepad_control`, `window_focus`, and reactive resource `game://audio/events`.
+  2. Author comprehensive unit and mock integration test suites in `tests/test_adapters/test_computer_use.py`.
+  3. Run verification ladder (`ruff`, `mypy --strict`, `pytest`, zero-emoji pre-commit scan).
+  4. Commit and push.
 
 ---
 

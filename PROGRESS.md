@@ -111,5 +111,27 @@ This document tracks all completed engineering iterations, empirical evidence li
   - `SendInput` returned Win32 error 5 (`ERROR_ACCESS_DENIED`) when run in the test suite after `test_audio.py` because `sounddevice` initialized hidden COM windows on the main thread, blocking subsequent `SetThreadDesktop` with Win32 error 170 (`ERROR_BUSY`). By routing `SendInput` through a dedicated worker thread (`get_input_executor()`), input operations are completely isolated and succeed 100% reliably.
 * **Next Target:** Milestone 2.3 -- Visual Grounding, Safety and Privacy (Subtask 2.3a: Set-of-Marks coordinate grid overlay, Subtask 2.3b: Window rect clipping and process blacklist, Subtask 2.3c: Emergency hardware kill-switch).
 
+---
+
+## Iteration 5 -- 2026-09-25: Milestone 2.3 Visual Grounding, Safety and Privacy
+
+* **Milestone / Focus:** Phase 2 Milestone 2.3: Visual Grounding, Safety and Privacy.
+* **Deliverables Completed:**
+  - `src/gaming_mcp/io/process.py`: `Win32WindowManager` and `WindowInfo` model. Win32 window enumeration via `EnumWindows` with automatic fallback to `OpenInputDesktop` + `EnumDesktopWindows` for detached threads. Resolves process names from PID, finds foreground windows, supports title regex matching, and provides window client/window rects and focus locking (`SetForegroundWindow`, `BringWindowToTop`).
+  - `src/gaming_mcp/io/security.py`: `WindowBoundaryGuard` coordinate validation and clamping preventing out-of-bounds clicks with `SecurityViolationError` (-32004) enforcement; `ProcessBlacklistGuard` preventing focus locking or input injection into host OS tools (`cmd.exe`, `powershell.exe`, `taskmgr.exe`, `credentialuibroker.exe`); and `EmergencyKillSwitch` low-level keyboard hook monitoring `Ctrl + Alt + Shift + Pause/Break` with instant motor reset callbacks and fallback polling.
+  - `src/gaming_mcp/utils/image.py`: Set-of-Marks (SoM) alphanumeric coordinate grid overlay (`draw_set_of_marks_grid`) with configurable spacing, high-contrast labels, and background boxes for visual spatial grounding.
+  - Test suites: 8 new automated unit and integration tests across `test_process.py` and `test_security.py`.
+* **Evidence:**
+  - `EVIDENCE/2.3-grounding-safety/pytest_coverage.txt`: 77/77 tests passing cleanly with 88% overall code coverage across 2214 statements.
+  - `process.py` coverage: 82%, `security.py` coverage: 89%.
+  - `EVIDENCE/2.3-grounding-safety/ruff_check.txt`: 0 errors/warnings across 44 source files.
+  - `EVIDENCE/2.3-grounding-safety/mypy_check.txt`: 0 type errors under `--strict`.
+  - `EVIDENCE/2.3-grounding-safety/emoji_audit.txt`: 0 emoji code points verified across entire repository.
+* **Surprises & Lessons:**
+  - On threads detached from the active interactive desktop or initialized by background workers, Win32 `EnumWindows` returns 0 windows. `Win32WindowManager` detects empty enumeration and automatically falls back to `OpenInputDesktop` + `EnumDesktopWindows`, passing the desktop handle directly and guaranteeing enumeration even on locked multimedia threads.
+  - In `ctypes`, `GetForegroundWindow` returning NULL yields `None` rather than 0 in Python. Calling `int(hwnd)` raises `TypeError`. Must explicitly guard `if not raw_hwnd: return None`.
+* **Next Target:** Milestone 2.4 -- Universal Computer Use Adapter Integration (`src/gaming_mcp/adapters/computer_use.py` bringing together screen capture, audio, input, gamepad, timing, process, and security into standard MCP tools).
+
+
 
 

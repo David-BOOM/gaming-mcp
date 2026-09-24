@@ -8,11 +8,22 @@ from gaming_mcp.io.gamepad import (
     get_gamepad_controller,
 )
 from gaming_mcp.io.input import Win32InputInjector
+from gaming_mcp.io.process import (
+    Win32WindowManager,
+    WindowInfo,
+    get_window_manager,
+)
 from gaming_mcp.io.screen import (
     CompositeScreenCapturer,
     DXGIScreenCapturer,
     MSSScreenCapturer,
     attach_thread_to_input_desktop,
+)
+from gaming_mcp.io.security import (
+    DEFAULT_BLACKLIST,
+    EmergencyKillSwitch,
+    ProcessBlacklistGuard,
+    WindowBoundaryGuard,
 )
 from gaming_mcp.io.timing import (
     ActionChunk,
@@ -26,20 +37,27 @@ from gaming_mcp.io.vision import (
 )
 
 __all__ = [
+    "DEFAULT_BLACKLIST",
     "ActionChunk",
     "ActionChunkItem",
     "ActionChunkScheduler",
     "BaseGamepadController",
     "CompositeScreenCapturer",
     "DXGIScreenCapturer",
+    "EmergencyKillSwitch",
     "MSSScreenCapturer",
     "MockGamepadController",
     "PerceptualGater",
+    "ProcessBlacklistGuard",
     "ViGEmGamepadController",
     "WASAPIAudioCapturer",
     "Win32InputInjector",
+    "Win32WindowManager",
+    "WindowBoundaryGuard",
+    "WindowInfo",
     "attach_thread_to_input_desktop",
     "compute_dhash",
     "compute_hamming_distance",
     "get_gamepad_controller",
+    "get_window_manager",
 ]

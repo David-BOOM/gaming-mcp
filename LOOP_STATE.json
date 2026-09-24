@@ -1,10 +1,10 @@
 {
   "project": "gaming-mcp",
   "current_phase": 2,
-  "current_milestone": "2.3",
-  "active_task": "2.3a-set-of-marks",
-  "iteration_count": 5,
-  "last_checkpoint_commit": "8888725",
+  "current_milestone": "2.4",
+  "active_task": "2.4a-computer-use-adapter",
+  "iteration_count": 6,
+  "last_checkpoint_commit": "5d87e7d",
   "tasks": {
     "1.1": {
       "name": "MCP Protocol Engine",
@@ -52,11 +52,20 @@
     "2.3": {
       "name": "Visual Grounding, Safety and Privacy",
       "phase": 2,
+      "status": "verified",
+      "subtasks": [
+        {"id": "2.3a", "name": "Set-of-Marks Coordinate Grid Overlay", "status": "verified"},
+        {"id": "2.3b", "name": "Window Rect Clipping and Process Blacklist", "status": "verified"},
+        {"id": "2.3c", "name": "Emergency Hardware Kill-Switch", "status": "verified"}
+      ]
+    },
+    "2.4": {
+      "name": "Universal Computer Use Adapter Integration",
+      "phase": 2,
       "status": "pending",
       "subtasks": [
-        {"id": "2.3a", "name": "Set-of-Marks Coordinate Grid Overlay", "status": "pending"},
-        {"id": "2.3b", "name": "Window Rect Clipping and Process Blacklist", "status": "pending"},
-        {"id": "2.3c", "name": "Emergency Hardware Kill-Switch", "status": "pending"}
+        {"id": "2.4a", "name": "ComputerUseAdapter Implementation and Tool Registrations", "status": "pending"},
+        {"id": "2.4b", "name": "End-to-End Test Suite and Verification", "status": "pending"}
       ]
     },
     "3.1": {

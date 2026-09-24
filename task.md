@@ -5,9 +5,9 @@
 
 ---
 
-## Current Milestone: Milestone 2.3 -- Visual Grounding, Safety and Privacy
+## Current Milestone: Milestone 2.4 -- Universal Computer Use Adapter Integration
 
-Phase 1 (Core Foundation & Protocol Dispatcher) and Phase 2 Milestones 2.1 and 2.2 are fully verified with 69/69 tests passing and 89% overall coverage. Active focus is Phase 2 Milestone 2.3.
+Phase 1 (Core Foundation & Protocol Dispatcher) and Phase 2 Milestones 2.1, 2.2, and 2.3 are fully verified with 77/77 tests passing and 88% overall coverage. Active focus is Phase 2 Milestone 2.4: Universal Computer Use Adapter Integration.
 
 ### Completed Tasks
 
@@ -37,6 +37,7 @@ Phase 1 (Core Foundation & Protocol Dispatcher) and Phase 2 Milestones 2.1 and 2
 - [x] Phase 1 Milestone 1.2: Adapter SPI & Router Architecture (GameAdapter SPI, dynamic AdapterRouter, Pydantic v2 configuration)
 - [x] Phase 2 Milestone 2.1: Hardware-Accelerated Display and Audio Capture (DXGI D3D11 duplication, MSS fallback, 64-bit dHash perceptual gating, WASAPI loopback capture)
 - [x] Phase 2 Milestone 2.2: Dual-Layer Actuation and Action Chunking (Win32 SendInput PS/2 hardware scan codes, ViGEmBus guarded virtual gamepad, Flash & Hogan minimum-jerk curves, microsecond action chunk scheduler)
+- [x] Phase 2 Milestone 2.3: Visual Grounding, Safety and Privacy (Set-of-Marks coordinate grid overlay, Win32 window manager and boundary clamping, process blacklist guard, emergency hardware kill-switch)
 
 ### Active Phase: Phase 2 -- Universal VLA Computer Use Engine
 
@@ -50,10 +51,13 @@ Phase 1 (Core Foundation & Protocol Dispatcher) and Phase 2 Milestones 2.1 and 2
   - [x] Subtask 2.2b: ViGEmBus virtual Xbox 360 controller wrapper (src/gaming_mcp/io/gamepad.py)
   - [x] Subtask 2.2c: Minimum-jerk mouse trajectory splining (src/gaming_mcp/utils/curves.py)
   - [x] Subtask 2.2d: Microsecond action chunk scheduler (src/gaming_mcp/io/timing.py)
-- [/] Milestone 2.3: Visual Grounding, Safety and Privacy
+- [x] Milestone 2.3: Visual Grounding, Safety and Privacy
   - [x] Subtask 2.3a: Set-of-Marks coordinate grid overlay (src/gaming_mcp/utils/image.py)
-  - [ ] Subtask 2.3b: Window rect clipping and process blacklist
-  - [ ] Subtask 2.3c: Emergency hardware kill-switch (Ctrl+Alt+Shift+Pause/Break)
+  - [x] Subtask 2.3b: Window rect clipping and process blacklist (src/gaming_mcp/io/process.py, src/gaming_mcp/io/security.py)
+  - [x] Subtask 2.3c: Emergency hardware kill-switch (Ctrl+Alt+Shift+Pause/Break) (src/gaming_mcp/io/security.py)
+- [/] Milestone 2.4: Universal Computer Use Adapter Integration
+  - [ ] Subtask 2.4a: ComputerUseAdapter Implementation and Tool Registrations (src/gaming_mcp/adapters/computer_use.py)
+  - [ ] Subtask 2.4b: End-to-End Test Suite and Verification (tests/test_adapters/test_computer_use.py)
 
 ### Upcoming Phases
 

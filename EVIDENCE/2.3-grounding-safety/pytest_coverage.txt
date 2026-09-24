@@ -1,0 +1,58 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.9, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\david\Desktop\Projects\gaming-mcp
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.15.1, asyncio-1.4.0, cov-7.1.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 77 items
+
+tests\test_adapters\test_router.py ......                                [  7%]
+tests\test_cancellation.py ...                                           [ 11%]
+tests\test_io\test_audio.py .....                                        [ 18%]
+tests\test_io\test_curves.py .......                                     [ 27%]
+tests\test_io\test_gamepad.py .....                                      [ 33%]
+tests\test_io\test_image.py ....                                         [ 38%]
+tests\test_io\test_input.py .....                                        [ 45%]
+tests\test_io\test_process.py ....                                       [ 50%]
+tests\test_io\test_screen.py ....                                        [ 55%]
+tests\test_io\test_security.py ....                                      [ 61%]
+tests\test_io\test_timing.py .....                                       [ 67%]
+tests\test_io\test_vision.py ....                                        [ 72%]
+tests\test_registries.py .....                                           [ 79%]
+tests\test_scaffolding.py ..........                                     [ 92%]
+tests\test_server.py ......                                              [100%]
+
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.12.9-final-0 _______________
+
+Name                                  Stmts   Miss  Cover   Missing
+-------------------------------------------------------------------
+src\gaming_mcp\__init__.py                1      0   100%
+src\gaming_mcp\__main__.py               39     17    56%   76-93, 97
+src\gaming_mcp\adapters\__init__.py       3      0   100%
+src\gaming_mcp\adapters\base.py          31      0   100%
+src\gaming_mcp\adapters\router.py       103      8    92%   66-69, 89-90, 158-159
+src\gaming_mcp\config.py                 77      2    97%   177, 190
+src\gaming_mcp\core\__init__.py           2      0   100%
+src\gaming_mcp\core\cancellation.py      42      1    98%   65
+src\gaming_mcp\core\exceptions.py        45      0   100%
+src\gaming_mcp\core\registries.py       147      7    95%   111, 238-248, 260, 268, 329
+src\gaming_mcp\io\__init__.py             9      0   100%
+src\gaming_mcp\io\audio.py              133     25    81%   76-84, 93-95, 99-100, 138-142, 152-153, 175-177, 211-212
+src\gaming_mcp\io\gamepad.py            173     11    94%   149-156, 212, 230-231, 240-241, 272, 313
+src\gaming_mcp\io\input.py              285     46    84%   241-244, 266, 271-274, 279-281, 311-319, 329-330, 334, 354-355, 359, 391-392, 408-409, 415-417, 422, 428, 432-434, 450, 481-482, 508-509, 537, 590-591, 596-597
+src\gaming_mcp\io\process.py            171     31    82%   141, 145, 153, 160, 184, 196, 218, 253-267, 272, 277-280, 284-289, 293-294
+src\gaming_mcp\io\screen.py             307     44    86%   124-127, 133, 147-150, 177, 191-192, 205, 218, 236, 252, 274-277, 286, 314-323, 326-329, 332, 348, 394, 424, 507-508, 554-555, 558-559, 592
+src\gaming_mcp\io\security.py           151     17    89%   61, 71, 79, 126, 184, 194-195, 200-201, 209-211, 220-221, 238-239, 243, 278
+src\gaming_mcp\io\timing.py             116     22    81%   75-76, 80-81, 168-170, 174-175, 177-178, 180-181, 183-186, 192-193, 195, 197, 210
+src\gaming_mcp\io\vision.py              55      6    89%   40-45, 145
+src\gaming_mcp\server.py                119     12    90%   50-52, 84-91, 98-99, 178-179, 255
+src\gaming_mcp\skills\__init__.py         0      0   100%
+src\gaming_mcp\utils\__init__.py          4      0   100%
+src\gaming_mcp\utils\curves.py           90      2    98%   123, 199
+src\gaming_mcp\utils\image.py            81     10    88%   35-36, 59-60, 81-86, 99
+src\gaming_mcp\utils\logging.py          30      0   100%
+-------------------------------------------------------------------
+TOTAL                                  2214    261    88%
+============================= 77 passed in 4.79s ==============================
