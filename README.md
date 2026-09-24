@@ -6,15 +6,16 @@ An extensible, enterprise-grade Model Context Protocol (MCP) server project desi
 
 ## Project Status: Planning and Architectural Design Phase
 
-This repository is currently in the formal architectural design, research synthesis, and planning phase. Detailed engineering specifications, theoretical formulations, multi-perspective audits, and benchmark criteria have been established.
+This repository is currently in the formal architectural design, research synthesis, and planning phase. Detailed engineering specifications, theoretical formulations, multi-perspective audits, and benchmark criteria have been established. The plan has completed a production-readiness refinement pass covering cross-platform strategy, dependency specification, error handling, concurrency, configuration, observability, and CI/CD.
 
-* Master Implementation Plan: See [implementation_plan.md](implementation_plan.md) or [docs/implementation_plan.md](docs/implementation_plan.md)
+* Master Implementation Plan: See [implementation_plan.md](implementation_plan.md)
 * Multi-Perspective Quality Audit: See [docs/audit_report.md](docs/audit_report.md)
+* Task Tracker: See [task.md](task.md)
 * Research Summaries: See [research/arxiv/arxiv_game_agents_summary.md](research/arxiv/arxiv_game_agents_summary.md)
 
 ---
 
-## Overview & Core Concepts
+## Overview and Core Concepts
 
 Gaming MCP bridges the gap between frontier AI agents (such as Claude Desktop, Cursor, and custom autonomous agent runtimes) and video game environments. It standardizes game interactions through the official Model Context Protocol (MCP) using a dual-paradigm architecture:
 
@@ -30,7 +31,7 @@ Gaming MCP bridges the gap between frontier AI agents (such as Claude Desktop, C
 
 ---
 
-## Research Foundations & Theoretical Basis
+## Research Foundations and Theoretical Basis
 
 The system architecture synthesizes breakthroughs from frontier AI laboratories and peer-reviewed academic literature:
 
@@ -53,19 +54,19 @@ The system architecture synthesizes breakthroughs from frontier AI laboratories 
 
 ## Key Architectural Highlights
 
-### 1. Latency-Lagged POMDP & Action Chunking
+### 1. Latency-Lagged POMDP and Action Chunking
 To bridge the temporal disparity between 60 Hz game loops (16.6ms physics ticks) and cloud LLM inference delays (500ms to 2,500ms), the server implements:
 * Hierarchical Action Chunking: The LLM issues parameterized temporal action trajectories rather than single atomic taps.
 * Minimum-Jerk Trajectory Splining: Continuous mouse interpolation satisfying Fitts' Law to produce natural, human-like motion.
 * Programmable Reflex Tripwires: Client-side conditional triggers that execute emergency responses locally without waiting for cloud round-trips.
 
-### 2. Hardware Acceleration & Low-Level Drivers
+### 2. Hardware Acceleration and Low-Level Drivers
 * DXGI Desktop Duplication: Direct GPU zero-copy framebuffer capture on Windows with sub-8ms latency and ACES filmic HDR-to-SDR tone-mapping.
 * ViGEmBus Virtual Gamepad Emulation: Emulates certified Xbox 360 and DualShock 4 controllers at the kernel driver level, providing true 360-degree analog stick control and bypassing anti-macro software blocks.
 * Win32 Hardware Scan Codes: PS/2 Set 1 hardware scan code injection via `KEYEVENTF_SCANCODE` for full DirectX compatibility.
 
 ### 3. Perceptual Token Economics (dHash Gating)
-* Continuous 1080p frame transmission consumes ~2.7M tokens per hour.
+* Continuous 1080p frame transmission consumes approximately 2.7M tokens per hour.
 * The perception engine computes a 64-bit difference hash (dHash) before image encoding. If scene mutation is below 2.5%, a lightweight text confirmation is returned, saving up to 80% in token costs.
 
 ### 4. Acoustic Perception (WASAPI Loopback)
@@ -79,6 +80,19 @@ To bridge the temporal disparity between 60 Hz game loops (16.6ms physics ticks)
 * Sampling: Server-initiated LLM vision evaluations and sub-agent planning.
 * Elicitation: Human confirmation gates before executing destructive or irreversible in-game actions.
 
+### 6. Cross-Platform Graceful Degradation
+* Primary target: Windows 10/11 with DXGI, ViGEmBus, and WASAPI.
+* Linux support: PipeWire/XShm screen capture, uinput virtual gamepad, PulseAudio monitor.
+* macOS support: CoreGraphics capture, Quartz Event input injection.
+* Capability probing at startup with automatic fallback to MSS/Pillow cross-platform backends.
+
+### 7. Production Engineering
+* Typed exception hierarchy with JSON-RPC error code mapping for LLM self-recovery.
+* asyncio concurrency model with ThreadPoolExecutor offloading for GPU and audio I/O.
+* Layered Pydantic configuration schema with CLI, environment variable, and JSON file precedence.
+* Structured JSON logging with key performance metrics and health check endpoint.
+* CI/CD pipeline specification with GitHub Actions, multi-OS/multi-Python matrix testing, and MCP Inspector conformance checks.
+
 ---
 
 ## Multi-Genre Benchmark Matrix
@@ -87,8 +101,8 @@ The project establishes four standardized benchmark tiers to evaluate autonomous
 
 | Tier | Genre | Benchmark Title | Evaluated Capabilities | Target Metric |
 |------|-------|-----------------|------------------------|---------------|
-| 1 | Turn-Based Strategy | Freeciv / Slay the Spire | Long-horizon planning, text OCR, menu navigation | Win rate > 75% on standard difficulty |
-| 2 | 2D Grid & Platformer | Windows Minesweeper / Super Mario Bros | Spatial coordinate grounding, obstacle avoidance | 0% spatial misclicks; Mario 1-1 completion |
+| 1 | Turn-Based Strategy | Freeciv / Slay the Spire | Long-horizon planning, text OCR, menu navigation | Win rate greater than 75% on standard difficulty |
+| 2 | 2D Grid and Platformer | Windows Minesweeper / Super Mario Bros | Spatial coordinate grounding, obstacle avoidance | 0% spatial misclicks; Mario 1-1 completion |
 | 3 | 3D Open World | Minecraft (Survival Mode) | 3D voxel navigation, crafting trees, resource loops | Crafting diamond pickaxe within 45 minutes |
 | 4 | Real-Time Action | Doom / Street Fighter II | High-frequency action chunking, reflex tripwires | First level clearance without health depletion |
 
@@ -96,12 +110,12 @@ The project establishes four standardized benchmark tiers to evaluate autonomous
 
 ## Phased Engineering Roadmap
 
-* Phase 1: Core Foundation & Protocol Dispatcher (MCP JSON-RPC 2.0, stdio/HTTP/SSE, typed registries, dynamic router).
+* Phase 1: Core Foundation and Protocol Dispatcher (MCP JSON-RPC 2.0, stdio/HTTP/SSE, typed registries, dynamic router).
 * Phase 2: Universal VLA Computer Use Engine (DXGI capture, ViGEm virtual gamepad, dHash gating, WASAPI audio, SoM grid).
 * Phase 3: Minecraft High-Fidelity Bridge (Mineflayer NDJSON pipe, 3D voxel pathfinding, crafting matrix).
-* Phase 4: Retro & Gymnasium Adapters (Libretro cores, state serialization, RAM variable peeking, Gym RL environments).
+* Phase 4: Retro and Gymnasium Adapters (Libretro cores, state serialization, RAM variable peeking, Gym RL environments).
 * Phase 5: Voyager-Inspired Skill Library (SQLite vector store, semantic skill retrieval, self-repair loops).
-* Phase 6: Hardening, Multi-Genre Benchmarking & Distribution (SmartPlay evaluation, CI/CD, PyPI publishing).
+* Phase 6: Hardening, Multi-Genre Benchmarking and Distribution (SmartPlay evaluation, CI/CD, PyPI publishing).
 
 ---
 
@@ -109,18 +123,20 @@ The project establishes four standardized benchmark tiers to evaluate autonomous
 
 ```
 gaming-mcp/
-├── AGENTS.md                    # Universal repository rules for developers & AI agents
-├── GEMINI.md                    # Antigravity agent workspace rules
-├── docs/
-│   ├── implementation_plan.md   # Complete architectural specification & blueprints
-│   └── audit_report.md          # Multi-perspective quality review & council audit
-├── research/
-│   ├── arxiv/                   # Academic paper summaries and findings
-│   └── ...                      # Research tooling and query caches
-├── .licenses/                   # Attribution and licensing documentation
-├── .gitignore                   # Comprehensive exclusion rules for credentials and ROMs
-├── LICENSE                      # Project license (Apache 2.0)
-└── README.md                    # Project overview and architectural guide
++-- AGENTS.md                    # Universal repository rules for developers and AI agents
++-- GEMINI.md                    # Antigravity agent workspace rules
++-- implementation_plan.md       # Canonical architectural specification and engineering plan
++-- task.md                      # Project task tracker and milestone status
++-- docs/
+|   +-- implementation_plan.md   # Redirect to root-level canonical plan
+|   +-- audit_report.md          # Multi-perspective quality review and council audit
++-- research/
+|   +-- arxiv/                   # Academic paper summaries and findings
+|   +-- summary.md               # Research index
++-- .licenses/                   # Attribution and licensing documentation
++-- .gitignore                   # Comprehensive exclusion rules for credentials and ROMs
++-- LICENSE                      # Project license (Apache 2.0)
++-- README.md                    # Project overview and architectural guide (this file)
 ```
 
 ---
