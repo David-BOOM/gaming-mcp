@@ -1,0 +1,135 @@
+{
+  "project": "gaming-mcp",
+  "current_phase": 1,
+  "current_milestone": "1.1",
+  "active_task": "1.1a-scaffolding",
+  "iteration_count": 0,
+  "last_checkpoint_commit": null,
+  "tasks": {
+    "1.1": {
+      "name": "MCP Protocol Engine",
+      "phase": 1,
+      "status": "in_progress",
+      "subtasks": [
+        {"id": "1.1a", "name": "Project Scaffolding and Dependencies", "status": "pending"},
+        {"id": "1.1b", "name": "Server Lifecycle and Transports (stdio, SSE)", "status": "pending"},
+        {"id": "1.1c", "name": "Typed Registries (Tools, Resources, Prompts)", "status": "pending"},
+        {"id": "1.1d", "name": "Cancellation and Progress Notifications", "status": "pending"}
+      ]
+    },
+    "1.2": {
+      "name": "Adapter SPI & Router Architecture",
+      "phase": 1,
+      "status": "pending",
+      "subtasks": [
+        {"id": "1.2a", "name": "GameAdapter Base SPI", "status": "pending"},
+        {"id": "1.2b", "name": "Dynamic Adapter Router", "status": "pending"},
+        {"id": "1.2c", "name": "Configuration Loader (Pydantic v2)", "status": "pending"}
+      ]
+    },
+    "2.1": {
+      "name": "Hardware-Accelerated Display and Audio Capture",
+      "phase": 2,
+      "status": "pending",
+      "subtasks": [
+        {"id": "2.1a", "name": "DXGI Desktop Duplication ctypes Wrapper", "status": "pending"},
+        {"id": "2.1b", "name": "MSS Cross-Platform Fallback Capturer", "status": "pending"},
+        {"id": "2.1c", "name": "64-bit dHash Perceptual Gating", "status": "pending"},
+        {"id": "2.1d", "name": "WASAPI Master Loopback Audio Capture", "status": "pending"}
+      ]
+    },
+    "2.2": {
+      "name": "Dual-Layer Actuation and Action Chunking",
+      "phase": 2,
+      "status": "pending",
+      "subtasks": [
+        {"id": "2.2a", "name": "Win32 SendInput PS/2 Hardware Scan Codes", "status": "pending"},
+        {"id": "2.2b", "name": "ViGEmBus Virtual Xbox 360 Controller Wrapper", "status": "pending"},
+        {"id": "2.2c", "name": "Minimum-Jerk Mouse Trajectory Splining", "status": "pending"},
+        {"id": "2.2d", "name": "Microsecond Action Chunk Scheduler", "status": "pending"}
+      ]
+    },
+    "2.3": {
+      "name": "Visual Grounding, Safety and Privacy",
+      "phase": 2,
+      "status": "pending",
+      "subtasks": [
+        {"id": "2.3a", "name": "Set-of-Marks Coordinate Grid Overlay", "status": "pending"},
+        {"id": "2.3b", "name": "Window Rect Clipping and Process Blacklist", "status": "pending"},
+        {"id": "2.3c", "name": "Emergency Hardware Kill-Switch", "status": "pending"}
+      ]
+    },
+    "3.1": {
+      "name": "Node.js Mineflayer IPC Bridge",
+      "phase": 3,
+      "status": "pending",
+      "subtasks": [
+        {"id": "3.1a", "name": "Mineflayer NDJSON Daemon Bridge", "status": "pending"},
+        {"id": "3.1b", "name": "Process Supervisor and Auto-Restart", "status": "pending"}
+      ]
+    },
+    "3.2": {
+      "name": "Minecraft Spatial and Inventory Abstractions",
+      "phase": 3,
+      "status": "pending",
+      "subtasks": [
+        {"id": "3.2a", "name": "Minecraft MCP Tools", "status": "pending"},
+        {"id": "3.2b", "name": "Reactive Inventory and Stats Resources", "status": "pending"}
+      ]
+    },
+    "4.1": {
+      "name": "Libretro Core Integration",
+      "phase": 4,
+      "status": "pending",
+      "subtasks": [
+        {"id": "4.1a", "name": "stable-retro Core Bindings", "status": "pending"},
+        {"id": "4.1b", "name": "Frame Stepping and Save State Tools", "status": "pending"}
+      ]
+    },
+    "4.2": {
+      "name": "Gymnasium RL Environment Wrapper",
+      "phase": 4,
+      "status": "pending",
+      "subtasks": [
+        {"id": "4.2a", "name": "Gymnasium Environment Adapter", "status": "pending"}
+      ]
+    },
+    "5.1": {
+      "name": "Persistent Skill Store and Local Vector Index",
+      "phase": 5,
+      "status": "pending",
+      "subtasks": [
+        {"id": "5.1a", "name": "SQLite Macro Database Schema", "status": "pending"},
+        {"id": "5.1b", "name": "Semantic Embedding Retrieval Engine", "status": "pending"}
+      ]
+    },
+    "5.2": {
+      "name": "Autonomous Macro Synthesis and Self-Repair",
+      "phase": 5,
+      "status": "pending",
+      "subtasks": [
+        {"id": "5.2a", "name": "Dynamic Macro Compilation", "status": "pending"},
+        {"id": "5.2b", "name": "Execution Interception and Self-Repair Loop", "status": "pending"}
+      ]
+    },
+    "6.1": {
+      "name": "Comprehensive Multi-Genre Benchmark Evaluation",
+      "phase": 6,
+      "status": "pending",
+      "subtasks": [
+        {"id": "6.1a", "name": "4-Tier Game Evaluation Matrix", "status": "pending"},
+        {"id": "6.1b", "name": "Token Economics and Latency Benchmark", "status": "pending"}
+      ]
+    },
+    "6.2": {
+      "name": "Packaging and Ecosystem Distribution",
+      "phase": 6,
+      "status": "pending",
+      "subtasks": [
+        {"id": "6.2a", "name": "PyPI Wheel Packaging and Build", "status": "pending"},
+        {"id": "6.2b", "name": "MCP Server Registry Submission", "status": "pending"}
+      ]
+    }
+  },
+  "blockers": []
+}

@@ -9,6 +9,7 @@ An enterprise-grade, extensible Model Context Protocol (MCP) server enabling fro
 Modern frontier AI models have rapidly evolved from text-only reasoning engines into multimodal, agentic systems capable of open-ended embodied task execution. While specialized reinforcement learning models (AlphaStar, OpenAI Five) achieved superhuman performance in constrained sandbox titles, they lacked generalizability, zero-shot instruction following, and natural language communication. Conversely, recent breakthroughs from Google DeepMind (SIMA, Genie), Anthropic (Computer Use), OpenAI (Voyager, Operator), and academic consortia (BAAI Cradle, GITM, JARVIS-1) demonstrate that combining high-level multimodal reasoning with grounded computer/game execution enables broad generalization across completely disparate game genres.
 
 The Gaming MCP Server (gaming-mcp) establishes a standardized, bidirectional JSON-RPC 2.0 communication bus between MCP-compliant LLM client hosts (Claude Desktop, Cursor, Custom Agent Harnesses, LangChain/LlamaIndex runners) and underlying game environments. It implements a dual-paradigm architecture:
+
 1. Universal VLA Computer Use Mode: Agnostic, zero-API control applicable to any commercial title via hardware-accelerated screen capture (DXGI Desktop Duplication), WASAPI loopback audio perception, and low-level kernel/driver input emulation (ViGEmBus virtual gamepads and Win32 hardware scan-code injection).
 2. Deterministic High-Fidelity API Mode: Deep programmatic integration for titles with rich modding, scripting, or research interfaces (Minecraft Mineflayer/RCON, Libretro/RetroArch emulator cores, OpenAI Gymnasium, and engine-level Unity/Godot IPC sockets).
 
@@ -33,6 +34,7 @@ The Gaming MCP Server (gaming-mcp) establishes a standardized, bidirectional JSO
 ```
 
 #### A. Google DeepMind: SIMA & Genie
+
 * Scalable Instructable Multiworld Agent (SIMA, 2024):
   * Architecture: Video-Language-Action model pre-trained on diverse commercial 3D environments (e.g., No Man's Sky, Valheim, Goat Simulator 3, Hydroneer).
   * Input/Output Space: Strictly non-privileged. Input is raw RGB frames at 10-30 Hz plus language goal strings. Output is a disaggregated keyboard (discrete scan codes) and mouse delta vector (dx, dy, buttons).
@@ -42,11 +44,13 @@ The Gaming MCP Server (gaming-mcp) establishes a standardized, bidirectional JSO
   * Architectural Takeaway for MCP: Action primitives must support discrete frame-locked token steps, allowing future integration of generative world model trajectory evaluation.
 
 #### B. Anthropic: Computer Use (Claude 3.5/3.7/4.0)
+
 * Protocol Design: First commercial native API standardizing GUI interaction into atomic operations: screenshot, mouse_click(coordinate), mouse_move, mouse_down, mouse_up, right_click, double_click, triple_click, middle_click, drag(path), mouse_scroll(dx, dy), type(text), key_down(key), key_up(key), key_combo(keys), and sleep(duration).
 * Observation Feedback Loop: Operates as an observation-action-verification loop. Claude inspects pixel coordinates, plans actions, and receives updated visual state.
 * Architectural Takeaway for MCP: The Gaming MCP Server's computer_use adapter directly conforms to Anthropic's Coordinate Space specifications (normalized or absolute integer coordinates) to ensure zero-overhead translation when powered by Claude clients.
 
 #### C. OpenAI: Voyager & Operator (CUA)
+
 * Voyager (2023):
   * Architecture: Embodied lifelong learning agent in Minecraft driven by GPT-4 generating executable JavaScript code via Mineflayer.
   * Key Innovations:
@@ -58,10 +62,12 @@ The Gaming MCP Server (gaming-mcp) establishes a standardized, bidirectional JSO
   * Highlights the necessity of hybrid visual grounding: combining visual screenshots with programmatic metadata (window bounding boxes, cursor coordinates) to minimize spatial misclicks.
 
 #### D. Meta: Project CICERO (2022)
+
 * Technical Strategy: Combined strategic planning (piKL: proportional-integral fictitious play with KL regularized policy search) with a 2.7B language model for natural language dialogue and negotiation in Diplomacy.
 * Architectural Takeaway for MCP: Multi-agent coordination and negotiation tools must be exposed via MCP Prompts and session-scoped MCP Resources for strategic game genres (turn-based 4X, RTS diplomacy).
 
 #### E. xAI: Grok Spatial Reasoning & Interactive Agents
+
 * Technical Strategy: Emphasizes real-time visual-spatial reasoning and physics intuition within multimodal context windows, validating that spatial grounding is significantly enhanced when visual grid references or coordinate rulers are layered onto screenshots.
 
 ---
@@ -73,6 +79,7 @@ An interactive video game environment interacted with via a remote or local LLM 
 $$\mathcal{M} = \langle \mathcal{S}, \mathcal{A}, \mathcal{T}, \mathcal{R}, \Omega, \mathcal{O}, \gamma, \Delta t_{\text{inference}} \rangle$$
 
 Where:
+
 * $\mathcal{S}$ is the true high-dimensional internal state of the game engine (unobservable memory, physics vectors, object positions).
 * $\mathcal{A}$ is the hybrid action space comprising continuous analog controller vectors $a_{\text{analog}} \in [-1.0, 1.0]^4$ and discrete keyboard/mouse events $a_{\text{hid}} \in \{0, 1\}^K$.
 * $\mathcal{T}(s' \mid s, a)$ is the stochastic game engine physics transition distribution executing at 60 Hz ($\Delta t_{\text{engine}} = 16.6\text{ ms}$).
@@ -85,6 +92,7 @@ Where:
 Because $\Delta t_{\text{inference}} \gg \Delta t_{\text{engine}}$, the state $s$ shifts by $N = \frac{\Delta t_{\text{inference}}}{\Delta t_{\text{engine}}} \approx 30 \text{ to } 150$ frames between observation acquisition and action execution.
 
 #### Mathematical Resolution: Action Chunking & Trajectory Splining
+
 To prevent overshoot and temporal instability, the server adopts the Action Chunking paradigm (inspired by ACT, Zhao et al., 2023). Instead of emitting single instantaneous actions, the LLM emits a parameterized temporal action trajectory:
 
 $$\mathcal{C} = \{ (t_k, a_k) \}_{k=1}^M \quad \text{where } t_k \in [0, T_{\text{chunk}}]$$
@@ -100,11 +108,13 @@ This mathematical trajectory guarantees that acceleration and jerk are continuou
 ### 3. Perceptual Token Economics & Differential Frame Caching
 
 Continuously transmitting 1080p raw frames every 2 seconds to external frontier model APIs creates prohibitive operational costs and rapidly triggers rate limits:
+
 * Uncompressed 1080p Frame: ~6.2 MB.
 * Standard JPEG (q=85): ~150-250 KB (consuming ~1,000-1,600 multimodal tokens per call).
 * Hourly Consumption at 0.5 Hz: 1,800 turns = ~2.7 Million tokens / hour.
 
 #### Optimization Pipeline
+
 ```
 Raw Frame (1920x1080 GPU)
        |
@@ -143,6 +153,7 @@ Calculate 64-bit Difference Hash (dHash) vs Last Frame
 Standard VLA game agents suffer from sensory blindness in titles where environmental hazards, enemy footsteps, reload clicks, and proximity alarms occur off-screen.
 
 #### Windows WASAPI Loopback Integration
+
 * Capture Subsystem: Captures master audio output directly from the Windows Audio Session API (WASAPI) loopback buffer (`IAudioCaptureClient`) in shared mode at 48kHz, 16-bit stereo PCM, without requiring virtual audio cables.
 * Local Feature Extraction: A sliding Hanning window ($N=1024, \text{hop}=512$) computes a 64-band log-mel spectrogram over 1-second chunks.
 * Spatial Disparity Estimation: Evaluates Interaural Level Difference (ILD) between left and right audio channels:
@@ -159,12 +170,12 @@ Standard VLA game agents suffer from sensory blindness in titles where environme
 
 ### 5. Academic Literature & Theoretical Formulations
 
-| Domain | Key Papers | Methodological Impact on gaming-mcp |
-|--------|------------|-------------------------------------|
-| Embodied Minecraft Agents | Voyager (Wang et al., 2023)<br>GITM (Yuan et al., 2023)<br>STEVE-1 (Lifshitz et al., 2023)<br>JARVIS-1 (Wang et al., 2023) | * Vectorized macro skill registry<br>* Hierarchical planning (Goal -> Subgoal -> Tool Call)<br>* Multimodal memory buffers with self-verification loops |
-| Universal Computer Agents | Cradle (Dong et al., 2024)<br>AppAgent (Yang et al., 2023)<br>OSWorld (Xie et al., 2024) | * Universal UI/HUD parsing pipeline<br>* Red Dead Redemption 2 visual control without internal memory access<br>* Virtual analog joystick integration via ViGEmBus |
-| API & Tool Utilization | Gorilla (Patil et al., 2023)<br>Toolformer (Schick et al., 2023)<br>ReAct (Yao et al., 2022) | * Strict Pydantic JSON Schema definitions preventing argument hallucination<br>* Self-contained tool output schemas with actionable error codes |
-| Standardized Benchmarks | SmartPlay (Microsoft, 2024)<br>AgentBench (Liu et al., 2023)<br>NetHack Learning Environment (Kuttler et al., 2020) | * Objective validation testbed<br>* Standardized reward tracking, episode termination, and action-token efficiency metrics |
+| Domain                    | Key Papers                                                                                                                 | Methodological Impact on gaming-mcp                                                                                                                                |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Embodied Minecraft Agents | Voyager (Wang et al., 2023)<br>GITM (Yuan et al., 2023)<br>STEVE-1 (Lifshitz et al., 2023)<br>JARVIS-1 (Wang et al., 2023) | * Vectorized macro skill registry<br>* Hierarchical planning (Goal -> Subgoal -> Tool Call)<br>* Multimodal memory buffers with self-verification loops            |
+| Universal Computer Agents | Cradle (Dong et al., 2024)<br>AppAgent (Yang et al., 2023)<br>OSWorld (Xie et al., 2024)                                   | * Universal UI/HUD parsing pipeline<br>* Red Dead Redemption 2 visual control without internal memory access<br>* Virtual analog joystick integration via ViGEmBus |
+| API & Tool Utilization    | Gorilla (Patil et al., 2023)<br>Toolformer (Schick et al., 2023)<br>ReAct (Yao et al., 2022)                               | * Strict Pydantic JSON Schema definitions preventing argument hallucination<br>* Self-contained tool output schemas with actionable error codes                    |
+| Standardized Benchmarks   | SmartPlay (Microsoft, 2024)<br>AgentBench (Liu et al., 2023)<br>NetHack Learning Environment (Kuttler et al., 2020)        | * Objective validation testbed<br>* Standardized reward tracking, episode termination, and action-token efficiency metrics                                         |
 
 ---
 
@@ -200,7 +211,9 @@ The server conforms to the MCP Specification (v2025-06-18 and v2026-07-28), full
 #### Protocol Message Bindings
 
 ##### A. Cancellation Protocol (`notifications/cancelled`)
+
 When an agent or client cancels an in-flight tool call (e.g., pathfinding or a held key):
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -211,10 +224,13 @@ When an agent or client cancels an in-flight tool call (e.g., pathfinding or a h
   }
 }
 ```
+
 *Server Behavior*: The active async task bound to `requestId` receives `asyncio.CancelledError`. The cancellation cleanup block immediately calls `InputController.release_all_keys()`, resets the virtual gamepad to neutral, and sets the cancellation flag on any active pathfinding worker.
 
 ##### B. Progress Reporting (`notifications/progress`)
+
 For long-running operations (such as `mc_navigate_to` over 50 blocks):
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -228,7 +244,9 @@ For long-running operations (such as `mc_navigate_to` over 50 blocks):
 ```
 
 ##### C. Resource Subscriptions (`resources/subscribe` & `notifications/resources/updated`)
+
 Clients can subscribe to high-frequency state updates without polling:
+
 ```json
 // Client subscription request:
 {
@@ -247,7 +265,9 @@ Clients can subscribe to high-frequency state updates without polling:
 ```
 
 ##### D. Human Elicitation Gate for High-Risk Actions
+
 If an agent attempts an irreversible in-game action (such as deleting a character, overwriting a save file, or executing microtransactions):
+
 ```json
 // Server elicitation request:
 {
@@ -307,11 +327,11 @@ flowchart TD
     subgraph GAMING_SERVER["gaming-mcp Core Engine"]
         SERVER_CORE["Server Dispatcher & Lifecycle Manager"]
         AUTH["Security & Sandbox Controller"]
-        
+
         REG_TOOLS["Tool Registry"]
         REG_RES["Resource Registry with Subscriptions"]
         REG_PROMPTS["Prompt Registry"]
-        
+
         SAMPLING_MGR["Sampling & Elicitation Coordinator"]
         SKILL_SYS["Voyager Skill Memory Engine (Vector DB)"]
 
@@ -329,7 +349,7 @@ flowchart TD
     subgraph ADAPTER_ROUTER["Adapter Routing & Abstraction Layer"]
         ROUTER["Dynamic Adapter Router (Hot-Swappable)"]
         ADAPTER_BASE["GameAdapter Base SPI"]
-        
+
         CU_ADAPTER["ComputerUseAdapter (Universal VLA)"]
         MC_ADAPTER["MinecraftAdapter (Mineflayer/RCON)"]
         RETRO_ADAPTER["RetroAdapter (Libretro/ALE)"]
@@ -724,6 +744,7 @@ Employs a high-speed, headless Node.js child process executing `mineflayer`, `mi
 ```
 
 #### Dedicated Minecraft Tools
+
 1. `mc_navigate_to(x: int, y: int, z: int, timeout_seconds: int = 30)`: Computes and executes multi-block 3D pathfinding with block breaking and bridge building using A* heuristic algorithms. Supports MCP progress tokens.
 2. `mc_mine_block(block_name: Optional[str], coordinates: Optional[Vec3])`: Selects the optimal harvest tool from the inventory (e.g. Iron Pickaxe for Diamonds), looks directly at the voxel bounding box, and harvests the block.
 3. `mc_craft_item(item_name: str, quantity: int = 1)`: Verifies recipes from the game's internal recipe graph, navigates to a crafting table if required, and crafts the specified item.
@@ -732,6 +753,7 @@ Employs a high-speed, headless Node.js child process executing `mineflayer`, `mi
 6. `mc_inspect_surroundings(radius: int = 16)`: Returns a structured JSON spatial report: nearby hostile/passive entities with distances, block types, light levels, and hazards.
 
 #### Minecraft Resources
+
 - `minecraft://player/inventory`: Real-time JSON breakdown of all 36 player slots, off-hand slot, and armor slots with durability counts.
 - `minecraft://player/stats`: Health (0-20), Food Level (0-20), Oxygen, Experience Level, and status potion effects.
 - `minecraft://world/biome_and_time`: Current biome name, celestial angle, tick time (day/night detection), and weather states.
@@ -743,12 +765,14 @@ Employs a high-speed, headless Node.js child process executing `mineflayer`, `mi
 Integrates with `stable-retro` / `Gymnasium-Retro` and `Libretro` C-bindings to achieve frame-perfect control over retro game platforms (NES, SNES, Genesis, Game Boy, GBA, PlayStation 1, N64).
 
 #### Dedicated Retro Tools
+
 1. `retro_send_pad(buttons: List[str], frames: int = 4)`: Sets the gamepad bitmask (UP, DOWN, LEFT, RIGHT, A, B, X, Y, L, R, SELECT, START) for an exact frame count before releasing.
 2. `retro_save_state(slot_name: str)`: Serializes emulator memory and register state into an instant snapshot.
 3. `retro_load_state(slot_name: str)`: Restores state instantly to explore branching strategic paths or retry failed levels.
 4. `retro_read_ram(address: int, length: int)`: Reads arbitrary game memory addresses (lives, score, boss HP, coordinates) directly bypassing vision.
 
 #### Retro Resources
+
 - `retro://screen`: Raw unscaled emulator frame buffer serialized as high-efficiency JPEG or lossless PNG.
 - `retro://ram/variables`: Pre-mapped game data tables extracted from retro game integration manifests (e.g. `mario_x_pos`, `timer`, `coins`).
 
@@ -757,6 +781,7 @@ Integrates with `stable-retro` / `Gymnasium-Retro` and `Libretro` C-bindings to 
 ### 5. Low-Level I/O Engine & Driver Implementations
 
 #### A. Zero-Copy Screen Capture Pipeline (`io/screen.py`)
+
 Standard OS GDI/BitBlt screen captures introduce 30-70ms latencies and fail completely on fullscreen DirectX/Vulkan game windows due to hardware surface overlays. gaming-mcp implements a prioritized 3-tier screen capture engine:
 
 ```
@@ -778,6 +803,7 @@ Standard OS GDI/BitBlt screen captures introduce 30-70ms latencies and fail comp
 ```
 
 ##### HDR-to-SDR Tone Mapping Matrix
+
 When modern games render in HDR10 (`DXGI_FORMAT_R10G10B10A2_UNORM` or `DXGI_FORMAT_R16G16B16A16_FLOAT`), standard frame grabbing outputs blown-out white pixels. The DXGI pipeline applies an on-GPU or SIMD ACES filmic tone-mapping curve:
 
 $$L_{\text{sdr}} = \frac{L_{\text{hdr}} (a L_{\text{hdr}} + b)}{L_{\text{hdr}} (c L_{\text{hdr}} + d) + e}$$
@@ -785,15 +811,18 @@ $$L_{\text{sdr}} = \frac{L_{\text{hdr}} (a L_{\text{hdr}} + b)}{L_{\text{hdr}} (
 Where $a=2.51, b=0.03, c=2.43, d=0.59, e=0.14$.
 
 #### B. Driver-Level Input Actuation (`io/input.py`)
+
 Modern games often discard standard `user32.SendMessage` or `PostMessage` synthetic inputs to prevent macro bots, and direct `SendInput` calls with virtual key codes (VK_*) fail in DirectX games that consume raw hardware scan codes (`KEYEVENTF_SCANCODE`).
 
 gaming-mcp provides dual-layer actuation:
+
 1. DirectX Hardware Scan Code Injection:
    Translates key requests into direct PS/2 Set 1 keyboard scan codes (e.g., `W` = `0x11`, `Space` = `0x39`, `Enter` = `0x1C`) delivered via `INPUT_KEYBOARD` structs containing `wScan` and the `KEYEVENTF_SCANCODE` flag.
 2. Kernel Driver Virtual Gamepad Emulation (ViGEmBus):
    Uses `vgamepad` bindings to talk to the open-source Windows ViGEmBus driver. The operating system and game engine recognize the agent as a physical, certified Microsoft Xbox 360 controller or Sony DualShock 4. This bypasses anti-macro protections in modern anti-cheat systems (BattlEye, Easy Anti-Cheat, Ricochet) and provides continuous 360-degree analog precision.
 
 ##### Analog Thumbstick Deadzone Transform
+
 ```python
 def transform_thumbstick(x: float, y: float, deadzone: float = 0.15) -> tuple[int, int]:
     """Transform normalized [-1.0, 1.0] coordinates to XInput [-32768, 32767] with circular deadzone."""
@@ -808,7 +837,9 @@ def transform_thumbstick(x: float, y: float, deadzone: float = 0.15) -> tuple[in
 ```
 
 #### C. Audio Telemetry Capture (`io/audio.py`)
+
 Captures master output via WASAPI loopback:
+
 - Direct PCM 16-bit 48kHz audio ring buffer.
 - Computes real-time acoustic energy envelope and FFT spectrograms.
 - Emits transient event triggers (e.g. explosion, footstep, hit sound) into `game://audio/events`.
@@ -873,6 +904,7 @@ To achieve open-ended lifelong learning, the agent must not re-plan low-level ac
 ```
 
 #### SQLite Vector Schema
+
 ```sql
 CREATE TABLE IF NOT EXISTS skills (
     id TEXT PRIMARY KEY,
@@ -895,6 +927,7 @@ CREATE INDEX IF NOT EXISTS idx_skills_name ON skills(name);
 ### 8. Security, Anti-Cheat, and Safety Guardrails
 
 Autonomous agents operating with operating-system-level input injection pose distinct security risks:
+
 1. Window Boundary Isolation: The server strictly enforces window clipping. If mouse coordinates fall outside the target game window rect, they are clamped or rejected to prevent the agent from clicking the taskbar, closing apps, or modifying host OS files.
 2. Emergency Hardware Kill-Switch: A global background daemon monitors a dedicated physical key combo (e.g. `Ctrl + Alt + Shift + Pause/Break`). Toggling this combo immediately halts all input injection, releases all held keys, clears virtual gamepad state, and terminates running macros.
 3. Protected Process Blacklisting: The `window_focus` and input injection mechanisms refuse to interact with system windows (e.g., `cmd.exe`, `powershell.exe`, `Taskmgr.exe`, Explorer file dialogs, web browsers containing credential fields).
@@ -1039,16 +1072,17 @@ flowchart LR
 
 ### Schedule and Predecessor Dependency Matrix
 
-| Phase | Timeline | Primary Focus | Predecessors | Key Deliverables & Exit Gate |
-|-------|----------|---------------|--------------|------------------------------|
-| Phase 1 | Weeks 1-2 | Foundation Core & MCP Server | None (Kickoff) | Server lifecycle, stdio/SSE transports, typed registries, MCP Inspector pass |
-| Phase 2 | Weeks 3-4 | Universal Computer Use (VLA) | Phase 1 | DXGI capture (<8ms), ViGEmBus, dHash gating, Minesweeper autonomous play |
-| Phase 3 | Weeks 5-6 | Minecraft High-Fidelity Bridge | Phase 2 | Node.js Mineflayer bridge, A* pathfinding, diamond pickaxe survival loop |
-| Phase 4 | Weeks 7-8 | Retro & Gymnasium Adapters | Phase 2 | Libretro cores, frame stepping, save states, Super Mario 1-1 completion |
-| Phase 5 | Weeks 9-10 | Skill Library & Reflexive Memory | Phase 3, Phase 4 | SQLite vector store, semantic skill retrieval, self-repair execution loop |
-| Phase 6 | Weeks 11-12 | Hardening, Benchmarks & Ship | Phase 5 | SmartPlay benchmark suite, CI/CD multi-OS matrix, PyPI release v1.0.0 |
+| Phase   | Timeline    | Primary Focus                    | Predecessors     | Key Deliverables & Exit Gate                                                 |
+| ------- | ----------- | -------------------------------- | ---------------- | ---------------------------------------------------------------------------- |
+| Phase 1 | Weeks 1-2   | Foundation Core & MCP Server     | None (Kickoff)   | Server lifecycle, stdio/SSE transports, typed registries, MCP Inspector pass |
+| Phase 2 | Weeks 3-4   | Universal Computer Use (VLA)     | Phase 1          | DXGI capture (<8ms), ViGEmBus, dHash gating, Minesweeper autonomous play     |
+| Phase 3 | Weeks 5-6   | Minecraft High-Fidelity Bridge   | Phase 2          | Node.js Mineflayer bridge, A* pathfinding, diamond pickaxe survival loop     |
+| Phase 4 | Weeks 7-8   | Retro & Gymnasium Adapters       | Phase 2          | Libretro cores, frame stepping, save states, Super Mario 1-1 completion      |
+| Phase 5 | Weeks 9-10  | Skill Library & Reflexive Memory | Phase 3, Phase 4 | SQLite vector store, semantic skill retrieval, self-repair execution loop    |
+| Phase 6 | Weeks 11-12 | Hardening, Benchmarks & Ship     | Phase 5          | SmartPlay benchmark suite, CI/CD multi-OS matrix, PyPI release v1.0.0        |
 
 ### Phase 1: Core Foundation & Protocol Dispatcher (Weeks 1-2)
+
 * Milestone 1.1: MCP Protocol Engine
   * Implement `gaming_mcp.server` with full JSON-RPC 2.0 lifecycle (`initialize`, `initialized`, `shutdown`, `ping`).
   * Support `stdio` transport for Claude Desktop / Cursor alongside `Streamable HTTP + SSE` via Starlette/Uvicorn.
@@ -1063,6 +1097,7 @@ flowchart LR
   * MCP Inspector (`npx @modelcontextprotocol/inspector`) connects cleanly with zero schema warnings.
 
 ### Phase 2: Universal VLA Computer Use Engine (Weeks 3-4)
+
 * Milestone 2.1: Hardware-Accelerated Display & Audio Capture
   * Develop DXGI Desktop Duplication C++ DLL wrapper via `ctypes` for zero-copy GPU screen capture under Windows, including HDR-to-SDR tone-mapping.
   * Build MSS fallback capturer with multi-monitor selector and window-handle bounding-box cropping.
@@ -1081,6 +1116,7 @@ flowchart LR
   * Able to autonomously play a full game of Windows Minesweeper using Claude Desktop.
 
 ### Phase 3: Minecraft High-Fidelity Bridge (Weeks 5-6)
+
 * Milestone 3.1: Node.js Mineflayer IPC Bridge
   * Author Node.js bridge daemon running `mineflayer`, `mineflayer-pathfinder`, and `mineflayer-collectblock`.
   * Implement robust bidirectional NDJSON communication channel with automatic process health checks and respawns.
@@ -1091,6 +1127,7 @@ flowchart LR
   * Autonomous survival bot successfully gathers wood, crafts a crafting table, and creates a wooden pickaxe without human intervention.
 
 ### Phase 4: Retro & Gymnasium Adapters (Weeks 7-8)
+
 * Milestone 4.1: Libretro Core Integration
   * Bind `stable-retro` and Libretro emulator cores for NES, SNES, and Genesis.
   * Implement frame-stepping actuation tool (`retro_send_pad`) and instantaneous memory snapshotting (`retro_save_state`, `retro_load_state`).
@@ -1101,6 +1138,7 @@ flowchart LR
   * Agent plays Super Mario Bros World 1-1, using save/load states to recover from game-over events.
 
 ### Phase 5: Voyager-Inspired Skill Library & Reflexive Memory (Weeks 9-10)
+
 * Milestone 5.1: Persistent Skill Store & Local Vector Index
   * Develop SQLite skill repository storing composite macros with input parameter definitions.
   * Implement local vector search using sentence-transformers / lightweight cosine similarity for zero-dependency retrieval.
@@ -1111,6 +1149,7 @@ flowchart LR
   * Agent retrieves and successfully executes a previously compiled "craft_furnace" skill when queried in a new session.
 
 ### Phase 6: Hardening, Evaluation Benchmarks & Distribution (Weeks 11-12)
+
 * Milestone 6.1: Comprehensive Benchmark Evaluation
   * Implement automated test suite evaluating performance against the SmartPlay benchmark and AgentBench gaming suites.
   * Benchmark token consumption, task completion rate, and action latency across Claude 3.7 Sonnet, GPT-4o, and Gemini 2.0 Flash.
@@ -1127,6 +1166,7 @@ flowchart LR
 ## Part VI: Verification, Testing & Multi-Genre Benchmarking Protocols
 
 ### 1. Automated Conformance Tests
+
 ```bash
 # Execute unit testing suite with async coverage
 pytest tests/ -v --cov=src/gaming_mcp --cov-report=term-missing
@@ -1140,26 +1180,27 @@ mypy src/ --strict
 ```
 
 ### 2. Empirical Performance & Latency Targets
-| Performance Metric | Target Threshold | Method of Measurement |
-|--------------------|------------------|-----------------------|
-| DXGI Screen Capture Latency | <= 8 ms | High-precision timer (`time.perf_counter_ns`) around DXGI texture copy |
-| JPEG Encoding (1080p @ q=85) | <= 12 ms | TurboJPEG SIMD CPU benchmark |
-| dHash Delta Evaluation | <= 3 ms | 64-bit integer Hamming distance computation |
-| SendInput Injection Latency | <= 1 ms | Time delta to OS message queue acceptance |
-| ViGEm Virtual Gamepad Latency | <= 2 ms | Kernel driver bus notification dispatch |
-| End-to-End Tool Turnaround | <= 35 ms | Client tool request receipt to JSON-RPC tool response emitted |
-| Idle Memory Footprint | <= 75 MB | Python process Resident Set Size (RSS) monitoring |
+
+| Performance Metric            | Target Threshold | Method of Measurement                                                  |
+| ----------------------------- | ---------------- | ---------------------------------------------------------------------- |
+| DXGI Screen Capture Latency   | <= 8 ms          | High-precision timer (`time.perf_counter_ns`) around DXGI texture copy |
+| JPEG Encoding (1080p @ q=85)  | <= 12 ms         | TurboJPEG SIMD CPU benchmark                                           |
+| dHash Delta Evaluation        | <= 3 ms          | 64-bit integer Hamming distance computation                            |
+| SendInput Injection Latency   | <= 1 ms          | Time delta to OS message queue acceptance                              |
+| ViGEm Virtual Gamepad Latency | <= 2 ms          | Kernel driver bus notification dispatch                                |
+| End-to-End Tool Turnaround    | <= 35 ms         | Client tool request receipt to JSON-RPC tool response emitted          |
+| Idle Memory Footprint         | <= 75 MB         | Python process Resident Set Size (RSS) monitoring                      |
 
 ### 3. Standardized Multi-Genre Evaluation Matrix
 
 To objectively measure the agent's performance, gaming-mcp defines four evaluation benchmarks across different gaming genres:
 
-| Genre Tier | Benchmark Game | Evaluated Capabilities | Target Success Metric |
-|------------|----------------|------------------------|-----------------------|
-| Tier 1: Turn-Based Strategy | Freeciv / Slay the Spire | Long-horizon planning, text OCR, menu reasoning | Win rate > 75% on standard difficulty |
-| Tier 2: 2D Grid & Platformer | Windows Minesweeper / Super Mario Bros | Spatial coordinate grounding, rapid obstacle avoidance | 0% spatial misclicks; Mario 1-1 completion |
-| Tier 3: 3D Open World | Minecraft (Survival Mode) | 3D navigation, resource gathering, spatial memory | Crafting diamond pickaxe within 45 mins |
-| Tier 4: Real-Time Action | Doom / Street Fighter II | High-frequency action chunking, reflex tripwires | First level clearance without health depletion |
+| Genre Tier                   | Benchmark Game                         | Evaluated Capabilities                                 | Target Success Metric                          |
+| ---------------------------- | -------------------------------------- | ------------------------------------------------------ | ---------------------------------------------- |
+| Tier 1: Turn-Based Strategy  | Freeciv / Slay the Spire               | Long-horizon planning, text OCR, menu reasoning        | Win rate > 75% on standard difficulty          |
+| Tier 2: 2D Grid & Platformer | Windows Minesweeper / Super Mario Bros | Spatial coordinate grounding, rapid obstacle avoidance | 0% spatial misclicks; Mario 1-1 completion     |
+| Tier 3: 3D Open World        | Minecraft (Survival Mode)              | 3D navigation, resource gathering, spatial memory      | Crafting diamond pickaxe within 45 mins        |
+| Tier 4: Real-Time Action     | Doom / Street Fighter II               | High-frequency action chunking, reflex tripwires       | First level clearance without health depletion |
 
 ---
 
@@ -1168,6 +1209,7 @@ To objectively measure the agent's performance, gaming-mcp defines four evaluati
 This section establishes the production architectural standards adopted for the gaming-mcp server, detailing the engineering rationale, runtime configuration defaults, and graceful degradation paths.
 
 ### 1. Actuation Engine Standard for Windows (Decision 1 Resolved)
+
 * **Adopted Standard**: Hybrid Auto-Detect with Zero-External-Dependency SendInput Baseline.
 * **Technical Rationale**:
   * Requiring the kernel-level ViGEmBus driver as a mandatory prerequisite creates friction for users wanting zero-install evaluation.
@@ -1179,6 +1221,7 @@ This section establishes the production architectural standards adopted for the 
   4. Configuration Override: `input.preferred_backend` in `config.json` supports `"auto"`, `"scancode"`, `"vigem"`, or `"pyautogui"`.
 
 ### 2. Image Compression and Token Economics Standard (Decision 2 Resolved)
+
 * **Adopted Standard**: Adaptive Turbo-JPEG at Quality 85 with 64-bit dHash Perceptual Delta Gating and On-Demand Set-of-Marks (SoM) Grid Overlay.
 * **Technical Rationale**:
   * Uncompressed PNG screenshots average 3-5 MB per frame. At 0.5 Hz inference polling, an agent consumes ~2.7M multimodal tokens per hour, hitting provider rate limits within minutes.
@@ -1191,6 +1234,7 @@ This section establishes the production architectural standards adopted for the 
   4. Configuration Override: `screen.default_format`, `screen.jpeg_quality`, and `screen.dhash_threshold` in `config.json`.
 
 ### 3. Phased Implementation Sequence and Focus Priority (Decision 3 Resolved)
+
 * **Adopted Standard**: Sequential Delivery Order (Phase 1 -> Phase 2 -> Phase 3 -> Phase 4 -> Phase 5 -> Phase 6).
 * **Technical Rationale**:
   * Phase 1 (Core Foundation & Protocol Dispatcher) is the non-negotiable prerequisite that establishes protocol conformance and test harness stability.
@@ -1207,15 +1251,15 @@ While the primary development target is Windows 10/11 (where DXGI Desktop Duplic
 
 ### Platform Capability Matrix
 
-| Subsystem | Windows 10/11 | Linux (X11/Wayland) | macOS 13+ |
-|-----------|---------------|---------------------|-----------|
-| Screen Capture (Tier 1) | DXGI Desktop Duplication | PipeWire / XShm (X11) | CoreGraphics CGWindowListCreateImage |
-| Screen Capture (Tier 2) | MSS (GDI) | MSS (X11/XCB) | MSS (Quartz) |
-| Keyboard Input | SendInput + KEYEVENTF_SCANCODE | uinput / xdotool / ydotool | CGEventPost (Quartz Events) |
-| Gamepad Emulation | ViGEmBus (Xbox 360 / DS4) | uinput virtual gamepad | Not supported (advisory warning) |
-| Audio Capture | WASAPI loopback | PulseAudio / PipeWire monitor | CoreAudio aggregate device |
-| Window Management | Win32 EnumWindows / SetForegroundWindow | wmctrl / xdotool / Sway IPC | NSWorkspace / CGWindow |
-| Emergency Kill-Switch | SetWindowsHookEx (low-level keyboard) | XGrabKey / libinput | CGEventTap (Quartz Event Tap) |
+| Subsystem               | Windows 10/11                           | Linux (X11/Wayland)           | macOS 13+                            |
+| ----------------------- | --------------------------------------- | ----------------------------- | ------------------------------------ |
+| Screen Capture (Tier 1) | DXGI Desktop Duplication                | PipeWire / XShm (X11)         | CoreGraphics CGWindowListCreateImage |
+| Screen Capture (Tier 2) | MSS (GDI)                               | MSS (X11/XCB)                 | MSS (Quartz)                         |
+| Keyboard Input          | SendInput + KEYEVENTF_SCANCODE          | uinput / xdotool / ydotool    | CGEventPost (Quartz Events)          |
+| Gamepad Emulation       | ViGEmBus (Xbox 360 / DS4)               | uinput virtual gamepad        | Not supported (advisory warning)     |
+| Audio Capture           | WASAPI loopback                         | PulseAudio / PipeWire monitor | CoreAudio aggregate device           |
+| Window Management       | Win32 EnumWindows / SetForegroundWindow | wmctrl / xdotool / Sway IPC   | NSWorkspace / CGWindow               |
+| Emergency Kill-Switch   | SetWindowsHookEx (low-level keyboard)   | XGrabKey / libinput           | CGEventTap (Quartz Event Tap)        |
 
 ### Graceful Degradation Strategy
 
@@ -1405,6 +1449,7 @@ class ElicitationDeniedError(GamingMCPError):
 ### JSON-RPC Error Mapping
 
 All `GamingMCPError` subclasses map to JSON-RPC 2.0 error responses with:
+
 - `code`: Application-specific error code in the `-32000` to `-32099` range (server-defined).
 - `message`: Human-readable description for LLM consumption.
 - `data`: Optional structured metadata (adapter_id, stack trace, suggested recovery action).
@@ -1452,6 +1497,7 @@ Main asyncio Event Loop (Single Thread)
 ### Configuration File Format
 
 The server reads configuration from multiple sources in priority order:
+
 1. CLI flags (`--adapter`, `--transport`, `--port`)
 2. Environment variables (`GAMING_MCP_ADAPTER`, `GAMING_MCP_TRANSPORT`)
 3. JSON configuration file (`config.json` or path specified by `--config`)
@@ -1588,16 +1634,16 @@ class StructuredFormatter(logging.Formatter):
 
 ### Key Metrics Exposed
 
-| Metric | Type | Source | Purpose |
-|--------|------|--------|---------|
-| `screen_capture_latency_ms` | Histogram | io/screen.py | Monitor DXGI/MSS frame grab performance |
-| `tool_execution_latency_ms` | Histogram | core/tools.py | End-to-end tool call timing |
-| `dhash_cache_hit_ratio` | Counter | io/vision.py | Track token savings from dHash gating |
-| `input_injection_count` | Counter | io/input.py | Total keyboard/mouse/gamepad events injected |
-| `active_subscriptions` | Gauge | core/resources.py | Number of active resource subscribers |
-| `adapter_health_status` | Gauge | adapters/router.py | Per-adapter initialization and liveness state |
-| `skill_execution_success_rate` | Counter | skills/executor.py | Macro replay success/failure tracking |
-| `audio_events_detected` | Counter | io/audio.py | Acoustic event trigger counts |
+| Metric                         | Type      | Source             | Purpose                                       |
+| ------------------------------ | --------- | ------------------ | --------------------------------------------- |
+| `screen_capture_latency_ms`    | Histogram | io/screen.py       | Monitor DXGI/MSS frame grab performance       |
+| `tool_execution_latency_ms`    | Histogram | core/tools.py      | End-to-end tool call timing                   |
+| `dhash_cache_hit_ratio`        | Counter   | io/vision.py       | Track token savings from dHash gating         |
+| `input_injection_count`        | Counter   | io/input.py        | Total keyboard/mouse/gamepad events injected  |
+| `active_subscriptions`         | Gauge     | core/resources.py  | Number of active resource subscribers         |
+| `adapter_health_status`        | Gauge     | adapters/router.py | Per-adapter initialization and liveness state |
+| `skill_execution_success_rate` | Counter   | skills/executor.py | Macro replay success/failure tracking         |
+| `audio_events_detected`        | Counter   | io/audio.py        | Acoustic event trigger counts                 |
 
 ### Health Check Endpoint
 
@@ -1709,8 +1755,8 @@ repos:
 
 ## Part XV: Document Revision History
 
-| Date | Version | Author | Changes |
-|------|---------|--------|---------|
-| 2026-09-17 | 0.1.0 | Initial | Research synthesis, architecture, component specs, phased roadmap |
-| 2026-09-17 | 0.2.0 | Audit Council | Integrated audit findings: action chunking, token economics, audio, elicitation |
-| 2026-09-24 | 0.3.0 | Refinement Pass | Added Parts VIII-XIV: cross-platform strategy, dependency specification, error handling, concurrency model, configuration schema, observability, CI/CD pipeline. Consolidated duplicate docs. Created task tracker. Updated audit report. |
+| Date       | Version | Author          | Changes                                                                                                                                                                                                                                   |
+| ---------- | ------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-09-17 | 0.1.0   | Initial         | Research synthesis, architecture, component specs, phased roadmap                                                                                                                                                                         |
+| 2026-09-17 | 0.2.0   | Audit Council   | Integrated audit findings: action chunking, token economics, audio, elicitation                                                                                                                                                           |
+| 2026-09-24 | 0.3.0   | Refinement Pass | Added Parts VIII-XIV: cross-platform strategy, dependency specification, error handling, concurrency model, configuration schema, observability, CI/CD pipeline. Consolidated duplicate docs. Created task tracker. Updated audit report. |

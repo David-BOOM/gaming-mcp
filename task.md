@@ -33,6 +33,7 @@ The project is in the formal planning, research synthesis, and architectural spe
 - [x] Plan refinement pass: Cross-platform strategy, dependency specification, error handling, CI/CD pipeline, configuration schema, concurrency model, observability
 
 - [x] Part VII architectural decisions resolved (hybrid SendInput/ViGEmBus actuation, adaptive Turbo-JPEG with dHash gating, sequential phased focus priority)
+- [x] Gemini 3.8 Flash Autonomous Team Loop (T2, L3) Prompt (GEMINI38-TEAM-LOOP-PROMPT.md), Persistent Memory (MEMORY.md), Resumption Pointer (RESUME.md), and Machine State (LOOP_STATE.json, PROGRESS.md)
 
 ### Pending Tasks (Pre-Implementation)
 
@@ -56,5 +57,10 @@ The project is in the formal planning, research synthesis, and architectural spe
 | Master Implementation Plan | [implementation_plan.md](implementation_plan.md) | Active -- Canonical |
 | Quality Audit Report | [docs/audit_report.md](docs/audit_report.md) | Complete |
 | Research Summary | [research/arxiv/arxiv_game_agents_summary.md](research/arxiv/arxiv_game_agents_summary.md) | Complete |
+| Team Loop Prompt (Gemini 3.8 Flash) | [GEMINI38-TEAM-LOOP-PROMPT.md](GEMINI38-TEAM-LOOP-PROMPT.md) | Ready -- Canonical Loop |
+| System Memory & Error Catalog | [MEMORY.md](MEMORY.md) | Active -- Knowledge Base |
+| Resumption Pointer | [RESUME.md](RESUME.md) | Active -- Cold-Start Entry |
+| Machine State Machine | [LOOP_STATE.json](LOOP_STATE.json) | Active -- Task DAG |
 | Repository Rules | [AGENTS.md](AGENTS.md) | Active |
 | Task Tracker | [task.md](task.md) | Active -- This File |
+

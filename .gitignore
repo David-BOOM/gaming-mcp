@@ -22,6 +22,17 @@
 !adr/**
 !roadmap.md
 !ROADMAP.md
+!task.md
+!task*.md
+!MEMORY.md
+!RESUME.md
+!LOOP_STATE.json
+!PROGRESS.md
+!*TEAM-LOOP*.md
+!*PROMPT*.md
+!AGENTS.md
+!GEMINI.md
+!CLAUDE.md
 
 # Open-source repository governance, licenses & community guidelines
 !README.md
@@ -52,12 +63,22 @@
 !tests/**
 !fixtures/
 !fixtures/**
+!tests.json
+!EVIDENCE/
+!EVIDENCE/**
 
 # Example configurations and templates
 !.env.example
 !.env.template
 !*.example.*
 !*.template.*
+
+# Package manager lockfiles (NEVER IGNORE)
+!package-lock.json
+!pnpm-lock.yaml
+!yarn.lock
+!uv.lock
+!poetry.lock
 
 # Source code files must never be ignored by token or credential patterns
 !*token*.py
@@ -318,6 +339,9 @@ ocr_dumps/
 perception_cache/
 raw_frames/
 screen_buffers/
+audio_dumps/
+wasapi_dumps/
+dxgi_dumps/
 
 # Agent rollout trajectories, action history, and episode recordings
 trajectories/
@@ -343,6 +367,13 @@ milvus/
 *.chroma
 *.faiss
 *.lance
+*.sqlite
+*.sqlite3
+*.db
+!tests/**/fixtures/*.db
+!tests/**/fixtures/*.sqlite
+skills.db
+memory.db
 *.db-journal
 *.db-wal
 *.db-shm
@@ -492,6 +523,16 @@ obj/
 *.sys
 *.inf
 *.cat
+*.lib
+*.exp
+*.ilk
+*.o
+*.obj
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+*.ninja
+.ninja_*
 
 # ==============================================================================
 # 14. Logs & Temporary Files
@@ -546,3 +587,18 @@ $RECYCLE.BIN/
 .gemini/
 .agent/
 .system_generated/
+.antigravity/
+.claude/
+.cursor/
+.windsurf/
+.copilot/
+.cline/
+.roo/
+.continue/
+
+# ==============================================================================
+# 16. Permanent Verification Overrides (NEVER IGNORE UNDER ANY RULE)
+# ==============================================================================
+!EVIDENCE/
+!EVIDENCE/**
+!EVIDENCE/**/*
