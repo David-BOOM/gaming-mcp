@@ -1,0 +1,696 @@
+{
+  "timestamp": "2026-09-24T21:49:54Z",
+  "environment": {
+    "os": "win32",
+    "python_version": "3.12.9 (tags/v3.12.9:fdb8142, Feb  4 2025, 15:27:58) [MSC v.1942 64 bit (AMD64)]",
+    "dxgi_available": true,
+    "input_available": true,
+    "gamepad_backend": "MockGamepad"
+  },
+  "all_benchmarks_passed": true,
+  "multi_genre_matrix": {
+    "timestamp": "2026-09-24T21:49:54Z",
+    "total_tiers_evaluated": 4,
+    "all_tiers_passed": true,
+    "tier1": {
+      "tier": "Tier 1: Turn-Based Strategy (Freeciv)",
+      "target_win_rate_percentage": 75.0,
+      "games_evaluated": 20,
+      "games_won": 20,
+      "win_rate_percentage": 100.0,
+      "average_turns_to_win": 14.4,
+      "average_exploration_percentage": 34.04,
+      "pass_target": true,
+      "details": [
+        {
+          "game_id": 1,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 17,
+          "cities_founded": 3,
+          "techs_researched": 5,
+          "tiles_explored": 190,
+          "total_tiles": 576,
+          "exploration_percentage": 32.99,
+          "score": 930
+        },
+        {
+          "game_id": 2,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 17,
+          "cities_founded": 3,
+          "techs_researched": 7,
+          "tiles_explored": 231,
+          "total_tiles": 576,
+          "exploration_percentage": 40.1,
+          "score": 1112
+        },
+        {
+          "game_id": 3,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 14,
+          "cities_founded": 3,
+          "techs_researched": 5,
+          "tiles_explored": 213,
+          "total_tiles": 576,
+          "exploration_percentage": 36.98,
+          "score": 976
+        },
+        {
+          "game_id": 4,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 13,
+          "cities_founded": 3,
+          "techs_researched": 4,
+          "tiles_explored": 198,
+          "total_tiles": 576,
+          "exploration_percentage": 34.38,
+          "score": 896
+        },
+        {
+          "game_id": 5,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 13,
+          "cities_founded": 2,
+          "techs_researched": 4,
+          "tiles_explored": 181,
+          "total_tiles": 576,
+          "exploration_percentage": 31.42,
+          "score": 762
+        },
+        {
+          "game_id": 6,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 16,
+          "cities_founded": 2,
+          "techs_researched": 5,
+          "tiles_explored": 207,
+          "total_tiles": 576,
+          "exploration_percentage": 35.94,
+          "score": 864
+        },
+        {
+          "game_id": 7,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 14,
+          "cities_founded": 3,
+          "techs_researched": 5,
+          "tiles_explored": 194,
+          "total_tiles": 576,
+          "exploration_percentage": 33.68,
+          "score": 938
+        },
+        {
+          "game_id": 8,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 15,
+          "cities_founded": 3,
+          "techs_researched": 5,
+          "tiles_explored": 190,
+          "total_tiles": 576,
+          "exploration_percentage": 32.99,
+          "score": 930
+        },
+        {
+          "game_id": 9,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 11,
+          "cities_founded": 2,
+          "techs_researched": 3,
+          "tiles_explored": 163,
+          "total_tiles": 576,
+          "exploration_percentage": 28.3,
+          "score": 676
+        },
+        {
+          "game_id": 10,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 15,
+          "cities_founded": 3,
+          "techs_researched": 6,
+          "tiles_explored": 198,
+          "total_tiles": 576,
+          "exploration_percentage": 34.38,
+          "score": 996
+        },
+        {
+          "game_id": 11,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 16,
+          "cities_founded": 2,
+          "techs_researched": 5,
+          "tiles_explored": 212,
+          "total_tiles": 576,
+          "exploration_percentage": 36.81,
+          "score": 874
+        },
+        {
+          "game_id": 12,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 10,
+          "cities_founded": 2,
+          "techs_researched": 3,
+          "tiles_explored": 153,
+          "total_tiles": 576,
+          "exploration_percentage": 26.56,
+          "score": 656
+        },
+        {
+          "game_id": 13,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 15,
+          "cities_founded": 2,
+          "techs_researched": 5,
+          "tiles_explored": 194,
+          "total_tiles": 576,
+          "exploration_percentage": 33.68,
+          "score": 838
+        },
+        {
+          "game_id": 14,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 16,
+          "cities_founded": 2,
+          "techs_researched": 5,
+          "tiles_explored": 205,
+          "total_tiles": 576,
+          "exploration_percentage": 35.59,
+          "score": 860
+        },
+        {
+          "game_id": 15,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 11,
+          "cities_founded": 2,
+          "techs_researched": 3,
+          "tiles_explored": 141,
+          "total_tiles": 576,
+          "exploration_percentage": 24.48,
+          "score": 632
+        },
+        {
+          "game_id": 16,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 16,
+          "cities_founded": 3,
+          "techs_researched": 6,
+          "tiles_explored": 227,
+          "total_tiles": 576,
+          "exploration_percentage": 39.41,
+          "score": 1054
+        },
+        {
+          "game_id": 17,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 16,
+          "cities_founded": 3,
+          "techs_researched": 5,
+          "tiles_explored": 190,
+          "total_tiles": 576,
+          "exploration_percentage": 32.99,
+          "score": 930
+        },
+        {
+          "game_id": 18,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 16,
+          "cities_founded": 3,
+          "techs_researched": 6,
+          "tiles_explored": 227,
+          "total_tiles": 576,
+          "exploration_percentage": 39.41,
+          "score": 1054
+        },
+        {
+          "game_id": 19,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 14,
+          "cities_founded": 3,
+          "techs_researched": 5,
+          "tiles_explored": 205,
+          "total_tiles": 576,
+          "exploration_percentage": 35.59,
+          "score": 960
+        },
+        {
+          "game_id": 20,
+          "won": true,
+          "victory_type": "domination",
+          "turns_elapsed": 13,
+          "cities_founded": 3,
+          "techs_researched": 4,
+          "tiles_explored": 202,
+          "total_tiles": 576,
+          "exploration_percentage": 35.07,
+          "score": 904
+        }
+      ]
+    },
+    "tier2": {
+      "tier": "Tier 2: 2D Grid & Platformer",
+      "target_spatial_misclick_rate": 0.0,
+      "minesweeper_misclick_rate_pct": 0.0,
+      "minesweeper_win_rate_pct": 85.0,
+      "mario_world_1_1_completed": true,
+      "pass_target": true,
+      "minesweeper_details": [
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 28,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 10,
+          "won": true
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 19,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 10,
+          "won": true
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 3,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 31,
+          "cells_flagged": 0,
+          "won": false
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 13,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 10,
+          "won": true
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 17,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 10,
+          "won": true
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 16,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 69,
+          "cells_flagged": 8,
+          "won": false
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 10,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 10,
+          "won": true
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 15,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 9,
+          "won": true
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 18,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 10,
+          "won": true
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 15,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 10,
+          "won": true
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 28,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 10,
+          "won": true
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 26,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 9,
+          "won": true
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 27,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 10,
+          "won": true
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 17,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 10,
+          "won": true
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 23,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 9,
+          "won": true
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 18,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 70,
+          "cells_flagged": 9,
+          "won": false
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 15,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 9,
+          "won": true
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 14,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 10,
+          "won": true
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 13,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 10,
+          "won": true
+        },
+        {
+          "board_width": 9,
+          "board_height": 9,
+          "total_mines": 10,
+          "total_clicks": 23,
+          "spatial_misclicks": 0,
+          "spatial_misclick_rate_pct": 0.0,
+          "cells_revealed": 71,
+          "cells_flagged": 10,
+          "won": true
+        }
+      ],
+      "mario_details": {
+        "level": "World 1-1",
+        "completed": true,
+        "final_x_pos": 3112,
+        "target_x_pos": 3100,
+        "elapsed_frames": 768,
+        "simulated_seconds": 12.8,
+        "score": 12672,
+        "coins_collected": 48,
+        "lives_remaining": 3,
+        "state_recoveries_used": 0
+      }
+    },
+    "tier3": {
+      "tier": "Tier 3: 3D Open World (Minecraft Survival Crafting)",
+      "target_pipeline": [
+        "oak_log",
+        "wooden_pickaxe",
+        "cobblestone",
+        "stone_pickaxe",
+        "furnace"
+      ],
+      "all_milestones_completed": true,
+      "total_elapsed_seconds": 100.0,
+      "final_inventory": {
+        "oak_log": 0,
+        "oak_planks": 7,
+        "crafting_table": 0,
+        "stick": 0,
+        "wooden_pickaxe": 1,
+        "cobblestone": 0,
+        "stone_pickaxe": 1,
+        "furnace": 1
+      },
+      "milestones": [
+        {
+          "item_name": "oak_log",
+          "target_quantity": 4,
+          "achieved_quantity": 4,
+          "elapsed_seconds": 27.0,
+          "completed": true
+        },
+        {
+          "item_name": "wooden_pickaxe",
+          "target_quantity": 1,
+          "achieved_quantity": 1,
+          "elapsed_seconds": 36.0,
+          "completed": true
+        },
+        {
+          "item_name": "cobblestone",
+          "target_quantity": 11,
+          "achieved_quantity": 11,
+          "elapsed_seconds": 91.0,
+          "completed": true
+        },
+        {
+          "item_name": "stone_pickaxe",
+          "target_quantity": 1,
+          "achieved_quantity": 1,
+          "elapsed_seconds": 96.0,
+          "completed": true
+        },
+        {
+          "item_name": "furnace",
+          "target_quantity": 1,
+          "achieved_quantity": 1,
+          "elapsed_seconds": 100.0,
+          "completed": true
+        }
+      ],
+      "pass_target": true
+    },
+    "tier4": {
+      "tier": "Tier 4: Real-Time Action (Doom / Street Fighter Simulation)",
+      "doom_level_cleared": true,
+      "doom_final_health": 100,
+      "doom_damage_taken": 0,
+      "sf2_combo_execution_success": true,
+      "average_reflex_latency_ms": 8.83,
+      "target_reflex_latency_ms": 25.0,
+      "pass_target": true,
+      "tripwire_events": [
+        {
+          "trigger_name": "incoming_fireball_projectile",
+          "detected_at_frame": 30,
+          "reaction_latency_ms": 8.16,
+          "evasion_action": "sidestep_left_crouch",
+          "damage_mitigated": 40,
+          "success": true
+        },
+        {
+          "trigger_name": "opponent_jump_in_detected",
+          "detected_at_frame": 45,
+          "reaction_latency_ms": 9.5,
+          "evasion_action": "shoryuken_anti_air",
+          "damage_mitigated": 50,
+          "success": true
+        }
+      ]
+    },
+    "summary_markdown": "# Multi-Genre Game Evaluation Matrix Report\nGenerated: 2026-09-24T21:49:54Z\nOverall Status: PASSED\n\n## Tier 1: Turn-Based Strategy (Freeciv)\n- Games Evaluated: 20\n- Win Rate: 100.0% (Target: > 75.0%)\n- Average Turns to Victory: 14.4\n- Average Map Exploration: 34.04%\n- Status: [PASS]\n\n## Tier 2: 2D Grid & Platformer (Minesweeper & Super Mario Bros)\n- Minesweeper Spatial Misclick Rate: 0.00% (Target: 0.0%)\n- Minesweeper Win Rate: 85.0%\n- Super Mario Bros World 1-1 Completed: Yes\n- Mario Final Position: 3112 / 3100 px\n- Status: [PASS]\n\n## Tier 3: 3D Open World (Minecraft Survival Crafting)\n- Target Pipeline: oak_log -> wooden_pickaxe -> cobblestone -> stone_pickaxe -> furnace\n- All Milestones Completed: Yes\n- Simulated Elapsed Time: 100.0s\n- Status: [PASS]\n\n## Tier 4: Real-Time Action (Action Chunking & Reflex Tripwires)\n- Doom Level Cleared Without Health Depletion: Yes\n- Street Fighter II Combo Execution: Success\n- Average Reflex Tripwire Latency: 8.83ms\n- Reflex Latency Target: < 25.0ms\n- Status: [PASS]\n"
+  },
+  "latency_profile": {
+    "timestamp": "2026-09-24T21:49:56Z",
+    "capture": {
+      "dxgi_available": true,
+      "dxgi_metrics": {
+        "sample_count": 50,
+        "min_ms": 3.329,
+        "max_ms": 5.785,
+        "mean_ms": 4.555,
+        "median_ms": 4.631,
+        "p95_ms": 5.177,
+        "p99_ms": 5.785,
+        "target_threshold_ms": 15.0,
+        "passed": true
+      },
+      "mss_available": true,
+      "mss_metrics": {
+        "sample_count": 50,
+        "min_ms": 9.308,
+        "max_ms": 48.697,
+        "mean_ms": 11.841,
+        "median_ms": 11.188,
+        "p95_ms": 13.363,
+        "p99_ms": 48.697,
+        "target_threshold_ms": 35.0,
+        "passed": true
+      },
+      "passed": true
+    },
+    "injection": {
+      "input_available": true,
+      "metrics": {
+        "sample_count": 50,
+        "min_ms": 0.208,
+        "max_ms": 0.495,
+        "mean_ms": 0.278,
+        "median_ms": 0.263,
+        "p95_ms": 0.343,
+        "p99_ms": 0.495,
+        "target_threshold_ms": 2.0,
+        "passed": true
+      },
+      "passed": true
+    },
+    "gamepad": {
+      "gamepad_available": true,
+      "backend": "MockGamepad",
+      "metrics": {
+        "sample_count": 50,
+        "min_ms": 0.001,
+        "max_ms": 0.012,
+        "mean_ms": 0.001,
+        "median_ms": 0.001,
+        "p95_ms": 0.001,
+        "p99_ms": 0.012,
+        "target_threshold_ms": 1.0,
+        "passed": true
+      },
+      "passed": true
+    },
+    "all_passed": true
+  },
+  "token_economics": {
+    "timestamp": "2026-09-24T21:49:56Z",
+    "target_reduction_percentage": 75.0,
+    "baseline_tokens_consumed": 160000,
+    "gated_tokens_consumed": 28860,
+    "tokens_saved": 131140,
+    "token_reduction_percentage": 81.96,
+    "passed": true,
+    "scenarios": [
+      {
+        "scenario_name": "Identical Static Frames (Menu/Paused)",
+        "total_frames": 70,
+        "transmitted_frames": 1,
+        "suppressed_frames": 69,
+        "suppression_rate_pct": 98.57,
+        "mean_hamming_distance": 0.0
+      },
+      {
+        "scenario_name": "HUD-Only Animations with Masking",
+        "total_frames": 15,
+        "transmitted_frames": 1,
+        "suppressed_frames": 14,
+        "suppression_rate_pct": 93.33,
+        "mean_hamming_distance": 0.0
+      },
+      {
+        "scenario_name": "Dynamic Action Scene (Camera/Movement)",
+        "total_frames": 15,
+        "transmitted_frames": 15,
+        "suppressed_frames": 0,
+        "suppression_rate_pct": 0.0,
+        "mean_hamming_distance": 34.13
+      }
+    ]
+  }
+}

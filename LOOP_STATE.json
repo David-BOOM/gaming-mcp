@@ -2,8 +2,8 @@
   "project": "gaming-mcp",
   "current_phase": 6,
   "current_milestone": "6.1",
-  "active_task": "6.1a-game-evaluation-matrix",
-  "iteration_count": 11,
+  "active_task": "6.1-benchmarks-verified",
+  "iteration_count": 12,
   "last_checkpoint_commit": "fdec605",
   "tasks": {
     "1.1": {
@@ -124,10 +124,10 @@
     "6.1": {
       "name": "Comprehensive Multi-Genre Benchmark Evaluation",
       "phase": 6,
-      "status": "in_progress",
+      "status": "verified",
       "subtasks": [
-        {"id": "6.1a", "name": "4-Tier Game Evaluation Matrix", "status": "in_progress"},
-        {"id": "6.1b", "name": "Token Economics and Latency Benchmark", "status": "pending"}
+        {"id": "6.1a", "name": "4-Tier Game Evaluation Matrix", "status": "verified"},
+        {"id": "6.1b", "name": "Token Economics and Latency Benchmark", "status": "verified"}
       ]
     },
     "6.2": {

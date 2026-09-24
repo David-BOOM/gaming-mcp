@@ -48,9 +48,9 @@ Phases 1 through 5 are fully verified with 180/180 tests passing repository-wide
 
 ### Active Phase: Phase 6 -- Hardening, Evaluation Benchmarks & Distribution
 
-- [/] Milestone 6.1: Comprehensive Multi-Genre Benchmark Evaluation
-  - [/] Subtask 6.1a: 4-Tier Game Evaluation Matrix (Freeciv, Minesweeper, Minecraft, Retro/Doom)
-  - [ ] Subtask 6.1b: Token Economics and Latency Benchmark (dHash token savings, DXGI vs MSS latency)
+- [x] Milestone 6.1: Comprehensive Multi-Genre Benchmark Evaluation
+  - [x] Subtask 6.1a: 4-Tier Game Evaluation Matrix (Freeciv, Minesweeper, Minecraft, Retro/Doom)
+  - [x] Subtask 6.1b: Token Economics and Latency Benchmark (dHash token savings, DXGI vs MSS latency)
 - [x] Milestone 6.2: Packaging and Ecosystem Distribution
   - [x] Subtask 6.2a: PyPI Wheel Packaging, Clean Build, and Validation
   - [x] Subtask 6.2b: Claude Desktop / Cursor Configs and MCP Server Registry Submission Preparation

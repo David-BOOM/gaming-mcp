@@ -1,0 +1,35 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.9, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\david\Desktop\Projects\gaming-mcp\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\david\Desktop\Projects\gaming-mcp
+configfile: pyproject.toml
+plugins: anyio-4.15.1, asyncio-1.4.0, cov-7.1.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 24 items
+
+tests/test_benchmarks/test_evaluation.py::test_freeciv_simulation_init PASSED [  4%]
+tests/test_benchmarks/test_evaluation.py::test_freeciv_step_turn PASSED  [  8%]
+tests/test_benchmarks/test_evaluation.py::test_freeciv_run_match PASSED  [ 12%]
+tests/test_benchmarks/test_evaluation.py::test_tier1_evaluation_win_rate_target PASSED [ 16%]
+tests/test_benchmarks/test_evaluation.py::test_minesweeper_board_misclick_detection PASSED [ 20%]
+tests/test_benchmarks/test_evaluation.py::test_minesweeper_solver_zero_spatial_misclicks PASSED [ 25%]
+tests/test_benchmarks/test_evaluation.py::test_mario_world_1_1_completion PASSED [ 29%]
+tests/test_benchmarks/test_evaluation.py::test_tier2_evaluation_runner PASSED [ 33%]
+tests/test_benchmarks/test_evaluation.py::test_minecraft_survival_pipeline PASSED [ 37%]
+tests/test_benchmarks/test_evaluation.py::test_tier3_evaluation_runner PASSED [ 41%]
+tests/test_benchmarks/test_evaluation.py::test_action_tripwire_simulator PASSED [ 45%]
+tests/test_benchmarks/test_evaluation.py::test_tier4_evaluation_runner PASSED [ 50%]
+tests/test_benchmarks/test_evaluation.py::test_game_evaluation_matrix_run_all PASSED [ 54%]
+tests/test_benchmarks/test_profiler.py::test_latency_summary_computation PASSED [ 58%]
+tests/test_benchmarks/test_profiler.py::test_latency_summary_empty PASSED [ 62%]
+tests/test_benchmarks/test_profiler.py::test_profile_screen_capture PASSED [ 66%]
+tests/test_benchmarks/test_profiler.py::test_profile_scancode_injection PASSED [ 70%]
+tests/test_benchmarks/test_profiler.py::test_profile_gamepad_latency PASSED [ 75%]
+tests/test_benchmarks/test_profiler.py::test_run_full_latency_profile PASSED [ 79%]
+tests/test_benchmarks/test_profiler.py::test_token_economics_identical_frames PASSED [ 83%]
+tests/test_benchmarks/test_profiler.py::test_token_economics_hud_animations PASSED [ 87%]
+tests/test_benchmarks/test_profiler.py::test_token_economics_dynamic_scenes PASSED [ 91%]
+tests/test_benchmarks/test_profiler.py::test_token_economics_session_workload PASSED [ 95%]
+tests/test_benchmarks/test_profiler.py::test_export_benchmark_artifacts_and_zero_emoji PASSED [100%]
+
+============================= 24 passed in 1.67s ==============================
