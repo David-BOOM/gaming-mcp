@@ -1102,17 +1102,534 @@ To objectively measure the agent's performance, gaming-mcp defines four evaluati
 
 ## Part VII: Critical Design Decisions & User Feedback Items
 
+
 > [!IMPORTANT]
 > Decision 1: Default Actuation Engine for Windows
 > Recommendation: Enable ViGEmBus Virtual Gamepad as the preferred actuation mechanism for 3D commercial titles, with fallback to hardware scan-code SendInput. ViGEmBus provides true 360-degree analog stick values and is undetectable by games that block software mouse/keyboard hooks.
 > User Choice: Confirm whether to require the ViGEmBus driver installation as part of initial setup, or keep SendInput as the default zero-dependency mode.
 
 > [!IMPORTANT]
-> Decision 2: Image Compression & Token Optimization Strategy
-> Recommendation: Default to Turbo-JPEG at Quality 85 with dHash Perceptual Delta Gating and Set-of-Marks (SoM) Grid Layer enabled. Raw PNGs average 3-5 MB per frame, which strains rate limits and causes network latency. JPEG + dHash reduces frame payload to <150 KB and avoids transmitting static unchanged screens.
+> Decision 2: Image Compression and Token Optimization Strategy
+> Recommendation: Default to Turbo-JPEG at Quality 85 with dHash Perceptual Delta Gating and Set-of-Marks (SoM) Grid Layer enabled. Raw PNGs average 3-5 MB per frame, which strains rate limits and causes network latency. JPEG + dHash reduces frame payload to less than 150 KB and avoids transmitting static unchanged screens.
 > User Choice: Confirm preference for default image format (JPEG + dHash vs. Lossless PNG).
 
 > [!IMPORTANT]
 > Decision 3: Initial Focus Priority
 > Recommendation: Prioritize Phase 2 (Universal Computer Use) first so that the server is immediately useful across any game currently installed on the host machine, followed directly by Phase 3 (Minecraft) for high-level programmatic benchmarks.
 > User Choice: Confirm if this prioritization matches your primary project goal.
+
+---
+
+## Part VIII: Cross-Platform Strategy and Graceful Degradation
+
+While the primary development target is Windows 10/11 (where DXGI Desktop Duplication, ViGEmBus, and WASAPI are native), the architecture must degrade gracefully on Linux and macOS to maintain the broadest possible user base.
+
+### Platform Capability Matrix
+
+| Subsystem | Windows 10/11 | Linux (X11/Wayland) | macOS 13+ |
+|-----------|---------------|---------------------|-----------|
+| Screen Capture (Tier 1) | DXGI Desktop Duplication | PipeWire / XShm (X11) | CoreGraphics CGWindowListCreateImage |
+| Screen Capture (Tier 2) | MSS (GDI) | MSS (X11/XCB) | MSS (Quartz) |
+| Keyboard Input | SendInput + KEYEVENTF_SCANCODE | uinput / xdotool / ydotool | CGEventPost (Quartz Events) |
+| Gamepad Emulation | ViGEmBus (Xbox 360 / DS4) | uinput virtual gamepad | Not supported (advisory warning) |
+| Audio Capture | WASAPI loopback | PulseAudio / PipeWire monitor | CoreAudio aggregate device |
+| Window Management | Win32 EnumWindows / SetForegroundWindow | wmctrl / xdotool / Sway IPC | NSWorkspace / CGWindow |
+| Emergency Kill-Switch | SetWindowsHookEx (low-level keyboard) | XGrabKey / libinput | CGEventTap (Quartz Event Tap) |
+
+### Graceful Degradation Strategy
+
+The server uses a capability probing pattern at startup:
+
+```
+Server Boot Sequence:
+  1. Detect platform (sys.platform)
+  2. Probe Tier 1 drivers (DXGI / PipeWire / CoreGraphics)
+     * Success -> Register Tier 1 capturer
+     * Failure -> Log warning, fall through to Tier 2
+  3. Probe Tier 2 drivers (MSS)
+     * Success -> Register Tier 2 capturer
+     * Failure -> Fall through to Tier 3 (Pillow / headless)
+  4. Probe input drivers (ViGEmBus / uinput / Quartz)
+     * Success -> Register native input injector
+     * Failure -> Register software fallback (pyautogui) with anti-cheat warning
+  5. Probe audio drivers (WASAPI / PulseAudio / CoreAudio)
+     * Success -> Register audio capturer
+     * Failure -> Disable audio perception, log advisory
+  6. Emit capability summary to MCP client via initialization metadata
+```
+
+All platform-specific code is isolated behind abstract interfaces (`ScreenCapturer`, `InputInjector`, `AudioCapturer`) with concrete implementations selected by a factory function based on `sys.platform` probing.
+
+---
+
+## Part IX: Dependency Specification and Build Configuration
+
+### Python Package Specification (PEP 621)
+
+```toml
+[project]
+name = "gaming-mcp"
+version = "0.1.0"
+description = "MCP server enabling LLM agents to observe and control video games"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+authors = [
+    { name = "David", email = "placeholder@example.com" },
+]
+keywords = ["mcp", "gaming", "llm", "agent", "computer-use", "minecraft"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Games/Entertainment",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "mcp>=1.9.0",
+    "pydantic>=2.7.0",
+    "anyio>=4.4.0",
+    "httpx>=0.27.0",
+    "mss>=9.0.1",
+    "Pillow>=10.3.0",
+    "numpy>=1.26.0",
+]
+
+[project.optional-dependencies]
+gamepad = ["vgamepad>=0.1.0"]
+audio = ["sounddevice>=0.5.0", "scipy>=1.13.0"]
+ocr = ["easyocr>=1.7.0"]
+minecraft = ["aiohttp>=3.9.0"]
+retro = ["gymnasium>=0.29.0", "stable-retro>=0.9.0"]
+turbo = ["PyTurboJPEG>=1.7.0"]
+dev = [
+    "pytest>=8.2.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.4.0",
+    "mypy>=1.10.0",
+    "pre-commit>=3.7.0",
+]
+all = ["gaming-mcp[gamepad,audio,ocr,minecraft,retro,turbo,dev]"]
+
+[project.scripts]
+gaming-mcp = "gaming_mcp.__main__:main"
+
+[build-system]
+requires = ["hatchling>=1.21.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gaming_mcp"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "SIM", "TCH", "RUF"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+```
+
+### Node.js Bridge Dependencies (Mineflayer)
+
+```json
+{
+  "name": "gaming-mcp-mineflayer-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Node.js Mineflayer IPC bridge for gaming-mcp",
+  "main": "index.js",
+  "dependencies": {
+    "mineflayer": "^4.20.0",
+    "mineflayer-pathfinder": "^2.4.0",
+    "mineflayer-collectblock": "^1.4.0",
+    "prismarine-viewer": "^1.28.0",
+    "vec3": "^0.1.10"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+```
+
+### Dependency Versioning Policy
+
+* **Core MCP SDK**: Pin to `>=1.9.0` to guarantee Streamable HTTP, elicitation, and v2026-07-28 spec compliance.
+* **Runtime Dependencies**: Use compatible release specifiers (`>=X.Y.0`) to allow patch-level updates.
+* **Dev Dependencies**: Pin to `>=X.Y.0` with quarterly review for major version bumps.
+* **Lock Files**: Generate `uv.lock` (via `uv`) for reproducible CI builds; do not commit `requirements.txt` generated by pip-compile.
+
+---
+
+## Part X: Error Handling and Exception Architecture
+
+### Typed Exception Hierarchy
+
+```python
+class GamingMCPError(Exception):
+    """Root exception for all gaming-mcp errors."""
+    def __init__(self, message: str, error_code: int = -32000):
+        self.error_code = error_code
+        super().__init__(message)
+
+class AdapterError(GamingMCPError):
+    """Raised when an adapter fails to initialize, execute, or communicate."""
+
+class AdapterNotFoundError(AdapterError):
+    """Raised when the requested adapter_id does not exist in the registry."""
+    def __init__(self, adapter_id: str):
+        super().__init__(f"Adapter '{adapter_id}' not found in registry", error_code=-32001)
+
+class AdapterInitializationError(AdapterError):
+    """Raised when adapter hardware or child process initialization fails."""
+    def __init__(self, adapter_id: str, reason: str):
+        super().__init__(f"Adapter '{adapter_id}' failed to initialize: {reason}", error_code=-32002)
+
+class CaptureError(GamingMCPError):
+    """Raised when screen, audio, or memory capture fails."""
+
+class DXGICaptureError(CaptureError):
+    """DXGI Desktop Duplication specific failures (driver unavailable, exclusive fullscreen)."""
+
+class InputInjectionError(GamingMCPError):
+    """Raised when keyboard, mouse, or gamepad input injection is blocked."""
+
+class SecurityViolationError(GamingMCPError):
+    """Raised when a safety guardrail is triggered (window boundary, blacklisted process)."""
+    def __init__(self, violation_type: str, details: str):
+        super().__init__(f"Security violation [{violation_type}]: {details}", error_code=-32010)
+
+class SkillExecutionError(GamingMCPError):
+    """Raised when a macro skill step fails during replay."""
+
+class ElicitationDeniedError(GamingMCPError):
+    """Raised when a human elicitation gate is denied by the user."""
+    def __init__(self, action: str):
+        super().__init__(f"Human elicitation denied for action: {action}", error_code=-32020)
+```
+
+### JSON-RPC Error Mapping
+
+All `GamingMCPError` subclasses map to JSON-RPC 2.0 error responses with:
+- `code`: Application-specific error code in the `-32000` to `-32099` range (server-defined).
+- `message`: Human-readable description for LLM consumption.
+- `data`: Optional structured metadata (adapter_id, stack trace, suggested recovery action).
+
+The server dispatches all tool execution inside a top-level try/except block that translates Python exceptions into well-formed MCP `isError: true` tool responses with actionable error messages, enabling the LLM to self-recover.
+
+---
+
+## Part XI: Concurrency Model and Async Architecture
+
+### Event Loop Architecture
+
+gaming-mcp operates on a single-threaded `asyncio` event loop with strategic `loop.run_in_executor()` offloading for blocking I/O:
+
+```
+Main asyncio Event Loop (Single Thread)
+  |
+  +-- MCP JSON-RPC Dispatcher (non-blocking message routing)
+  |
+  +-- Tool Execution Pipeline (async coroutines per tool call)
+  |     |
+  |     +-- Screen Capture: run_in_executor(ThreadPoolExecutor) for DXGI ctypes
+  |     +-- Audio Capture: run_in_executor(ThreadPoolExecutor) for WASAPI buffer reads
+  |     +-- Input Injection: Direct ctypes calls (sub-millisecond, non-blocking)
+  |     +-- Mineflayer IPC: asyncio.subprocess with StreamReader/StreamWriter
+  |
+  +-- Action Chunk Scheduler (asyncio.create_task for timed sequences)
+  |
+  +-- Resource Subscription Notifier (asyncio.Event-driven push loop)
+  |
+  +-- Emergency Kill-Switch Monitor (dedicated daemon thread via threading.Thread)
+```
+
+### Concurrency Rules
+
+1. **No Global Interpreter Lock (GIL) contention on hot path**: DXGI GPU copies and WASAPI buffer reads execute in a dedicated `ThreadPoolExecutor(max_workers=2)` to prevent blocking the JSON-RPC dispatch loop.
+2. **Cancellation propagation**: Every long-running coroutine (`mc_navigate_to`, `execute_action_chunk`) registers its `asyncio.Task` in a global task registry indexed by MCP `requestId`. Upon receiving `notifications/cancelled`, the dispatcher calls `task.cancel()` on the matching task.
+3. **Graceful shutdown**: On `SIGINT`, `SIGTERM`, or MCP `shutdown` request, the server drains pending tool tasks (with a 5-second timeout), calls `adapter.shutdown()` for each active adapter, releases all held keys and gamepad state, and closes transport connections.
+4. **Backpressure**: The resource subscription notifier uses a bounded `asyncio.Queue(maxsize=64)` per subscriber. If the queue fills (client not consuming fast enough), oldest notifications are dropped with a warning log.
+
+---
+
+## Part XII: Configuration Schema
+
+### Configuration File Format
+
+The server reads configuration from multiple sources in priority order:
+1. CLI flags (`--adapter`, `--transport`, `--port`)
+2. Environment variables (`GAMING_MCP_ADAPTER`, `GAMING_MCP_TRANSPORT`)
+3. JSON configuration file (`config.json` or path specified by `--config`)
+4. Built-in defaults
+
+### Pydantic Configuration Model
+
+```python
+from enum import Enum
+from typing import Optional
+from pydantic import BaseModel, Field
+
+class TransportType(str, Enum):
+    STDIO = "stdio"
+    HTTP = "http"
+
+class ScreenCaptureConfig(BaseModel):
+    preferred_backend: str = Field(default="auto", description="'auto', 'dxgi', 'mss', or 'pillow'")
+    default_format: str = Field(default="jpeg", description="'jpeg' or 'png'")
+    jpeg_quality: int = Field(default=85, ge=1, le=100)
+    downscale_resolution: tuple[int, int] = Field(default=(1024, 576))
+    dhash_threshold: int = Field(default=3, ge=0, le=64, description="Hamming distance threshold for dHash gating")
+    som_grid_spacing: int = Field(default=100, ge=25, le=500, description="Pixel spacing for Set-of-Marks grid")
+
+class InputConfig(BaseModel):
+    preferred_backend: str = Field(default="auto", description="'auto', 'scancode', 'vigem', or 'pyautogui'")
+    mouse_smoothing: bool = Field(default=True, description="Apply Bezier curve mouse interpolation")
+    jitter_range_px: int = Field(default=2, ge=0, le=10, description="Random micro-jitter pixels for anti-detection")
+    keypress_mean_ms: float = Field(default=85.0, description="Gaussian mean for keypress duration")
+    keypress_std_ms: float = Field(default=15.0, description="Gaussian std for keypress duration")
+
+class AudioConfig(BaseModel):
+    enabled: bool = Field(default=False, description="Enable WASAPI/PulseAudio loopback capture")
+    sample_rate: int = Field(default=48000)
+    mel_bands: int = Field(default=64)
+
+class SecurityConfig(BaseModel):
+    enable_kill_switch: bool = Field(default=True)
+    kill_switch_combo: list[str] = Field(default=["ctrl", "alt", "shift", "pause"])
+    window_boundary_clipping: bool = Field(default=True)
+    blacklisted_processes: list[str] = Field(default=[
+        "cmd.exe", "powershell.exe", "pwsh.exe", "Taskmgr.exe",
+        "regedit.exe", "mmc.exe", "explorer.exe"
+    ])
+    privacy_redaction_zones: list[dict] = Field(default_factory=list, description="List of {x, y, width, height} rects to zero out")
+
+class AdapterConfig(BaseModel):
+    default_adapter: str = Field(default="computer_use")
+    minecraft: Optional[dict] = None
+    retro: Optional[dict] = None
+    gymnasium: Optional[dict] = None
+
+class GamingMCPConfig(BaseModel):
+    transport: TransportType = TransportType.STDIO
+    host: str = Field(default="127.0.0.1")
+    port: int = Field(default=8080, ge=1024, le=65535)
+    screen: ScreenCaptureConfig = Field(default_factory=ScreenCaptureConfig)
+    input: InputConfig = Field(default_factory=InputConfig)
+    audio: AudioConfig = Field(default_factory=AudioConfig)
+    security: SecurityConfig = Field(default_factory=SecurityConfig)
+    adapters: AdapterConfig = Field(default_factory=AdapterConfig)
+    log_level: str = Field(default="INFO", description="'DEBUG', 'INFO', 'WARNING', 'ERROR'")
+```
+
+### Example Configuration File (`config.example.json`)
+
+```json
+{
+  "transport": "stdio",
+  "screen": {
+    "preferred_backend": "auto",
+    "default_format": "jpeg",
+    "jpeg_quality": 85,
+    "downscale_resolution": [1024, 576],
+    "dhash_threshold": 3,
+    "som_grid_spacing": 100
+  },
+  "input": {
+    "preferred_backend": "auto",
+    "mouse_smoothing": true,
+    "jitter_range_px": 2
+  },
+  "audio": {
+    "enabled": false
+  },
+  "security": {
+    "enable_kill_switch": true,
+    "kill_switch_combo": ["ctrl", "alt", "shift", "pause"],
+    "window_boundary_clipping": true,
+    "privacy_redaction_zones": []
+  },
+  "adapters": {
+    "default_adapter": "computer_use"
+  },
+  "log_level": "INFO"
+}
+```
+
+---
+
+## Part XIII: Observability, Logging, and Diagnostics
+
+### Structured Logging Architecture
+
+gaming-mcp uses Python's `logging` module configured with structured JSON output for machine-parseable diagnostics:
+
+```python
+import logging
+import json
+import sys
+from datetime import datetime, timezone
+
+class StructuredFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        log_entry = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno,
+        }
+        if hasattr(record, "adapter_id"):
+            log_entry["adapter_id"] = record.adapter_id
+        if hasattr(record, "tool_name"):
+            log_entry["tool_name"] = record.tool_name
+        if hasattr(record, "latency_ms"):
+            log_entry["latency_ms"] = record.latency_ms
+        if record.exc_info:
+            log_entry["exception"] = self.formatException(record.exc_info)
+        return json.dumps(log_entry)
+```
+
+### Key Metrics Exposed
+
+| Metric | Type | Source | Purpose |
+|--------|------|--------|---------|
+| `screen_capture_latency_ms` | Histogram | io/screen.py | Monitor DXGI/MSS frame grab performance |
+| `tool_execution_latency_ms` | Histogram | core/tools.py | End-to-end tool call timing |
+| `dhash_cache_hit_ratio` | Counter | io/vision.py | Track token savings from dHash gating |
+| `input_injection_count` | Counter | io/input.py | Total keyboard/mouse/gamepad events injected |
+| `active_subscriptions` | Gauge | core/resources.py | Number of active resource subscribers |
+| `adapter_health_status` | Gauge | adapters/router.py | Per-adapter initialization and liveness state |
+| `skill_execution_success_rate` | Counter | skills/executor.py | Macro replay success/failure tracking |
+| `audio_events_detected` | Counter | io/audio.py | Acoustic event trigger counts |
+
+### Health Check Endpoint
+
+The server exposes a diagnostic health check tool (`server_health`) that returns:
+
+```json
+{
+  "server_version": "0.1.0",
+  "uptime_seconds": 3621,
+  "active_adapter": "computer_use",
+  "adapters_available": ["computer_use", "minecraft", "retro", "gymnasium"],
+  "screen_capture_backend": "dxgi",
+  "screen_capture_latency_avg_ms": 4.2,
+  "input_backend": "scancode+vigem",
+  "audio_enabled": true,
+  "kill_switch_armed": true,
+  "active_subscriptions": 2,
+  "skills_registered": 14,
+  "memory_rss_mb": 62.4
+}
+```
+
+---
+
+## Part XIV: CI/CD Pipeline Specification
+
+### Continuous Integration (GitHub Actions)
+
+```yaml
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - run: uv sync --extra dev
+      - run: uv run ruff check src/ tests/
+      - run: uv run mypy src/ --strict
+
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: uv sync --extra dev --extra turbo
+      - run: uv run pytest tests/ -v --cov=src/gaming_mcp --cov-report=xml
+      - uses: codecov/codecov-action@v4
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
+
+  mcp-inspector:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: uv sync
+      - run: npx @modelcontextprotocol/inspector --cli -- uv run python -m gaming_mcp --adapter computer_use --transport stdio
+```
+
+### Pre-Commit Hooks
+
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: no-commit-to-branch
+        args: [--branch, main]
+```
+
+### Release and Distribution Pipeline
+
+1. **Versioning**: Semantic Versioning 2.0.0 (`MAJOR.MINOR.PATCH`). Managed via `hatchling` build backend with version in `src/gaming_mcp/__init__.py`.
+2. **Changelog**: Maintained in `CHANGELOG.md` using Keep a Changelog format. Updated with every release.
+3. **PyPI Publishing**: Triggered by GitHub Release tags (`v*.*.*`). Uses `uv publish` with trusted publishing (OIDC) to PyPI.
+4. **MCP Registry Submission**: Upon reaching v1.0.0 stability, submit a pull request to `modelcontextprotocol/servers` for official registry listing.
+
+---
+
+## Part XV: Document Revision History
+
+| Date | Version | Author | Changes |
+|------|---------|--------|---------|
+| 2026-09-17 | 0.1.0 | Initial | Research synthesis, architecture, component specs, phased roadmap |
+| 2026-09-17 | 0.2.0 | Audit Council | Integrated audit findings: action chunking, token economics, audio, elicitation |
+| 2026-09-24 | 0.3.0 | Refinement Pass | Added Parts VIII-XIV: cross-platform strategy, dependency specification, error handling, concurrency model, configuration schema, observability, CI/CD pipeline. Consolidated duplicate docs. Created task tracker. Updated audit report. |
