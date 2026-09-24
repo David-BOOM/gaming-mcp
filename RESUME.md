@@ -19,14 +19,14 @@ Read this file FIRST upon cold-start, session reboot, rate-limit recovery, or co
 ## 2. Current Execution Pointer
 
 * **Current Phase:** Phase 3: Minecraft High-Fidelity Bridge (Weeks 5-6)
-* **Active Milestone:** Milestone 3.1: Node.js Mineflayer IPC Bridge
+* **Active Milestone:** Milestone 3.2: Minecraft Spatial and Inventory Abstractions
 * **Active Subtasks:**
-  - Subtask 3.1a -- Node.js Mineflayer NDJSON Daemon Bridge (`src/gaming_mcp/adapters/minecraft.py`, child process supervisor, NDJSON protocol framing)
-  - Subtask 3.1b -- Process Supervisor, Heartbeat, and Auto-Restart Loop
+  - Subtask 3.2a -- Minecraft MCP Tools (`mc_navigate_to`, `mc_mine_block`, `mc_place_block`, `mc_craft_recipe`, `mc_attack_entity`, `mc_chat`, `mc_look_at`)
+  - Subtask 3.2b -- Reactive Inventory, Stats, and Surroundings Resources (`minecraft://inventory`, `minecraft://status`, `minecraft://surroundings`)
 * **Immediate Next Action:**
-  1. Author Node.js Mineflayer daemon harness (`scripts/mineflayer_daemon.js` or `src/gaming_mcp/adapters/minecraft_daemon.js`) streaming JSON-RPC / NDJSON state packets.
-  2. Implement `MinecraftAdapter` in `src/gaming_mcp/adapters/minecraft.py` with asynchronous process lifecycle management, socket/pipe IPC, event emitter, and tool dispatch.
-  3. Author unit and integration tests with mocked IPC stream.
+  1. Expand spatial pathfinding heuristics and voxel raycasting abstractions in `src/gaming_mcp/adapters/minecraft.py`.
+  2. Implement reactive resource subscriptions and fine-grained inventory querying/stats change notifications.
+  3. Expand unit and integration test coverage for inventory management, crafting tree validation, and event push notifications.
   4. Run verification ladder (`ruff`, `mypy --strict`, `pytest`, zero-emoji audit), commit, and push.
 
 ---

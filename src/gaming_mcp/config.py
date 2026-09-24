@@ -148,6 +148,68 @@ class SecurityConfig(BaseModel):
     )
 
 
+class MinecraftConfig(BaseModel):
+    """Configuration for high-fidelity Mineflayer Minecraft bridge."""
+
+    enabled: bool = Field(
+        default=True,
+        description="Enable Minecraft Mineflayer IPC bridge",
+    )
+    host: str = Field(
+        default="localhost",
+        description="Target Minecraft server hostname or IP address",
+    )
+    port: int = Field(
+        default=25565,
+        ge=1,
+        le=65535,
+        description="Target Minecraft server port",
+    )
+    username: str = Field(
+        default="GamingMCPBot",
+        description="Bot player username",
+    )
+    version: str = Field(
+        default="1.20.4",
+        description="Minecraft version target or 'auto'",
+    )
+    auth: str = Field(
+        default="offline",
+        description="Authentication mode ('offline' or 'microsoft')",
+    )
+    auto_reconnect: bool = Field(
+        default=True,
+        description="Automatically restart daemon and reconnect on connection loss",
+    )
+    max_reconnect_attempts: int = Field(
+        default=5,
+        ge=1,
+        description="Maximum sequential reconnect attempts before entering degraded state",
+    )
+    reconnect_delay_sec: float = Field(
+        default=3.0,
+        ge=0.5,
+        description="Base delay in seconds between reconnection attempts",
+    )
+    heartbeat_interval_sec: float = Field(
+        default=5.0,
+        ge=1.0,
+        description="Interval in seconds for daemon heartbeat health checks",
+    )
+    daemon_path: str | None = Field(
+        default=None,
+        description="Optional custom path to Node.js Mineflayer daemon script",
+    )
+    node_binary: str = Field(
+        default="node",
+        description="Path or command for Node.js executable",
+    )
+    mock_mode: bool = Field(
+        default=False,
+        description="Run daemon in mock/simulation mode without connecting to a live server",
+    )
+
+
 class AdapterConfig(BaseModel):
     """Configuration for game adapter integrations."""
 
@@ -155,7 +217,10 @@ class AdapterConfig(BaseModel):
         default="computer_use",
         description="Initial adapter to activate on server startup",
     )
-    minecraft: dict[str, Any] | None = None
+    minecraft: MinecraftConfig = Field(
+        default_factory=MinecraftConfig,
+        description="Configuration for Minecraft Mineflayer adapter",
+    )
     retro: dict[str, Any] | None = None
     gymnasium: dict[str, Any] | None = None
 

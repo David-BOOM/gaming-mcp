@@ -42,10 +42,10 @@ Phase 1 (Core Foundation & Protocol Dispatcher) and Phase 2 (Universal VLA Compu
 
 ### Active Phase: Phase 3 -- Minecraft High-Fidelity Bridge
 
-- [ ] Milestone 3.1: Node.js Mineflayer IPC Bridge
-  - [ ] Subtask 3.1a: Mineflayer NDJSON Daemon Bridge (process supervisor, socket/pipe IPC, event emitter)
-  - [ ] Subtask 3.1b: Process Supervisor and Auto-Restart
-- [ ] Milestone 3.2: Minecraft Spatial and Inventory Abstractions
+- [x] Milestone 3.1: Node.js Mineflayer IPC Bridge
+  - [x] Subtask 3.1a: Mineflayer NDJSON Daemon Bridge (process supervisor, socket/pipe IPC, event emitter)
+  - [x] Subtask 3.1b: Process Supervisor and Auto-Restart
+- [/] Milestone 3.2: Minecraft Spatial and Inventory Abstractions
   - [ ] Subtask 3.2a: Minecraft MCP Tools (navigate_to, mine_block, craft_recipe, place_block, attack_entity)
   - [ ] Subtask 3.2b: Reactive Inventory and Stats Resources (game://minecraft/inventory, game://minecraft/nearby_entities, game://minecraft/bot_state)
 

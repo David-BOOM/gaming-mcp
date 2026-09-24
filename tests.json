@@ -128,10 +128,18 @@
       "skipped": 0,
       "duration_seconds": 0.80,
       "coverage_percent": 81.0
+    },
+    {
+      "path": "tests/test_adapters/test_minecraft.py",
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 3.66,
+      "coverage_percent": 74.0
     }
   ],
-  "total_passed": 82,
+  "total_passed": 89,
   "total_failed": 0,
   "total_skipped": 0,
-  "overall_coverage_percent": 87.0
+  "overall_coverage_percent": 85.0
 }

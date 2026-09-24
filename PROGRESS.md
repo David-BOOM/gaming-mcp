@@ -168,6 +168,23 @@ This document tracks all completed engineering iterations, empirical evidence li
   - Sounddevice / WASAPI initialization and termination are synchronous; attempting to wrap synchronous `audio.stop()` in an asynchronous `async with asyncio.timeout(...)` without thread offloading can cause event loop deadlocks if COM uninitialization blocks. Pure synchronous termination in the adapter shutdown cleanly avoids COM thread contention.
 * **Next Target:** Phase 3 Milestone 3.1: Node.js Mineflayer IPC Bridge (Subtask 3.1a: Mineflayer NDJSON Daemon Bridge, Subtask 3.1b: Process Supervisor and Auto-Restart).
 
+---
 
+## Iteration 8 -- 2026-09-25: Milestone 3.1 Node.js Mineflayer IPC Bridge and Process Supervisor
 
-
+* **Milestone / Focus:** Phase 3 Milestone 3.1: Node.js Mineflayer IPC Bridge (Subtask 3.1a: Mineflayer NDJSON Daemon Bridge, Subtask 3.1b: Process Supervisor and Auto-Restart).
+* **Deliverables Completed:**
+  - `src/gaming_mcp/adapters/minecraft_daemon.js`: Standalone Node.js daemon managing Mineflayer, Mineflayer-Pathfinder, and Prismarine bot instances over an NDJSON line-delimited stream on stdin/stdout. Dynamically redirects all `console.*` outputs to stderr to guarantee stream parsing integrity (MEMORY.md Case 8). Features capability probing: if `mineflayer` npm module is missing or configured for `mock_mode`, runs deterministic high-fidelity simulation responding to navigation, mining, crafting, attack, and inventory inspection.
+  - `src/gaming_mcp/adapters/minecraft.py`: `MinecraftBridge` child process supervisor managing Node.js daemon lifecycle, asynchronous stdout reader with line buffering, thread-safe request-response future tracking, heartbeat ping-pong loop, event listeners, and exponential backoff auto-reconnect logic.
+  - `src/gaming_mcp/adapters/minecraft.py`: `MinecraftAdapter` implementing the `GameAdapter` SPI, exposing typed MCP tools (`mc_navigate_to`, `mc_mine_block`, `mc_place_block`, `mc_craft_recipe`, `mc_attack_entity`, `mc_chat`, `mc_look_at`), reactive resources (`minecraft://inventory`, `minecraft://status`, `minecraft://surroundings`), and prompts (`minecraft_survival_strategy`).
+  - `src/gaming_mcp/config.py`: Added `MinecraftConfig` schema registered onto `AdapterConfig.minecraft`.
+  - `src/gaming_mcp/adapters/__init__.py`: Exported `MinecraftAdapter` and `MinecraftBridge`.
+  - `tests/test_adapters/test_minecraft.py`: 7 automated integration tests verifying daemon startup, handshake, ping/pong, mock command execution (navigation, mining, crafting, attack, chat, look_at), event dispatch, and graceful shutdown.
+* **Evidence:**
+  - `EVIDENCE/3.1-mineflayer-bridge/pytest_coverage.txt`: 89/89 tests passing repository-wide with 85% coverage across 2972 statements.
+  - `EVIDENCE/3.1-mineflayer-bridge/ruff_check.txt`: All checks passed with 0 errors across entire repository.
+  - `EVIDENCE/3.1-mineflayer-bridge/mypy_check.txt`: Success, 0 issues found in 27 source files under strict typing.
+  - `EVIDENCE/3.1-mineflayer-bridge/emoji_audit.txt`: 0 emoji infractions confirmed.
+* **Surprises & Lessons:**
+  - Node.js stdout redirection is vital: third-party Node modules or dependencies frequently write unformatted diagnostic messages to `console.log`, instantly corrupting NDJSON parsers in parent processes. Overriding `console.log/info/warn/error` at the entrypoint of `minecraft_daemon.js` to route strictly to `process.stderr` completely immunizes the IPC channel from parser desynchronization.
+* **Next Target:** Phase 3 Milestone 3.2: Minecraft Spatial and Inventory Abstractions (Subtask 3.2a: Minecraft MCP Tools, Subtask 3.2b: Reactive Inventory and Stats Resources).
