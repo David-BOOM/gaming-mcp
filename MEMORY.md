@@ -165,6 +165,26 @@
 
 ---
 
+### Case 9: Background Agent Process Desktop Session Access (E_ACCESSDENIED 0x80070005)
+* **Trap / Mistake:**
+  When executing the MCP server, agent harness, or automated testing suite from a secondary thread or background process, calling `IDXGIOutput1::DuplicateOutput` fails with `E_ACCESSDENIED` (`0x80070005`), and MSS fails with `ScreenShotError: BitBlt failed`.
+* **Root Cause:**
+  Windows isolates background and non-interactive worker threads from the active interactive input desktop (`Default` desktop under `WinSta0`). If the calling thread is not explicitly attached to the input desktop, DirectX and GDI security layers reject surface acquisition queries.
+* **Proven Replicable Solution:**
+  1. Prior to initializing DXGI or MSS capture devices, query and attach the calling thread to the active input desktop using Win32 `OpenInputDesktop` and `SetThreadDesktop`:
+     ```python
+     user32 = ctypes.windll.user32
+     hDesk = user32.OpenInputDesktop(0, False, 0x01FF)
+     if hDesk:
+         user32.SetThreadDesktop(hDesk)
+         user32.CloseDesktop(hDesk)
+     ```
+  2. Implement this thread-attachment helper inside `src/gaming_mcp/io/screen.py` so that both `DXGIScreenCapturer` and `MSSScreenCapturer` run seamlessly regardless of whether the server is started from an interactive terminal, background service, or automated agent runner.
+  3. This completely resolves `0x80070005` and unlocks zero-copy DXGI Desktop Duplication frame acquisition (<16ms) across all execution modes.
+* **Code Reference:** `src/gaming_mcp/io/screen.py`.
+
+---
+
 ## 3. Core System Configuration Reference
 
 ### Error Code Allocation Matrix

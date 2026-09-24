@@ -18,16 +18,19 @@ Read this file FIRST upon cold-start, session reboot, rate-limit recovery, or co
 
 ## 2. Current Execution Pointer
 
-* **Current Phase:** Phase 1: Core Foundation & Protocol Dispatcher (Weeks 1-2)
-* **Active Milestone:** Milestone 1.2: Adapter SPI & Router Architecture
-* **Active Subtask:** Subtask 1.2a -- GameAdapter Base SPI (`src/gaming_mcp/adapters/base.py`)
+* **Current Phase:** Phase 2: Universal VLA Computer Use Engine (Weeks 3-4)
+* **Active Milestone:** Milestone 2.1: Hardware-Accelerated Display and Audio Capture
+* **Active Subtasks:**
+  - Subtask 2.1a -- DXGI Desktop Duplication ctypes Wrapper (`src/gaming_mcp/io/screen.py`)
+  - Subtask 2.1b -- MSS Cross-Platform Fallback Capturer (`src/gaming_mcp/io/screen.py`)
+  - Subtask 2.1c -- 64-bit dHash Perceptual Gating (`src/gaming_mcp/io/vision.py` -- implemented)
+  - Subtask 2.1d -- WASAPI Master Loopback Audio Capture (`src/gaming_mcp/io/audio.py` -- host verified)
 * **Immediate Next Action:**
-  1. Implement abstract `GameAdapter` base class and `AdapterMetadata` in `src/gaming_mcp/adapters/base.py`.
-  2. Implement dynamic `AdapterRouter` in `src/gaming_mcp/adapters/router.py` with runtime hot-swapping and health checking.
-  3. Connect adapter routing into `GamingMCPServer`.
-  4. Write comprehensive tests in `tests/test_adapters/test_router.py`.
-  5. Run static and unit test verification ladder.
-  6. Commit as `feat(adapters): implement GameAdapter SPI and dynamic AdapterRouter`.
+  1. Author `src/gaming_mcp/io/screen.py` implementing `DXGIScreenCapturer`, `MSSScreenCapturer`, and `CompositeScreenCapturer` with access-loss recovery.
+  2. Author `src/gaming_mcp/io/audio.py` implementing `WASAPIAudioCapturer` using `sounddevice`.
+  3. Author unit and mock integration test suites in `tests/test_io/test_screen.py` and `tests/test_io/test_audio.py`.
+  4. Run static quality checks (`ruff`, `mypy --strict`) and test suite (`pytest tests/test_io/`).
+  5. Deploy agent team via `teamwork_preview` to accelerate implementation.
 
 ---
 
@@ -49,8 +52,8 @@ Read this file FIRST upon cold-start, session reboot, rate-limit recovery, or co
 
 | Phase | Description | Status | Evidence Target |
 |-------|-------------|--------|-----------------|
-| Phase 1 | Core Foundation & Protocol Dispatcher | IN_PROGRESS | `EVIDENCE/phase1/` |
-| Phase 2 | Universal VLA Computer Use Engine | PENDING | `EVIDENCE/phase2/` |
+| Phase 1 | Core Foundation & Protocol Dispatcher | VERIFIED | `EVIDENCE/phase1/` |
+| Phase 2 | Universal VLA Computer Use Engine | IN_PROGRESS | `EVIDENCE/phase2/` |
 | Phase 3 | Minecraft High-Fidelity Bridge | PENDING | `EVIDENCE/phase3/` |
 | Phase 4 | Retro & Gymnasium Adapters | PENDING | `EVIDENCE/phase4/` |
 | Phase 5 | Voyager-Inspired Skill Library | PENDING | `EVIDENCE/phase5/` |
@@ -62,7 +65,7 @@ Read this file FIRST upon cold-start, session reboot, rate-limit recovery, or co
 
 | Blocker ID | Affected Task | Summary | Unblock Plan | Human Required |
 |------------|---------------|---------|--------------|----------------|
-| None | None | No active blockers. Phase 1 is fully unblocked. | N/A | No |
+| `vigembus-python312-wheel-dependency` | 2.2b | `vgamepad` C-extension has no prebuilt wheel for Python 3.12 and requires ViGEmBus driver. | Implement abstract `GamepadDevice` SPI with capability probe. Fallback to typed `AdapterError` (-32002) advisory per `MEMORY.md` Case 2. | No |
 
 ---
 

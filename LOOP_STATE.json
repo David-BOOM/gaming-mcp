@@ -1,9 +1,9 @@
 {
   "project": "gaming-mcp",
   "current_phase": 2,
-  "current_milestone": "2.1",
-  "active_task": "2.1a-dxgi-desktop-duplication",
-  "iteration_count": 3,
+  "current_milestone": "2.2",
+  "active_task": "2.2a-win32-sendinput",
+  "iteration_count": 4,
   "last_checkpoint_commit": null,
   "tasks": {
     "1.1": {
@@ -30,12 +30,12 @@
     "2.1": {
       "name": "Hardware-Accelerated Display and Audio Capture",
       "phase": 2,
-      "status": "in_progress",
+      "status": "verified",
       "subtasks": [
-        {"id": "2.1a", "name": "DXGI Desktop Duplication ctypes Wrapper", "status": "in_progress"},
-        {"id": "2.1b", "name": "MSS Cross-Platform Fallback Capturer", "status": "pending"},
-        {"id": "2.1c", "name": "64-bit dHash Perceptual Gating", "status": "pending"},
-        {"id": "2.1d", "name": "WASAPI Master Loopback Audio Capture", "status": "pending"}
+        {"id": "2.1a", "name": "DXGI Desktop Duplication ctypes Wrapper", "status": "verified"},
+        {"id": "2.1b", "name": "MSS Cross-Platform Fallback Capturer", "status": "verified"},
+        {"id": "2.1c", "name": "64-bit dHash Perceptual Gating", "status": "verified"},
+        {"id": "2.1d", "name": "WASAPI Master Loopback Audio Capture", "status": "verified"}
       ]
     },
     "2.2": {
@@ -131,5 +131,14 @@
       ]
     }
   },
-  "blockers": []
+  "blockers": [
+    {
+      "id": "vigembus-python312-wheel-dependency",
+      "affects": ["2.2b"],
+      "summary": "vgamepad C-extension has no pre-built wheel for Python 3.12 on Windows and requires the ViGEmBus kernel driver on the host.",
+      "unblock_plan": "Implement abstract GamepadDevice SPI with guarded capability probe. If vgamepad or ViGEmBus driver is absent, return typed AdapterError (-32002) with advisory installation instructions without failing server startup, as specified in MEMORY.md Case 2.",
+      "retry_after": "2026-09-25T01:00:00Z",
+      "needs_human": false
+    }
+  ]
 }

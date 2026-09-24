@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-09-24T18:36:30Z",
+  "last_updated": "2026-09-25T00:48:40Z",
   "suites": [
     {
       "path": "tests/test_scaffolding.py",
@@ -40,10 +40,42 @@
       "skipped": 0,
       "duration_seconds": 0.12,
       "coverage_percent": 92.0
+    },
+    {
+      "path": "tests/test_io/test_screen.py",
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.40,
+      "coverage_percent": 86.0
+    },
+    {
+      "path": "tests/test_io/test_audio.py",
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.15,
+      "coverage_percent": 81.0
+    },
+    {
+      "path": "tests/test_io/test_image.py",
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.10,
+      "coverage_percent": 88.0
+    },
+    {
+      "path": "tests/test_io/test_vision.py",
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.10,
+      "coverage_percent": 89.0
     }
   ],
-  "total_passed": 30,
+  "total_passed": 47,
   "total_failed": 0,
   "total_skipped": 0,
-  "overall_coverage_percent": 93.0
+  "overall_coverage_percent": 89.0
 }

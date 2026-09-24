@@ -66,4 +66,28 @@ This document tracks all completed engineering iterations, empirical evidence li
   - Tool execution results must explicitly include `"isError": False` for successful custom dictionary payloads to ensure MCP schema consistency.
 * **Next Target:** Milestone 2.1 -- Universal VLA Computer Use Engine: DXGI Desktop Duplication ctypes wrapper and MSS fallback capturer under `src/gaming_mcp/io/screen.py`.
 
+---
+
+## Iteration 3 -- 2026-09-25: Milestone 2.1 Hardware-Accelerated Display and Audio Capture
+
+* **Milestone / Focus:** Phase 2 Milestone 2.1: Hardware-Accelerated Display and Audio Capture.
+* **Deliverables Completed:**
+  - `src/gaming_mcp/io/screen.py`: `DXGIScreenCapturer` utilizing Direct3D 11 and DXGI 1.2 Desktop Duplication via ctypes with staging texture caching, `MSSScreenCapturer` cross-platform fallback, and `CompositeScreenCapturer` with access-loss recovery.
+  - Dedicated worker thread pool (`get_screen_executor`) in `screen.py`: Isolates desktop capture operations from main thread COM apartments, preventing Win32 `ERROR_BUSY` (170) on `SetThreadDesktop`.
+  - `src/gaming_mcp/io/audio.py`: `WASAPIAudioCapturer` with non-blocking PCM ring buffering, RMS energy calculation, peak decibels relative to full scale (dBFS), tactical sound cue detection, and STFT magnitude spectrograms.
+  - `src/gaming_mcp/io/vision.py`: `PerceptualGater` with 64-bit dHash perceptual gating, Hamming distance thresholding (<3 suppressing redundant frames), and HUD exclusion zone masking.
+  - `src/gaming_mcp/utils/image.py`: ACES filmic HDR-to-SDR tone-mapping, Set-of-Marks alphanumeric coordinate grid overlay, and high-performance JPEG/PNG base64 serialization.
+  - `tests/test_io/`: 17 new automated tests across `test_screen.py`, `test_audio.py`, `test_image.py`, and `test_vision.py`.
+* **Evidence:**
+  - `EVIDENCE/2.1-display-audio/pytest_coverage.txt`: 47/47 unit tests passing cleanly with 89% total coverage across 1221 statements.
+  - `screen.py` coverage: 86%, `audio.py` coverage: 81%, `vision.py` coverage: 89%, `image.py` coverage: 88%.
+  - `EVIDENCE/2.1-display-audio/ruff_check.txt`: 0 lint errors across all source files.
+  - `EVIDENCE/2.1-display-audio/mypy_check.txt`: 0 type errors under `--strict`.
+  - `EVIDENCE/2.1-display-audio/emoji_audit.txt`: 0 emoji code points verified across entire repository.
+* **Surprises & Lessons:**
+  - `sounddevice` / PortAudio DLL initializes hidden window/COM message hooks on the importing thread, which causes subsequent `SetThreadDesktop` calls on that thread to fail with Win32 error 170 (`ERROR_BUSY`). Running screen capture in a dedicated single-threaded worker executor (`get_screen_executor()`) completely isolates the capture pipeline and guarantees 100% reliable desktop attachment.
+  - Verified `IDXGIOutput1::DuplicateOutput` at vtable index 22, acquiring full 2880x1800 retina frames in ~15ms on CPU staging buffers.
+* **Next Target:** Milestone 2.2 -- Dual-Layer Actuation and Action Chunking (Subtask 2.2a: Win32 SendInput PS/2 hardware scan codes and trajectory splining).
+
+
 

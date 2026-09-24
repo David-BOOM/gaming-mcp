@@ -1,13 +1,13 @@
 # Gaming MCP Server -- Task Tracker
 
-**Last Updated:** 2026-09-24
-**Project Stage:** Planning / Architectural Design (Pre-Implementation)
+**Last Updated:** 2026-09-25
+**Project Stage:** Phase 2 Implementation (Universal VLA Computer Use Engine)
 
 ---
 
-## Current Milestone: Plan Finalization and Approval
+## Current Milestone: Milestone 2.1 -- Hardware-Accelerated Display and Audio Capture
 
-The project is in the formal planning, research synthesis, and architectural specification phase. No source code implementation has begun.
+Phase 1 (Core Foundation & Protocol Dispatcher) is fully verified (commits 7e028f7 and 7ffbba7) with 30/30 tests passing and 93% overall coverage. Active focus is Phase 2 Milestone 2.1.
 
 ### Completed Tasks
 
@@ -31,18 +31,30 @@ The project is in the formal planning, research synthesis, and architectural spe
 - [x] Repository governance: AGENTS.md, GEMINI.md, comprehensive .gitignore
 - [x] README.md with project overview, research foundations, and architectural highlights
 - [x] Plan refinement pass: Cross-platform strategy, dependency specification, error handling, CI/CD pipeline, configuration schema, concurrency model, observability
-
 - [x] Part VII architectural decisions resolved (hybrid SendInput/ViGEmBus actuation, adaptive Turbo-JPEG with dHash gating, sequential phased focus priority)
 - [x] Gemini 3.8 Flash Autonomous Team Loop (T2, L3) Prompt (GEMINI38-TEAM-LOOP-PROMPT.md), Persistent Memory (MEMORY.md), Resumption Pointer (RESUME.md), and Machine State (LOOP_STATE.json, PROGRESS.md)
+- [x] Phase 1 Milestone 1.1: Core MCP Protocol Engine (stdio/SSE transports, cancellation, progress tokens, typed registries)
+- [x] Phase 1 Milestone 1.2: Adapter SPI & Router Architecture (GameAdapter SPI, dynamic AdapterRouter, Pydantic v2 configuration)
 
-### Pending Tasks (Pre-Implementation)
+### Active Phase: Phase 2 -- Universal VLA Computer Use Engine
 
-- [ ] Final owner approval to transition from Planning to Implementation stage (Phase 1 scaffolding)
+- [/] Milestone 2.1: Hardware-Accelerated Display and Audio Capture
+  - [/] Subtask 2.1a: DXGI Desktop Duplication ctypes wrapper
+  - [ ] Subtask 2.1b: MSS cross-platform fallback capturer
+  - [x] Subtask 2.1c: 64-bit dHash perceptual gating (src/gaming_mcp/io/vision.py)
+  - [/] Subtask 2.1d: WASAPI master loopback audio capture (sounddevice/scipy installed, host devices verified)
+- [ ] Milestone 2.2: Dual-Layer Actuation and Action Chunking
+  - [ ] Subtask 2.2a: Win32 SendInput PS/2 hardware scan codes
+  - [ ] Subtask 2.2b: ViGEmBus virtual Xbox 360 controller wrapper (guarded stub fallback for Python 3.12)
+  - [ ] Subtask 2.2c: Minimum-jerk mouse trajectory splining
+  - [ ] Subtask 2.2d: Microsecond action chunk scheduler
+- [ ] Milestone 2.3: Visual Grounding, Safety and Privacy
+  - [x] Subtask 2.3a: Set-of-Marks coordinate grid overlay (src/gaming_mcp/utils/image.py)
+  - [ ] Subtask 2.3b: Window rect clipping and process blacklist
+  - [ ] Subtask 2.3c: Emergency hardware kill-switch (Ctrl+Alt+Shift+Pause/Break)
 
-### Next Phase: Implementation (Awaiting Approval)
+### Upcoming Phases
 
-- [ ] Phase 1: Core Foundation and Protocol Dispatcher (pyproject.toml, server.py, registries, adapter SPI)
-- [ ] Phase 2: Universal VLA Computer Use Engine (DXGI, ViGEmBus, dHash, WASAPI, SoM)
 - [ ] Phase 3: Minecraft High-Fidelity Bridge (Mineflayer IPC, pathfinding, inventory)
 - [ ] Phase 4: Retro and Gymnasium Adapters (Libretro, frame-stepping, Gymnasium RL)
 - [ ] Phase 5: Voyager-Inspired Skill Library (SQLite vector store, semantic retrieval, self-repair)

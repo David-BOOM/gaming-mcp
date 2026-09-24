@@ -54,3 +54,51 @@ The repository contains established verification fixtures and scripts:
 - [ ] Window clipping prevents mouse actuation outside the targeted game window rect.
 - [ ] Process blacklist refuses input injection into `cmd.exe`, `powershell.exe`, `Taskmgr.exe`, and sensitive OS utilities.
 - [ ] Emergency kill-switch severs all held inputs immediately when triggered.
+
+## 2026-09-24T15:36:58Z
+
+Implement Phase 2 Milestone 2.1 of the Gaming MCP Server: Hardware-Accelerated Display and Audio Capture, providing low-latency DXGI screen acquisition, MSS fallback, 64-bit dHash perceptual gating, and WASAPI master loopback audio capture for AI game agents.
+
+Working directory: c:\Users\david\Desktop\Projects\gaming-mcp
+Integrity mode: development
+
+Requested team: Agent team for Phase 2 Milestone 2.1 (Hardware-Accelerated Display and Audio Capture)
+
+## Requirements
+
+### R1. Screen Capture Engine with Native DXGI Duplication and MSS Fallback
+Implement `src/gaming_mcp/io/screen.py` containing:
+- `DXGIScreenCapturer`: ctypes-based Windows DirectX 11 / DXGI Desktop Duplication wrapper acquiring desktop frames with low latency (<15ms target) and ACES filmic HDR-to-SDR tone-mapping.
+- `MSSScreenCapturer`: High-speed multi-monitor cross-platform fallback capturer with target window handle (`HWND`) coordinate clipping and cropping.
+- `CompositeScreenCapturer`: High-level capturer that prioritizes DXGI on Windows, intercepts `DXGI_ERROR_ACCESS_LOST` (0x887A0026) with automatic re-acquisition and seamless fallback to MSS without dropping frames.
+- Integrated perceptual delta gating using `PerceptualGater` (`src/gaming_mcp/io/vision.py`) and image serialization via `encode_image` (`src/gaming_mcp/utils/image.py`).
+
+### R2. WASAPI Loopback Audio Capture Engine
+Implement `src/gaming_mcp/io/audio.py` containing:
+- `WASAPIAudioCapturer`: Audio capture worker utilizing `sounddevice` with WASAPI loopback mode to stream master system/game audio.
+- Audio feature extraction computing RMS energy levels, peak decibel metrics, and tactical cue detection (e.g., silence thresholding vs. active audio transients).
+- Graceful degradation returning clear advisory status if no default output device or WASAPI loopback stream is active.
+
+### R3. Comprehensive Automated Verification Suite
+Implement `tests/test_io/test_screen.py` and `tests/test_io/test_audio.py` containing:
+- Unit and mock tests for DXGI ctypes initialization, buffer memory layout, and error recovery on lost device surface.
+- Runtime tests for MSS capture, window cropping, and Set-of-Marks grid overlays.
+- Perceptual dHash verification tests verifying that static scenes yield Hamming distance < 3 and animated changes yield Hamming distance >= 3.
+- WASAPI loopback capture unit and mock stream tests.
+- 100% pass rate under `pytest`, zero warnings in `ruff check`, and zero type errors in `mypy --strict`.
+
+## Acceptance Criteria
+
+### Correctness and Protocol Safety
+- [ ] `DXGIScreenCapturer` correctly initializes Direct3D 11 device and output duplication interface via ctypes, handling surface acquisition cleanly.
+- [ ] If DXGI is unavailable or encounters access loss, `CompositeScreenCapturer` falls back to `MSSScreenCapturer` without throwing uncaught exceptions.
+- [ ] `compute_dhash` and `PerceptualGater` accurately suppress redundant static frames when Hamming distance is below the configured threshold.
+- [ ] `WASAPIAudioCapturer` records PCM buffers and computes audio energy levels without blocking the asyncio event loop.
+- [ ] Emergency cleanup: all COM interfaces and audio streams are explicitly closed on `close()` / shutdown.
+
+### Quality and Verification Standards
+- [ ] All unit and integration tests in `tests/test_io/` pass cleanly with pytest.
+- [ ] Strict type checking passes with 0 errors via `mypy src/ tests/ --strict`.
+- [ ] Linting and code style passes with 0 issues via `ruff check src/ tests/`.
+- [ ] Strictly zero emoji or pictogram characters in all source files, docstrings, and tests (AGENTS.md Rule 1).
+
