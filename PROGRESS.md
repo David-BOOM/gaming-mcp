@@ -188,3 +188,34 @@ This document tracks all completed engineering iterations, empirical evidence li
 * **Surprises & Lessons:**
   - Node.js stdout redirection is vital: third-party Node modules or dependencies frequently write unformatted diagnostic messages to `console.log`, instantly corrupting NDJSON parsers in parent processes. Overriding `console.log/info/warn/error` at the entrypoint of `minecraft_daemon.js` to route strictly to `process.stderr` completely immunizes the IPC channel from parser desynchronization.
 * **Next Target:** Phase 3 Milestone 3.2: Minecraft Spatial and Inventory Abstractions (Subtask 3.2a: Minecraft MCP Tools, Subtask 3.2b: Reactive Inventory and Stats Resources).
+
+---
+
+## Iteration 9 -- 2026-09-25: Milestone 3.2 Minecraft Spatial and Inventory Abstractions (Phase 3 Complete)
+
+* **Milestone / Focus:** Phase 3 Milestone 3.2: Minecraft Spatial and Inventory Abstractions. Phase 3 Exit Gate fully achieved.
+* **Deliverables Completed:**
+  - `src/gaming_mcp/adapters/minecraft.py`: `MinecraftRecipeGraph` recursive recipe resolution engine with multi-stage crafting dependency DAG (e.g. `oak_log` -> `oak_planks` -> `crafting_table` + `stick` -> `wooden_pickaxe`), intermediate inventory tracking, and missing prerequisite auto-crafting.
+  - `src/gaming_mcp/adapters/minecraft.py`: Extended spatial querying and inventory interaction tools:
+    - `mc_get_block`: Inspect block ID, hardness, bounding box, and tool requirements at target coordinates.
+    - `mc_find_blocks`: Radial 3D voxel scan locating nearest resource blocks (`oak_log`, `iron_ore`, `coal_ore`) within configurable radius.
+    - `mc_place_block`: Place block with orientation, target face vector, and sneak modifier.
+    - `mc_use_item`: Consume food, potions, or activate handheld utility items with health/hunger event emission.
+    - `mc_craft_recipe`: Execute recipe with recursive prerequisite resolution and auto-crafting.
+  - `src/gaming_mcp/adapters/minecraft.py`: Reactive resource subscriptions and event routing:
+    - `minecraft://player/inventory`: Real-time inventory slots, item quantities, and equipment state.
+    - `minecraft://player/stats`: Health, food/saturation, oxygen, experience levels, and dimension.
+    - `minecraft://world/surroundings`: Dynamic entity tracking, hostile mob detection, and spatial danger alerts.
+    - Implemented `subscribe_resource` and `unsubscribe_resource` on `MinecraftAdapter` with push callback dispatch.
+  - `src/gaming_mcp/adapters/minecraft_daemon.js`: Expanded daemon handlers for `get_block`, `find_blocks`, `place_block`, `use_item`, and simulated inventory mutation events.
+  - `tests/test_adapters/test_minecraft.py`: Added 4 automated test suites covering recipe graph resolution, spatial and inventory tool execution, reactive resource subscription push notifications, and surroundings introspection.
+* **Evidence:**
+  - `EVIDENCE/3.2-minecraft-abstractions/pytest_summary.txt`: 11/11 Minecraft tests passing cleanly in 4.22s.
+  - `EVIDENCE/phase3/full_test_suite.txt`: 93/93 tests passing repository-wide with 85% overall coverage across 3131 statements.
+  - `EVIDENCE/3.2-minecraft-abstractions/ruff_check.txt`: All checks passed with 0 errors across entire repository.
+  - `EVIDENCE/3.2-minecraft-abstractions/mypy_check.txt`: Success, 0 issues found in 27 source files under strict typing.
+  - Zero-emoji verification: 0 emoji violations confirmed across all repository files.
+* **Surprises & Lessons:**
+  - Running pytest directly via the virtual environment interpreter (`.\.venv\Scripts\python.exe -m pytest`) avoids network stalls and subshell resolution issues that can occur when calling `uv run` on environments with complex dependency locks.
+  - `vgamepad` C-extension remains an open blocker on Python 3.12 (`vigembus-python312-wheel-dependency`); keeping this blocker honest and accurately tracked in `LOOP_STATE.json` with guarded abstract SPI degradation ensures transparent system boundaries.
+* **Next Target:** Phase 4 Milestone 4.1: Libretro Core Integration and Milestone 4.2: Gymnasium RL Environment Wrapper.

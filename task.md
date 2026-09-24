@@ -1,13 +1,13 @@
 # Gaming MCP Server -- Task Tracker
 
 **Last Updated:** 2026-09-25
-**Project Stage:** Phase 2 Implementation (Universal VLA Computer Use Engine)
+**Project Stage:** Phase 4 Implementation (Retro and Gymnasium Adapters)
 
 ---
 
-## Current Milestone: Milestone 3.1 -- Node.js Mineflayer IPC Bridge
+## Current Milestone: Milestone 4.1 -- Libretro Core Integration & Milestone 4.2 -- Gymnasium RL Environment Wrapper
 
-Phase 1 (Core Foundation & Protocol Dispatcher) and Phase 2 (Universal VLA Computer Use Engine) are fully verified with 82/82 tests passing and 87% overall coverage. Active focus is Phase 3 Milestone 3.1: Node.js Mineflayer IPC Bridge.
+Phases 1, 2, and 3 are fully verified with 93/93 tests passing repository-wide with 85% overall coverage and zero emoji infractions. Active focus is Phase 4: Libretro Core Integration (4.1) and Gymnasium RL Environment Wrapper (4.2).
 
 ### Completed Tasks
 
@@ -40,18 +40,21 @@ Phase 1 (Core Foundation & Protocol Dispatcher) and Phase 2 (Universal VLA Compu
 - [x] Phase 2 Milestone 2.3: Visual Grounding, Safety and Privacy (Set-of-Marks coordinate grid overlay, Win32 window manager and boundary clamping, process blacklist guard, emergency hardware kill-switch)
 - [x] Phase 2 Milestone 2.4: Universal Computer Use Adapter Integration (ComputerUseAdapter, 7 tools, 2 resources, prompt, e2e test suite)
 
-### Active Phase: Phase 3 -- Minecraft High-Fidelity Bridge
+### Completed Tasks
 
-- [x] Milestone 3.1: Node.js Mineflayer IPC Bridge
-  - [x] Subtask 3.1a: Mineflayer NDJSON Daemon Bridge (process supervisor, socket/pipe IPC, event emitter)
-  - [x] Subtask 3.1b: Process Supervisor and Auto-Restart
-- [/] Milestone 3.2: Minecraft Spatial and Inventory Abstractions
-  - [ ] Subtask 3.2a: Minecraft MCP Tools (navigate_to, mine_block, craft_recipe, place_block, attack_entity)
-  - [ ] Subtask 3.2b: Reactive Inventory and Stats Resources (game://minecraft/inventory, game://minecraft/nearby_entities, game://minecraft/bot_state)
+- [x] Phase 3 Milestone 3.1: Node.js Mineflayer IPC Bridge (Mineflayer NDJSON daemon, supervisor, reconnect)
+- [x] Phase 3 Milestone 3.2: Minecraft Spatial and Inventory Abstractions (11 tools, recursive recipe graph, reactive subscriptions)
+
+### Active Phase: Phase 4 -- Retro & Gymnasium Adapters
+
+- [/] Milestone 4.1: Libretro Core Integration
+  - [/] Subtask 4.1a: stable-retro Core Bindings & Emulator Session Manager
+  - [ ] Subtask 4.1b: Frame Stepping, RAM Introspection, and Save State Tools
+- [/] Milestone 4.2: Gymnasium RL Environment Wrapper
+  - [/] Subtask 4.2a: Gymnasium Environment Adapter & Vector Observation Exporter
 
 ### Upcoming Phases
 
-- [ ] Phase 4: Retro and Gymnasium Adapters (Libretro, frame-stepping, Gymnasium RL)
 - [ ] Phase 5: Voyager-Inspired Skill Library (SQLite vector store, semantic retrieval, self-repair)
 - [ ] Phase 6: Hardening, Benchmarking, and Distribution (SmartPlay, CI/CD, PyPI)
 
