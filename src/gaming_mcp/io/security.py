@@ -171,6 +171,12 @@ class EmergencyKillSwitch:
         with self._lock:
             return self._is_triggered
 
+    @property
+    def is_running(self) -> bool:
+        """Return True if emergency kill-switch monitoring daemon is active."""
+        with self._lock:
+            return self._is_running
+
     def add_callback(self, callback: Callable[[], None]) -> None:
         """Register custom callback to execute upon kill-switch activation."""
         with self._lock:

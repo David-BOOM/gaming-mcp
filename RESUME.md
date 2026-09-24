@@ -18,16 +18,16 @@ Read this file FIRST upon cold-start, session reboot, rate-limit recovery, or co
 
 ## 2. Current Execution Pointer
 
-* **Current Phase:** Phase 2: Universal VLA Computer Use Engine (Weeks 3-4)
-* **Active Milestone:** Milestone 2.4: Universal Computer Use Adapter Integration
+* **Current Phase:** Phase 3: Minecraft High-Fidelity Bridge (Weeks 5-6)
+* **Active Milestone:** Milestone 3.1: Node.js Mineflayer IPC Bridge
 * **Active Subtasks:**
-  - Subtask 2.4a -- ComputerUseAdapter Implementation and Tool Registrations (`src/gaming_mcp/adapters/computer_use.py`)
-  - Subtask 2.4b -- End-to-End Test Suite and Verification (`tests/test_adapters/test_computer_use.py`)
+  - Subtask 3.1a -- Node.js Mineflayer NDJSON Daemon Bridge (`src/gaming_mcp/adapters/minecraft.py`, child process supervisor, NDJSON protocol framing)
+  - Subtask 3.1b -- Process Supervisor, Heartbeat, and Auto-Restart Loop
 * **Immediate Next Action:**
-  1. Author `src/gaming_mcp/adapters/computer_use.py` implementing `ComputerUseAdapter` which encapsulates screen capture (composite DXGI/MSS), audio capture (WASAPI loopback), input injection (Win32 SendInput), virtual gamepad (ViGEmBus), action chunk scheduler, and security guards. Exposes tools `screenshot`, `mouse_click`, `mouse_drag`, `send_keys`, `execute_action_chunk`, `gamepad_control`, `window_focus`, and reactive resource `game://audio/events`.
-  2. Author comprehensive unit and mock integration test suites in `tests/test_adapters/test_computer_use.py`.
-  3. Run verification ladder (`ruff`, `mypy --strict`, `pytest`, zero-emoji pre-commit scan).
-  4. Commit and push.
+  1. Author Node.js Mineflayer daemon harness (`scripts/mineflayer_daemon.js` or `src/gaming_mcp/adapters/minecraft_daemon.js`) streaming JSON-RPC / NDJSON state packets.
+  2. Implement `MinecraftAdapter` in `src/gaming_mcp/adapters/minecraft.py` with asynchronous process lifecycle management, socket/pipe IPC, event emitter, and tool dispatch.
+  3. Author unit and integration tests with mocked IPC stream.
+  4. Run verification ladder (`ruff`, `mypy --strict`, `pytest`, zero-emoji audit), commit, and push.
 
 ---
 
@@ -50,8 +50,8 @@ Read this file FIRST upon cold-start, session reboot, rate-limit recovery, or co
 | Phase | Description | Status | Evidence Target |
 |-------|-------------|--------|-----------------|
 | Phase 1 | Core Foundation & Protocol Dispatcher | VERIFIED | `EVIDENCE/phase1/` |
-| Phase 2 | Universal VLA Computer Use Engine | IN_PROGRESS | `EVIDENCE/phase2/` |
-| Phase 3 | Minecraft High-Fidelity Bridge | PENDING | `EVIDENCE/phase3/` |
+| Phase 2 | Universal VLA Computer Use Engine | VERIFIED | `EVIDENCE/2.4-computer-use-adapter/` |
+| Phase 3 | Minecraft High-Fidelity Bridge | IN_PROGRESS | `EVIDENCE/phase3/` |
 | Phase 4 | Retro & Gymnasium Adapters | PENDING | `EVIDENCE/phase4/` |
 | Phase 5 | Voyager-Inspired Skill Library | PENDING | `EVIDENCE/phase5/` |
 | Phase 6 | Hardening, Benchmarking & Distribution | PENDING | `EVIDENCE/phase6/` |

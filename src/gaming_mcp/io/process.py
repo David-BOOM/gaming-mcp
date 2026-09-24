@@ -45,12 +45,32 @@ class WindowInfo(BaseModel):
     is_visible: bool = Field(default=True, description="True if window is visible on desktop")
 
     @property
+    def left(self) -> int:
+        return self.rect[0]
+
+    @property
+    def top(self) -> int:
+        return self.rect[1]
+
+    @property
+    def right(self) -> int:
+        return self.rect[2]
+
+    @property
+    def bottom(self) -> int:
+        return self.rect[3]
+
+    @property
     def width(self) -> int:
         return max(0, self.rect[2] - self.rect[0])
 
     @property
     def height(self) -> int:
         return max(0, self.rect[3] - self.rect[1])
+
+    @property
+    def is_minimized(self) -> bool:
+        return self.rect[0] <= -32000 or self.width == 0 or self.height == 0
 
 
 class Win32WindowManager:
@@ -266,6 +286,16 @@ class Win32WindowManager:
 
         return matched
 
+    def find_window(
+        self,
+        pattern: str,
+        regex: bool = True,
+        visible_only: bool = True,
+    ) -> WindowInfo | None:
+        """Find the first top-level window matching title pattern."""
+        matches = self.find_windows_by_title(pattern, regex=regex, visible_only=visible_only)
+        return matches[0] if matches else None
+
     def get_foreground_window(self) -> WindowInfo | None:
         """Retrieve metadata for the currently active foreground window."""
         if not self.is_windows or not self._user32:
@@ -287,6 +317,10 @@ class Win32WindowManager:
         self._user32.ShowWindow(hwnd, SW_RESTORE)
         res = bool(self._user32.SetForegroundWindow(hwnd))
         return res
+
+    def bring_to_front(self, hwnd: int) -> bool:
+        """Bring window to foreground (alias of focus_window)."""
+        return self.focus_window(hwnd)
 
     def get_window_rect(self, hwnd: int) -> tuple[int, int, int, int] | None:
         """Retrieve bounding rectangle (left, top, right, bottom) for a window handle."""

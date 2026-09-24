@@ -539,6 +539,13 @@ class CompositeScreenCapturer:
             self._dxgi = DXGIScreenCapturer(monitor_index=monitor_index)
         self._mss = MSSScreenCapturer(monitor_index=max(1, monitor_index + 1))
 
+    @property
+    def active_backend(self) -> str:
+        """Return the active capture backend identifier ('dxgi' or 'mss')."""
+        if self._dxgi is not None and self._dxgi.is_available:
+            return "dxgi"
+        return "mss"
+
     def capture(
         self,
         region: tuple[int, int, int, int] | None = None,

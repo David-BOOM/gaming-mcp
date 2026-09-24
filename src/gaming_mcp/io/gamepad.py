@@ -69,6 +69,11 @@ class BaseGamepadController(ABC):
         """Set right analog trigger in range [0.0, 1.0]."""
         ...
 
+    def set_triggers(self, left: float, right: float) -> None:
+        """Set both left and right analog triggers."""
+        self.set_left_trigger(left)
+        self.set_right_trigger(right)
+
     @abstractmethod
     def press_button(self, button: str) -> None:
         """Press a controller button."""

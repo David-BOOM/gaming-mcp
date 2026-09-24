@@ -119,11 +119,19 @@
       "failed": 0,
       "skipped": 0,
       "duration_seconds": 0.20,
-      "coverage_percent": 89.0
+      "coverage_percent": 88.0
+    },
+    {
+      "path": "tests/test_adapters/test_computer_use.py",
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.80,
+      "coverage_percent": 81.0
     }
   ],
-  "total_passed": 77,
+  "total_passed": 82,
   "total_failed": 0,
   "total_skipped": 0,
-  "overall_coverage_percent": 88.0
+  "overall_coverage_percent": 87.0
 }

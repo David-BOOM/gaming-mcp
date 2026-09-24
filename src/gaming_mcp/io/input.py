@@ -17,6 +17,7 @@ import random
 import sys
 import threading
 import time
+from collections.abc import Sequence
 from ctypes import wintypes
 from typing import Any
 
@@ -385,6 +386,23 @@ class Win32InputInjector:
         up_ok = self.key_up(key)
         return down_ok and up_ok
 
+    def send_keys(
+        self,
+        keys: list[str] | Sequence[str] | str,
+        hold_duration_ms: float = 100.0,
+        repeat_count: int = 1,
+    ) -> bool:
+        """Inject discrete keystrokes with specified hold duration and repetitions."""
+        key_list = [keys] if isinstance(keys, str) else list(keys)
+
+        success = True
+        for _ in range(max(1, repeat_count)):
+            for k in key_list:
+                ok = self.press_key(k, hold_duration_ms=hold_duration_ms)
+                if not ok:
+                    success = False
+        return success
+
     def mouse_move_relative(self, dx: int, dy: int) -> bool:
         """Inject a relative mouse motion event (MOUSEEVENTF_MOVE). Essential for 3D camera."""
         if not self.is_windows or not self._user32:
@@ -530,7 +548,7 @@ class Win32InputInjector:
         x: int | None = None,
         y: int | None = None,
         button: str = "left",
-        modifiers: list[str] | None = None,
+        modifiers: Sequence[str] | None = None,
     ) -> bool:
         """Execute a mouse click at current or target position, with optional held modifiers."""
         if x is not None and y is not None:

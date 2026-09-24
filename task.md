@@ -5,9 +5,9 @@
 
 ---
 
-## Current Milestone: Milestone 2.4 -- Universal Computer Use Adapter Integration
+## Current Milestone: Milestone 3.1 -- Node.js Mineflayer IPC Bridge
 
-Phase 1 (Core Foundation & Protocol Dispatcher) and Phase 2 Milestones 2.1, 2.2, and 2.3 are fully verified with 77/77 tests passing and 88% overall coverage. Active focus is Phase 2 Milestone 2.4: Universal Computer Use Adapter Integration.
+Phase 1 (Core Foundation & Protocol Dispatcher) and Phase 2 (Universal VLA Computer Use Engine) are fully verified with 82/82 tests passing and 87% overall coverage. Active focus is Phase 3 Milestone 3.1: Node.js Mineflayer IPC Bridge.
 
 ### Completed Tasks
 
@@ -38,30 +38,19 @@ Phase 1 (Core Foundation & Protocol Dispatcher) and Phase 2 Milestones 2.1, 2.2,
 - [x] Phase 2 Milestone 2.1: Hardware-Accelerated Display and Audio Capture (DXGI D3D11 duplication, MSS fallback, 64-bit dHash perceptual gating, WASAPI loopback capture)
 - [x] Phase 2 Milestone 2.2: Dual-Layer Actuation and Action Chunking (Win32 SendInput PS/2 hardware scan codes, ViGEmBus guarded virtual gamepad, Flash & Hogan minimum-jerk curves, microsecond action chunk scheduler)
 - [x] Phase 2 Milestone 2.3: Visual Grounding, Safety and Privacy (Set-of-Marks coordinate grid overlay, Win32 window manager and boundary clamping, process blacklist guard, emergency hardware kill-switch)
+- [x] Phase 2 Milestone 2.4: Universal Computer Use Adapter Integration (ComputerUseAdapter, 7 tools, 2 resources, prompt, e2e test suite)
 
-### Active Phase: Phase 2 -- Universal VLA Computer Use Engine
+### Active Phase: Phase 3 -- Minecraft High-Fidelity Bridge
 
-- [x] Milestone 2.1: Hardware-Accelerated Display and Audio Capture
-  - [x] Subtask 2.1a: DXGI Desktop Duplication ctypes wrapper
-  - [x] Subtask 2.1b: MSS cross-platform fallback capturer
-  - [x] Subtask 2.1c: 64-bit dHash perceptual gating (src/gaming_mcp/io/vision.py)
-  - [x] Subtask 2.1d: WASAPI master loopback audio capture
-- [x] Milestone 2.2: Dual-Layer Actuation and Action Chunking
-  - [x] Subtask 2.2a: Win32 SendInput PS/2 hardware scan codes (src/gaming_mcp/io/input.py)
-  - [x] Subtask 2.2b: ViGEmBus virtual Xbox 360 controller wrapper (src/gaming_mcp/io/gamepad.py)
-  - [x] Subtask 2.2c: Minimum-jerk mouse trajectory splining (src/gaming_mcp/utils/curves.py)
-  - [x] Subtask 2.2d: Microsecond action chunk scheduler (src/gaming_mcp/io/timing.py)
-- [x] Milestone 2.3: Visual Grounding, Safety and Privacy
-  - [x] Subtask 2.3a: Set-of-Marks coordinate grid overlay (src/gaming_mcp/utils/image.py)
-  - [x] Subtask 2.3b: Window rect clipping and process blacklist (src/gaming_mcp/io/process.py, src/gaming_mcp/io/security.py)
-  - [x] Subtask 2.3c: Emergency hardware kill-switch (Ctrl+Alt+Shift+Pause/Break) (src/gaming_mcp/io/security.py)
-- [/] Milestone 2.4: Universal Computer Use Adapter Integration
-  - [ ] Subtask 2.4a: ComputerUseAdapter Implementation and Tool Registrations (src/gaming_mcp/adapters/computer_use.py)
-  - [ ] Subtask 2.4b: End-to-End Test Suite and Verification (tests/test_adapters/test_computer_use.py)
+- [ ] Milestone 3.1: Node.js Mineflayer IPC Bridge
+  - [ ] Subtask 3.1a: Mineflayer NDJSON Daemon Bridge (process supervisor, socket/pipe IPC, event emitter)
+  - [ ] Subtask 3.1b: Process Supervisor and Auto-Restart
+- [ ] Milestone 3.2: Minecraft Spatial and Inventory Abstractions
+  - [ ] Subtask 3.2a: Minecraft MCP Tools (navigate_to, mine_block, craft_recipe, place_block, attack_entity)
+  - [ ] Subtask 3.2b: Reactive Inventory and Stats Resources (game://minecraft/inventory, game://minecraft/nearby_entities, game://minecraft/bot_state)
 
 ### Upcoming Phases
 
-- [ ] Phase 3: Minecraft High-Fidelity Bridge (Mineflayer IPC, pathfinding, inventory)
 - [ ] Phase 4: Retro and Gymnasium Adapters (Libretro, frame-stepping, Gymnasium RL)
 - [ ] Phase 5: Voyager-Inspired Skill Library (SQLite vector store, semantic retrieval, self-repair)
 - [ ] Phase 6: Hardening, Benchmarking, and Distribution (SmartPlay, CI/CD, PyPI)

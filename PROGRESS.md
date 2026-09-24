@@ -132,6 +132,42 @@ This document tracks all completed engineering iterations, empirical evidence li
   - In `ctypes`, `GetForegroundWindow` returning NULL yields `None` rather than 0 in Python. Calling `int(hwnd)` raises `TypeError`. Must explicitly guard `if not raw_hwnd: return None`.
 * **Next Target:** Milestone 2.4 -- Universal Computer Use Adapter Integration (`src/gaming_mcp/adapters/computer_use.py` bringing together screen capture, audio, input, gamepad, timing, process, and security into standard MCP tools).
 
+---
+
+## Iteration 6 -- 2026-09-25: Milestone 2.4 Universal Computer Use Adapter Integration and Phase 2 Exit Gate
+
+* **Milestone / Focus:** Phase 2 Milestone 2.4: Universal Computer Use Adapter Integration. Complete Phase 2 Exit Gate achieved.
+* **Deliverables Completed:**
+  - `src/gaming_mcp/adapters/computer_use.py`: `ComputerUseAdapter` unifying DXGI/MSS screen capture, Win32 hardware scan-code input injection, ViGEmBus virtual gamepad actuation, WASAPI master loopback audio capture, microsecond action chunk execution, and process/window boundary safety guards into standard MCP tools, resources, and prompts.
+  - Implemented MCP Tools:
+    - `screenshot`: Zero-copy frame capture with dHash perceptual delta gating, JPEG/PNG encoding, Set-of-Marks coordinate grid annotation, and target window cropping.
+    - `mouse_click`: Absolute/relative cursor positioning, configurable button (left/right/middle), hold durations, and modifier keys with window boundary clamping.
+    - `mouse_drag`: Minimum-jerk / cubic Bezier trajectory mouse dragging between screen coordinates with boundary checks.
+    - `send_keys`: Hardware scan-code keystrokes with Gaussian hold duration jitter, repeat counts, and active window blacklist validation.
+    - `execute_action_chunk`: Fine-grained temporal action sequences executing locally with sub-millisecond precision and cancellation abort hooks.
+    - `gamepad_control`: Virtual Xbox 360 thumbstick vectors, analog triggers, and digital button presses.
+    - `window_focus`: Top-level window search by title pattern/regex and foreground restoration with protected process blacklist enforcement.
+  - Implemented MCP Resources & Prompts:
+    - `game://audio/events`: Real-time telemetry of recent acoustic cues (RMS energy, peak dB, threshold detections).
+    - `game://screen/info`: Display backend info, active target window bounding rect, and foreground process metadata.
+    - `prompt: gameplay_strategy`: Structured initial orientation prompt for autonomous game-playing agents.
+  - Subsystem Enhancements:
+    - `src/gaming_mcp/io/input.py`: Added `send_keys` sequential key injection and `Sequence[str]` modifier support.
+    - `src/gaming_mcp/io/process.py`: Added `find_window` pattern matching and `bring_to_front` convenience methods to `Win32WindowManager`.
+    - `src/gaming_mcp/io/audio.py`: Added `is_recording` property alias and `get_recent_events` tactical cue telemetry.
+    - `src/gaming_mcp/io/security.py`: Added `is_running` property to `EmergencyKillSwitch`.
+    - `src/gaming_mcp/config.py`: Added `monitor_index`, `prefer_mock_gamepad`, and `buffer_duration_sec` configuration fields.
+  - `tests/test_adapters/test_computer_use.py`: 5 comprehensive integration tests verifying lifecycle initialization, tool execution, action chunk dispatch, safety boundary clipping, blacklist rejection, resource reads, prompt rendering, and cleanup.
+* **Evidence:**
+  - `EVIDENCE/2.4-computer-use-adapter/pytest_coverage.txt`: 82/82 tests passing cleanly in 5.62s with 87% overall coverage across 2563 statements.
+  - `EVIDENCE/2.4-computer-use-adapter/ruff_check.txt`: 0 errors/warnings across entire codebase.
+  - `EVIDENCE/2.4-computer-use-adapter/mypy_check.txt`: 0 type errors in 46 source files under strict typing.
+  - `EVIDENCE/2.4-computer-use-adapter/emoji_audit.txt`: Zero emoji code points verified across entire repository.
+* **Surprises & Lessons:**
+  - In Python typing, `list[T]` is invariant; passing `list[Literal["ctrl", ...]]` to a function expecting `list[str]` triggers a mypy invariance error. Using `Sequence[str]` or converting via `list(modifiers)` cleanly preserves type safety while maintaining maximum flexibility.
+  - Sounddevice / WASAPI initialization and termination are synchronous; attempting to wrap synchronous `audio.stop()` in an asynchronous `async with asyncio.timeout(...)` without thread offloading can cause event loop deadlocks if COM uninitialization blocks. Pure synchronous termination in the adapter shutdown cleanly avoids COM thread contention.
+* **Next Target:** Phase 3 Milestone 3.1: Node.js Mineflayer IPC Bridge (Subtask 3.1a: Mineflayer NDJSON Daemon Bridge, Subtask 3.1b: Process Supervisor and Auto-Restart).
+
 
 
 

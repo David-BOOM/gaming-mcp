@@ -52,6 +52,11 @@ class WASAPIAudioCapturer:
         """Return True if the audio capture stream is currently active."""
         return self._is_running
 
+    @property
+    def is_recording(self) -> bool:
+        """Return True if the audio capture stream is currently active (alias for is_running)."""
+        return self._is_running
+
     def _find_wasapi_loopback_device(self) -> int | None:
         """Find the default WASAPI output device for loopback capture."""
         try:
@@ -222,6 +227,26 @@ class WASAPIAudioCapturer:
         )
         result: npt.NDArray[np.float32] = np.asarray(np.abs(zxx), dtype=np.float32)
         return result
+
+    def get_recent_events(self) -> list[dict[str, Any]]:
+        """Retrieve recent tactical audio events and threshold cue telemetry."""
+        if not self._is_running:
+            return []
+        events: list[dict[str, Any]] = []
+        try:
+            energy = self.get_audio_energy(duration_sec=0.5)
+            peak_db = self.get_peak_db(duration_sec=0.5)
+            if peak_db > -35.0:
+                events.append(
+                    {
+                        "event": "tactical_sound_cue",
+                        "peak_db": round(peak_db, 2),
+                        "energy_rms": round(energy, 4),
+                    }
+                )
+        except Exception as exc:
+            logger.debug("Failed analyzing recent audio events: %s", exc)
+        return events
 
     def close(self) -> None:
         """Release audio stream and clear memory."""

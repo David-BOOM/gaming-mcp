@@ -50,6 +50,11 @@ class ScreenCaptureConfig(BaseModel):
         le=500,
         description="Pixel spacing for Set-of-Marks visual coordinate grid",
     )
+    monitor_index: int = Field(
+        default=0,
+        ge=0,
+        description="Display monitor index for frame capture",
+    )
 
 
 class InputConfig(BaseModel):
@@ -58,6 +63,10 @@ class InputConfig(BaseModel):
     preferred_backend: str = Field(
         default="auto",
         description="'auto', 'scancode', 'vigem', or 'pyautogui'",
+    )
+    prefer_mock_gamepad: bool = Field(
+        default=False,
+        description="Prefer mock gamepad controller instead of ViGEmBus",
     )
     mouse_smoothing: bool = Field(
         default=True,
@@ -91,6 +100,11 @@ class AudioConfig(BaseModel):
     sample_rate: int = Field(
         default=48000,
         description="Audio sampling rate in Hz (WASAPI default is 48kHz)",
+    )
+    buffer_duration_sec: float = Field(
+        default=10.0,
+        ge=1.0,
+        description="Buffer duration in seconds for loopback audio ring buffer",
     )
     mel_bands: int = Field(
         default=64,
