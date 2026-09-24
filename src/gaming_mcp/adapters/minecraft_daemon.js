@@ -62,6 +62,8 @@ let currentConfig = {
 // Simulated State for mock / test mode
 const simulatedState = {
   position: { x: 0, y: 64, z: 0 },
+  yaw: 0.0,
+  pitch: 0.0,
   health: 20,
   food: 20,
   oxygen: 20,
@@ -71,15 +73,53 @@ const simulatedState = {
     { slot: 37, name: "torch", count: 64 },
     { slot: 38, name: "bread", count: 16 },
     { slot: 39, name: "cobblestone", count: 32 },
+    { slot: 40, name: "oak_log", count: 16 },
   ],
+  placed_blocks: {},
+  mined_blocks: new Set(),
   nearby_entities: [
-    { id: 101, type: "pig", position: { x: 3, y: 64, z: 2 }, distance: 3.6 },
-    { id: 102, type: "cow", position: { x: -5, y: 64, z: 4 }, distance: 6.4 },
+    { id: 101, name: "pig", type: "passive", position: { x: 3, y: 64, z: 2 }, distance: 3.6 },
+    { id: 102, name: "cow", type: "passive", position: { x: -5, y: 64, z: 4 }, distance: 6.4 },
+    { id: 103, name: "zombie", type: "hostile", position: { x: 12, y: 64, z: -8 }, distance: 14.4 },
   ],
   biome: "plains",
   time: 6000,
   isRaining: false,
 };
+
+function addSimulatedInventory(itemName, count = 1) {
+  const existing = simulatedState.inventory.find(i => i.name === itemName);
+  if (existing) {
+    existing.count += count;
+  } else {
+    const nextSlot = 36 + simulatedState.inventory.length;
+    simulatedState.inventory.push({ slot: nextSlot, name: itemName, count });
+  }
+}
+
+function removeSimulatedInventory(itemName, count = 1) {
+  const idx = simulatedState.inventory.findIndex(i => i.name === itemName);
+  if (idx !== -1) {
+    simulatedState.inventory[idx].count -= count;
+    if (simulatedState.inventory[idx].count <= 0) {
+      simulatedState.inventory.splice(idx, 1);
+    }
+    return true;
+  }
+  return false;
+}
+
+function getSimulatedBlock(x, y, z) {
+  const key = `${x},${y},${z}`;
+  if (simulatedState.mined_blocks.has(key)) return "air";
+  if (simulatedState.placed_blocks[key]) return simulatedState.placed_blocks[key];
+  if (x === 2 && z === 1 && y >= 64 && y <= 67) return "oak_log";
+  if (x === 2 && z === 1 && y === 68) return "oak_leaves";
+  if (y > 64) return "air";
+  if (y === 64) return "grass_block";
+  if (y >= 60 && y < 64) return "dirt";
+  return "stone";
+}
 
 // JSON-RPC 2.0 Output Helpers
 function sendResponse(id, result, error = null) {
@@ -308,12 +348,18 @@ async function handleRequest(req) {
       case "mine_block": {
         const { x, y, z, block_name } = p;
         if (isSimulated) {
+          const bName = block_name || getSimulatedBlock(Number(x), Number(y), Number(z));
+          const key = `${x},${y},${z}`;
+          simulatedState.mined_blocks.add(key);
+          delete simulatedState.placed_blocks[key];
+          addSimulatedInventory(bName === "oak_log" ? "oak_log" : (bName === "stone" ? "cobblestone" : bName), 1);
           sendResponse(id, {
             success: true,
-            block: block_name || "stone",
+            block: bName,
             coordinates: { x: Number(x), y: Number(y), z: Number(z) },
             harvested: true,
           });
+          sendNotification("inventory_change", { inventory: simulatedState.inventory });
           return;
         }
 
@@ -333,15 +379,55 @@ async function handleRequest(req) {
         break;
       }
 
+      case "place_block": {
+        const { x, y, z, block_name } = p;
+        if (isSimulated) {
+          const key = `${x},${y},${z}`;
+          simulatedState.placed_blocks[key] = block_name || "cobblestone";
+          simulatedState.mined_blocks.delete(key);
+          removeSimulatedInventory(block_name || "cobblestone", 1);
+          sendResponse(id, {
+            success: true,
+            block: block_name || "cobblestone",
+            coordinates: { x: Number(x), y: Number(y), z: Number(z) },
+            placed: true,
+          });
+          sendNotification("inventory_change", { inventory: simulatedState.inventory });
+          return;
+        }
+
+        if (!bot || !isConnected) {
+          sendResponse(id, null, { code: -32002, message: "Bot is not connected to a server" });
+          return;
+        }
+
+        const item = bot.inventory.items().find(i => i.name === block_name);
+        if (!item) {
+          sendResponse(id, null, { code: -32602, message: `Item '${block_name}' not in inventory` });
+          return;
+        }
+        await bot.equip(item, "hand");
+        const refBlock = bot.blockAt(new Vec3(x, y - 1, z)) || bot.blockAt(new Vec3(x, y, z - 1)) || bot.blockAt(new Vec3(x - 1, y, z));
+        if (!refBlock) {
+          sendResponse(id, null, { code: -32602, message: `No adjacent block to place against at (${x}, ${y}, ${z})` });
+          return;
+        }
+        await bot.placeBlock(refBlock, new Vec3(0, 1, 0));
+        sendResponse(id, { success: true, block: block_name, coordinates: { x, y, z } });
+        break;
+      }
+
       case "craft_item": {
         const { item_name, quantity = 1 } = p;
         if (isSimulated) {
+          addSimulatedInventory(item_name, Number(quantity));
           sendResponse(id, {
             success: true,
             item: item_name,
             quantity: quantity,
             crafted: true,
           });
+          sendNotification("inventory_change", { inventory: simulatedState.inventory });
           return;
         }
 
@@ -351,6 +437,132 @@ async function handleRequest(req) {
         }
 
         sendResponse(id, { success: true, item: item_name, quantity });
+        break;
+      }
+
+      case "get_block": {
+        const { x, y, z } = p;
+        if (isSimulated) {
+          const bName = getSimulatedBlock(Number(x), Number(y), Number(z));
+          sendResponse(id, {
+            coordinates: { x: Number(x), y: Number(y), z: Number(z) },
+            name: bName,
+            hardness: bName === "air" ? 0 : (bName === "stone" ? 1.5 : (bName === "oak_log" ? 2.0 : 0.6)),
+            material: bName === "air" ? "air" : (bName === "stone" ? "rock" : (bName === "oak_log" ? "wood" : "dirt")),
+            boundingBox: bName === "air" ? "empty" : "block",
+          });
+          return;
+        }
+
+        if (!bot || !isConnected) {
+          sendResponse(id, null, { code: -32002, message: "Bot is not connected to a server" });
+          return;
+        }
+
+        const block = bot.blockAt(new Vec3(x, y, z));
+        sendResponse(id, {
+          coordinates: { x, y, z },
+          name: block ? block.name : "air",
+          hardness: block ? block.hardness : 0,
+          material: block ? block.material : "air",
+          boundingBox: block ? block.boundingBox : "empty",
+        });
+        break;
+      }
+
+      case "find_blocks": {
+        const { block_name, radius = 32, max_count = 5 } = p;
+        if (isSimulated) {
+          const found = [];
+          const r = Math.min(Number(radius), 32);
+          const maxResults = Math.min(Number(max_count), 20);
+          for (let dx = -r; dx <= r && found.length < maxResults; dx++) {
+            for (let dz = -r; dz <= r && found.length < maxResults; dz++) {
+              for (let dy = -8; dy <= 8 && found.length < maxResults; dy++) {
+                const bx = simulatedState.position.x + dx;
+                const by = simulatedState.position.y + dy;
+                const bz = simulatedState.position.z + dz;
+                if (getSimulatedBlock(bx, by, bz) === block_name) {
+                  found.push({ x: bx, y: by, z: bz });
+                }
+              }
+            }
+          }
+          sendResponse(id, {
+            block: block_name,
+            count: found.length,
+            coordinates: found,
+          });
+          return;
+        }
+
+        if (!bot || !isConnected) {
+          sendResponse(id, null, { code: -32002, message: "Bot is not connected to a server" });
+          return;
+        }
+
+        const positions = bot.findBlocks({
+          matching: b => b && b.name === block_name,
+          maxDistance: Number(radius),
+          count: Number(max_count),
+        });
+        sendResponse(id, {
+          block: block_name,
+          count: positions.length,
+          coordinates: positions.map(pos => ({ x: pos.x, y: pos.y, z: pos.z })),
+        });
+        break;
+      }
+
+      case "look_at": {
+        const { x, y, z, pitch, yaw } = p;
+        if (isSimulated) {
+          if (pitch !== undefined) simulatedState.pitch = Number(pitch);
+          if (yaw !== undefined) simulatedState.yaw = Number(yaw);
+          sendResponse(id, {
+            success: true,
+            target: { x: Number(x), y: Number(y), z: Number(z) },
+            pitch: simulatedState.pitch,
+            yaw: simulatedState.yaw,
+          });
+          return;
+        }
+
+        if (!bot || !isConnected) {
+          sendResponse(id, null, { code: -32002, message: "Bot is not connected to a server" });
+          return;
+        }
+
+        bot.lookAt(new Vec3(x, y, z));
+        sendResponse(id, { success: true, target: { x, y, z } });
+        break;
+      }
+
+      case "use_item": {
+        const { item_name } = p;
+        if (isSimulated) {
+          if (item_name === "bread") {
+            simulatedState.food = Math.min(20, simulatedState.food + 5);
+            simulatedState.health = Math.min(20, simulatedState.health + 2);
+            removeSimulatedInventory("bread", 1);
+            sendNotification("health", { health: simulatedState.health, food: simulatedState.food });
+            sendNotification("inventory_change", { inventory: simulatedState.inventory });
+          }
+          sendResponse(id, { success: true, item: item_name, used: true });
+          return;
+        }
+
+        if (!bot || !isConnected) {
+          sendResponse(id, null, { code: -32002, message: "Bot is not connected to a server" });
+          return;
+        }
+
+        const item = bot.inventory.items().find(i => i.name === item_name);
+        if (item) {
+          await bot.equip(item, "hand");
+        }
+        await bot.consume();
+        sendResponse(id, { success: true, item: item_name });
         break;
       }
 

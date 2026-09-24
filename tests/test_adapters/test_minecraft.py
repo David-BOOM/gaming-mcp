@@ -11,6 +11,7 @@ import pytest
 from gaming_mcp.adapters.minecraft import (
     MinecraftAdapter,
     MinecraftBridge,
+    MinecraftRecipeGraph,
 )
 from gaming_mcp.config import GamingMCPConfig, MinecraftConfig
 from gaming_mcp.core.exceptions import AdapterError
@@ -254,3 +255,171 @@ async def test_bridge_restart_and_reconnect(mock_mc_config: MinecraftConfig) -> 
         assert new_pid != old_pid
     finally:
         await bridge.stop()
+
+
+def test_minecraft_recipe_graph_resolution() -> None:
+    """Verify recursive dependency resolution in MinecraftRecipeGraph."""
+    # 1. Simple recipe lookup
+    planks_recipe = MinecraftRecipeGraph.get_recipe("oak_planks")
+    assert planks_recipe is not None
+    assert planks_recipe["yield"] == 4
+    assert planks_recipe["ingredients"] == {"oak_log": 1}
+
+    # 2. Multi-stage dependency resolution: oak_log -> wooden_pickaxe
+    # Starting with 4 oak_log, crafting 1 wooden_pickaxe requires:
+    # oak_planks -> crafting_table -> stick -> wooden_pickaxe
+    seq = MinecraftRecipeGraph.resolve_crafting_sequence(
+        target_item="wooden_pickaxe",
+        target_count=1,
+        inventory={"oak_log": 4},
+    )
+    items_in_order = [step.item for step in seq]
+    assert "oak_planks" in items_in_order
+    assert "stick" in items_in_order
+    assert items_in_order[-1] == "wooden_pickaxe"
+
+    # 3. Direct crafting with sufficient materials
+    seq_furnace = MinecraftRecipeGraph.resolve_crafting_sequence(
+        target_item="furnace",
+        target_count=1,
+        inventory={"cobblestone": 8, "crafting_table": 1},
+    )
+    assert len(seq_furnace) == 1
+    assert seq_furnace[0].item == "furnace"
+
+
+@pytest.mark.asyncio
+async def test_minecraft_spatial_and_inventory_tools(mock_mc_config: MinecraftConfig) -> None:
+    """Verify execution of spatial and inventory tools (place, get, find, look, use, recipe)."""
+    mcp_config = GamingMCPConfig()
+    mcp_config.adapters.minecraft = mock_mc_config
+
+    adapter = MinecraftAdapter(config=mcp_config)
+    tool_registry = ToolRegistry()
+    resource_registry = ResourceRegistry()
+
+    await adapter.initialize()
+    adapter.register_tools(tool_registry)
+    adapter.register_resources(resource_registry)
+
+    try:
+        # 1. mc_get_block
+        res_get = await tool_registry.execute(
+            "mc_get_block",
+            {"x": 0, "y": 64, "z": 0},
+        )
+        assert res_get.get("isError") is False
+        block_data = json.loads(res_get["content"][0]["text"])
+        assert block_data.get("name") == "grass_block"
+
+        # 2. mc_find_blocks
+        res_find = await tool_registry.execute(
+            "mc_find_blocks",
+            {"block_name": "oak_log", "radius": 16, "max_count": 5},
+        )
+        assert res_find.get("isError") is False
+        find_data = json.loads(res_find["content"][0]["text"])
+        assert find_data.get("block") == "oak_log"
+        assert find_data.get("count", 0) > 0
+
+        # 3. mc_place_block
+        res_place = await tool_registry.execute(
+            "mc_place_block",
+            {"x": 1, "y": 65, "z": 1, "block_name": "torch"},
+        )
+        assert res_place.get("isError") is False
+        assert "Placed block torch" in res_place["content"][0]["text"]
+
+        # 4. mc_look_at
+        res_look = await tool_registry.execute(
+            "mc_look_at",
+            {"x": 10.0, "y": 64.0, "z": 10.0, "pitch": 15.0, "yaw": 45.0},
+        )
+        assert res_look.get("isError") is False
+        look_data = json.loads(res_look["content"][0]["text"])
+        assert look_data.get("pitch") == 15.0
+
+        # 5. mc_use_item
+        res_use = await tool_registry.execute(
+            "mc_use_item",
+            {"item_name": "bread"},
+        )
+        assert res_use.get("isError") is False
+        use_data = json.loads(res_use["content"][0]["text"])
+        assert use_data.get("used") is True
+
+        # 6. mc_craft_recipe (multi-step)
+        res_recipe = await tool_registry.execute(
+            "mc_craft_recipe",
+            {"recipe_name": "crafting_table", "quantity": 1, "auto_craft_prerequisites": True},
+        )
+        assert res_recipe.get("isError") is False
+    finally:
+        await adapter.shutdown()
+
+
+@pytest.mark.asyncio
+async def test_minecraft_reactive_subscriptions(mock_mc_config: MinecraftConfig) -> None:
+    """Verify that resource subscriptions receive reactive update push notifications."""
+    mcp_config = GamingMCPConfig()
+    mcp_config.adapters.minecraft = mock_mc_config
+
+    adapter = MinecraftAdapter(config=mcp_config)
+    tool_registry = ToolRegistry()
+    resource_registry = ResourceRegistry()
+
+    inventory_updates: list[dict[str, Any]] = []
+    stats_updates: list[dict[str, Any]] = []
+
+    def _on_inv(uri: str, payload: dict[str, Any]) -> None:
+        inventory_updates.append(payload)
+
+    def _on_stats(uri: str, payload: dict[str, Any]) -> None:
+        stats_updates.append(payload)
+
+    adapter.subscribe_resource("minecraft://player/inventory", _on_inv)
+    adapter.subscribe_resource("minecraft://player/stats", _on_stats)
+
+    await adapter.initialize()
+    adapter.register_tools(tool_registry)
+    adapter.register_resources(resource_registry)
+
+    try:
+        # Executing mc_use_item emits health and inventory_change events in simulation
+        await tool_registry.execute("mc_use_item", {"item_name": "bread"})
+        await asyncio.sleep(0.15)
+
+        assert len(inventory_updates) > 0
+        assert len(stats_updates) > 0
+
+        # Unsubscribe and verify no more notifications
+        adapter.unsubscribe_resource("minecraft://player/inventory", _on_inv)
+        count_before = len(inventory_updates)
+        await tool_registry.execute("mc_use_item", {"item_name": "bread"})
+        await asyncio.sleep(0.15)
+        assert len(inventory_updates) == count_before
+    finally:
+        await adapter.shutdown()
+
+
+@pytest.mark.asyncio
+async def test_minecraft_surroundings_resource(mock_mc_config: MinecraftConfig) -> None:
+    """Verify reading minecraft://world/surroundings resource."""
+    mcp_config = GamingMCPConfig()
+    mcp_config.adapters.minecraft = mock_mc_config
+
+    adapter = MinecraftAdapter(config=mcp_config)
+    resource_registry = ResourceRegistry()
+
+    await adapter.initialize()
+    adapter.register_resources(resource_registry)
+
+    try:
+        res = await resource_registry.read("minecraft://world/surroundings")
+        assert "contents" in res
+        data = json.loads(res["contents"][0]["text"])
+        assert "entities" in data
+        assert len(data["entities"]) > 0
+    finally:
+        await adapter.shutdown()
+

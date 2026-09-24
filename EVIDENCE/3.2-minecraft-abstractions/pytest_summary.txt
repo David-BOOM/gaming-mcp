@@ -1,0 +1,22 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.9, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\david\Desktop\Projects\gaming-mcp\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\david\Desktop\Projects\gaming-mcp
+configfile: pyproject.toml
+plugins: anyio-4.15.1, asyncio-1.4.0, cov-7.1.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 11 items
+
+tests/test_adapters/test_minecraft.py::test_minecraft_adapter_metadata PASSED [  9%]
+tests/test_adapters/test_minecraft.py::test_bridge_handshake_and_ping PASSED [ 18%]
+tests/test_adapters/test_minecraft.py::test_bridge_event_notifications PASSED [ 27%]
+tests/test_adapters/test_minecraft.py::test_minecraft_tools_execution PASSED [ 36%]
+tests/test_adapters/test_minecraft.py::test_minecraft_resources_and_prompts PASSED [ 45%]
+tests/test_adapters/test_minecraft.py::test_bridge_resilience_malformed_ndjson PASSED [ 54%]
+tests/test_adapters/test_minecraft.py::test_bridge_restart_and_reconnect PASSED [ 63%]
+tests/test_adapters/test_minecraft.py::test_minecraft_recipe_graph_resolution PASSED [ 72%]
+tests/test_adapters/test_minecraft.py::test_minecraft_spatial_and_inventory_tools PASSED [ 81%]
+tests/test_adapters/test_minecraft.py::test_minecraft_reactive_subscriptions PASSED [ 90%]
+tests/test_adapters/test_minecraft.py::test_minecraft_surroundings_resource PASSED [100%]
+
+============================= 11 passed in 4.22s ==============================

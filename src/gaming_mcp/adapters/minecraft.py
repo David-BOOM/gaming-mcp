@@ -15,7 +15,7 @@ import contextlib
 import json
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from pydantic import BaseModel, Field
 
@@ -130,6 +130,205 @@ class ReconnectInput(BaseModel):
         default=False,
         description="Force child process termination and full re-initialization",
     )
+
+
+class PlaceBlockInput(BaseModel):
+    """Input parameters for mc_place_block tool."""
+
+    x: int = Field(description="Target voxel X coordinate to place block at")
+    y: int = Field(description="Target voxel Y coordinate to place block at")
+    z: int = Field(description="Target voxel Z coordinate to place block at")
+    block_name: str = Field(
+        description="Block identifier from inventory to place (e.g. 'crafting_table', 'torch')"
+    )
+
+
+class GetBlockInput(BaseModel):
+    """Input parameters for mc_get_block tool."""
+
+    x: int = Field(description="Target voxel X coordinate")
+    y: int = Field(description="Target voxel Y coordinate")
+    z: int = Field(description="Target voxel Z coordinate")
+
+
+class FindBlocksInput(BaseModel):
+    """Input parameters for mc_find_blocks tool."""
+
+    block_name: str = Field(
+        description="Block identifier to search for (e.g. 'oak_log', 'crafting_table')"
+    )
+    radius: int = Field(default=32, ge=1, le=64, description="Search radius in blocks")
+    max_count: int = Field(
+        default=5, ge=1, le=20, description="Maximum matching block coordinates to return"
+    )
+
+
+class LookAtInput(BaseModel):
+    """Input parameters for mc_look_at tool."""
+
+    x: float = Field(description="Target world X coordinate to look at")
+    y: float = Field(description="Target world Y coordinate to look at")
+    z: float = Field(description="Target world Z coordinate to look at")
+    pitch: float | None = Field(
+        default=None, description="Optional vertical pitch angle in degrees (-90 to 90)"
+    )
+    yaw: float | None = Field(
+        default=None, description="Optional horizontal yaw angle in degrees"
+    )
+
+
+class UseItemInput(BaseModel):
+    """Input parameters for mc_use_item tool."""
+
+    item_name: str = Field(
+        description="Item identifier to use or consume from inventory (e.g. 'bread')"
+    )
+
+
+class CraftRecipeInput(BaseModel):
+    """Input parameters for mc_craft_recipe tool."""
+
+    recipe_name: str = Field(
+        description="Target item or recipe to craft (e.g. 'wooden_pickaxe', 'furnace')"
+    )
+    quantity: int = Field(default=1, ge=1, le=64, description="Target item quantity to craft")
+    auto_craft_prerequisites: bool = Field(
+        default=True,
+        description="Automatically resolve and craft missing prerequisites if ingredients exist",
+    )
+
+
+class CraftingStep(BaseModel):
+    """Represents a single step in a multi-stage crafting sequence."""
+
+    item: str = Field(description="Item crafted in this step")
+    count: int = Field(description="Quantity produced")
+    requires_table: bool = Field(default=False, description="Whether crafting table is required")
+    ingredients_consumed: dict[str, int] = Field(
+        default_factory=dict, description="Ingredients consumed in this step"
+    )
+
+
+class MinecraftRecipeGraph:
+    """Survival recipe graph and multi-stage dependency resolver.
+
+    Models standard Minecraft recipes and computes topological crafting order
+    given an initial inventory.
+    """
+
+    RECIPES: ClassVar[dict[str, dict[str, Any]]] = {
+        "oak_planks": {
+            "yield": 4,
+            "requires_table": False,
+            "ingredients": {"oak_log": 1},
+        },
+        "crafting_table": {
+            "yield": 1,
+            "requires_table": False,
+            "ingredients": {"oak_planks": 4},
+        },
+        "stick": {
+            "yield": 4,
+            "requires_table": False,
+            "ingredients": {"oak_planks": 2},
+        },
+        "wooden_pickaxe": {
+            "yield": 1,
+            "requires_table": True,
+            "ingredients": {"oak_planks": 3, "stick": 2},
+        },
+        "wooden_sword": {
+            "yield": 1,
+            "requires_table": True,
+            "ingredients": {"oak_planks": 2, "stick": 1},
+        },
+        "wooden_axe": {
+            "yield": 1,
+            "requires_table": True,
+            "ingredients": {"oak_planks": 3, "stick": 2},
+        },
+        "wooden_shovel": {
+            "yield": 1,
+            "requires_table": True,
+            "ingredients": {"oak_planks": 1, "stick": 2},
+        },
+        "stone_pickaxe": {
+            "yield": 1,
+            "requires_table": True,
+            "ingredients": {"cobblestone": 3, "stick": 2},
+        },
+        "stone_sword": {
+            "yield": 1,
+            "requires_table": True,
+            "ingredients": {"cobblestone": 2, "stick": 1},
+        },
+        "furnace": {
+            "yield": 1,
+            "requires_table": True,
+            "ingredients": {"cobblestone": 8},
+        },
+        "iron_pickaxe": {
+            "yield": 1,
+            "requires_table": True,
+            "ingredients": {"iron_ingot": 3, "stick": 2},
+        },
+        "torch": {
+            "yield": 4,
+            "requires_table": False,
+            "ingredients": {"stick": 1, "coal": 1},
+        },
+    }
+
+    @classmethod
+    def get_recipe(cls, item_name: str) -> dict[str, Any] | None:
+        """Return recipe metadata for a given item identifier."""
+        return cls.RECIPES.get(item_name)
+
+    @classmethod
+    def resolve_crafting_sequence(
+        cls,
+        target_item: str,
+        target_count: int = 1,
+        inventory: dict[str, int] | None = None,
+    ) -> list[CraftingStep]:
+        """Compute the sequence of craft operations required to produce the target item."""
+        inv = dict(inventory or {})
+        sequence: list[CraftingStep] = []
+
+        def _craft_recursive(item: str, needed: int) -> None:
+            available = inv.get(item, 0)
+            if available >= needed:
+                return
+
+            shortage = needed - available
+            recipe = cls.RECIPES.get(item)
+            if not recipe:
+                return
+
+            yield_per_craft = int(recipe["yield"])
+            crafts_needed = (shortage + yield_per_craft - 1) // yield_per_craft
+
+            for ingredient, req_count in recipe["ingredients"].items():
+                total_needed = int(req_count) * crafts_needed
+                _craft_recursive(ingredient, total_needed)
+                inv[ingredient] = max(0, inv.get(ingredient, 0) - total_needed)
+
+            produced = crafts_needed * yield_per_craft
+            inv[item] = inv.get(item, 0) + produced
+
+            sequence.append(
+                CraftingStep(
+                    item=item,
+                    count=produced,
+                    requires_table=bool(recipe["requires_table"]),
+                    ingredients_consumed={
+                        ing: int(cnt) * crafts_needed for ing, cnt in recipe["ingredients"].items()
+                    },
+                )
+            )
+
+        _craft_recursive(target_item, target_count)
+        return sequence
 
 
 # -----------------------------------------------------------------------------
@@ -463,7 +662,7 @@ class MinecraftBridge:
             self._handle_unexpected_exit()
 
     def _handle_daemon_notification(self, method: str | None, params: dict[str, Any]) -> None:
-        """Process unsolicited notifications (e.g. bot_event)."""
+        """Process unsolicited notifications (e.g. bot_event, inventory_change, health)."""
         if method == "bot_event":
             event_type = params.get("event", "unknown")
             event_data = params.get("data", {})
@@ -482,6 +681,7 @@ class MinecraftBridge:
             # Dispatch to listeners
             handlers = (
                 self._event_listeners.get(event_type, [])
+                + self._event_listeners.get("bot_event", [])
                 + self._event_listeners.get("*", [])
             )
             for handler in handlers:
@@ -493,6 +693,24 @@ class MinecraftBridge:
                         task.add_done_callback(self._background_tasks.discard)
                 except Exception as exc:
                     logger.error("Error executing bot event handler: %s", exc)
+        elif method:
+            if method == "health":
+                self.last_health = params.get("health")
+                self.last_food = params.get("food")
+
+            handlers = (
+                self._event_listeners.get(method, [])
+                + self._event_listeners.get("*", [])
+            )
+            for handler in handlers:
+                try:
+                    res = handler(params)
+                    if asyncio.iscoroutine(res):
+                        task = asyncio.create_task(res)
+                        self._background_tasks.add(task)
+                        task.add_done_callback(self._background_tasks.discard)
+                except Exception as exc:
+                    logger.error("Error executing notification handler for %s: %s", method, exc)
 
     async def _stderr_reader_loop(self) -> None:
         """Stream child process diagnostic logs from stderr to python logger."""
@@ -584,6 +802,12 @@ class MinecraftAdapter(GameAdapter):
         super().__init__(config=config or GamingMCPConfig())
         self._custom_bridge = custom_bridge
         self.bridge: MinecraftBridge | None = None
+        self._subscriptions: dict[str, set[Callable[[str, dict[str, Any]], None]]] = {
+            "minecraft://player/inventory": set(),
+            "minecraft://player/stats": set(),
+            "minecraft://world/surroundings": set(),
+            "minecraft://world/biome_and_time": set(),
+        }
 
     @property
     def metadata(self) -> AdapterMetadata:
@@ -617,8 +841,53 @@ class MinecraftAdapter(GameAdapter):
             self.bridge = MinecraftBridge(config=mc_config)
 
         await self.bridge.start()
+        self.bridge.add_event_listener("inventory_change", self._on_inventory_change)
+        self.bridge.add_event_listener("health", self._on_health_change)
+        self.bridge.add_event_listener("bot_event", self._on_bot_event)
+
         self.is_initialized = True
         logger.info("MinecraftAdapter initialized successfully")
+
+    def subscribe_resource(
+        self, uri: str, callback: Callable[[str, dict[str, Any]], None]
+    ) -> None:
+        """Register a reactive listener callback for resource updates."""
+        if uri not in self._subscriptions:
+            self._subscriptions[uri] = set()
+        self._subscriptions[uri].add(callback)
+
+    def unsubscribe_resource(
+        self, uri: str, callback: Callable[[str, dict[str, Any]], None]
+    ) -> None:
+        """Unregister a reactive listener callback."""
+        if uri in self._subscriptions:
+            self._subscriptions[uri].discard(callback)
+
+    def _notify_resource_subscribers(self, uri: str, payload: dict[str, Any]) -> None:
+        """Deliver pushed update to all subscribed callbacks."""
+        listeners = list(self._subscriptions.get(uri, set()))
+        for listener in listeners:
+            try:
+                listener(uri, payload)
+            except Exception as exc:
+                logger.warning("Error notifying subscriber for %s: %s", uri, exc)
+
+    def _on_inventory_change(self, data: dict[str, Any]) -> None:
+        self._notify_resource_subscribers("minecraft://player/inventory", data)
+
+    def _on_health_change(self, data: dict[str, Any]) -> None:
+        self._notify_resource_subscribers("minecraft://player/stats", data)
+
+    def _on_bot_event(self, data: dict[str, Any]) -> None:
+        event = data.get("event")
+        if event == "health":
+            self._notify_resource_subscribers(
+                "minecraft://player/stats", data.get("data", {})
+            )
+        elif event in ("spawn", "entity_moved"):
+            self._notify_resource_subscribers(
+                "minecraft://world/surroundings", data.get("data", {})
+            )
 
     async def shutdown(self) -> None:
         """Gracefully disconnect bot and terminate child process."""
@@ -713,6 +982,53 @@ class MinecraftAdapter(GameAdapter):
         )
 
         registry.register(
+            name="mc_place_block",
+            handler=self._tool_place_block,
+            description="Place a block from inventory at the designated voxel coordinates.",
+            input_model=PlaceBlockInput,
+        )
+
+        registry.register(
+            name="mc_craft_recipe",
+            handler=self._tool_craft_recipe,
+            description=(
+                "Intelligently craft a target item using the Minecraft recipe graph, "
+                "automatically resolving and crafting required prerequisites."
+            ),
+            input_model=CraftRecipeInput,
+        )
+
+        registry.register(
+            name="mc_get_block",
+            handler=self._tool_get_block,
+            description=(
+                "Inspect voxel block properties (name, hardness, material) at world coordinates."
+            ),
+            input_model=GetBlockInput,
+        )
+
+        registry.register(
+            name="mc_find_blocks",
+            handler=self._tool_find_blocks,
+            description="Scan 3D space within a radius for matching blocks (e.g. oak logs, ores).",
+            input_model=FindBlocksInput,
+        )
+
+        registry.register(
+            name="mc_look_at",
+            handler=self._tool_look_at,
+            description="Orient bot pitch and yaw angles toward target coordinates.",
+            input_model=LookAtInput,
+        )
+
+        registry.register(
+            name="mc_use_item",
+            handler=self._tool_use_item,
+            description="Use or consume an item from inventory (e.g. eat food or drink potion).",
+            input_model=UseItemInput,
+        )
+
+        registry.register(
             name="mc_chat",
             handler=self._tool_chat,
             description="Send a text message or slash command to the Minecraft server.",
@@ -745,6 +1061,14 @@ class MinecraftAdapter(GameAdapter):
             reader=self._resource_stats,
             name="Player Stats",
             description="Current health (0-20), food level, oxygen, and experience metrics",
+            mime_type="application/json",
+        )
+
+        registry.register(
+            uri="minecraft://world/surroundings",
+            reader=self._resource_surroundings,
+            name="World Surroundings",
+            description="Real-time report of nearby entities, threat assessments, and lighting",
             mime_type="application/json",
         )
 
@@ -920,6 +1244,216 @@ class MinecraftAdapter(GameAdapter):
             ],
         }
 
+    async def _tool_place_block(
+        self,
+        x: int,
+        y: int,
+        z: int,
+        block_name: str,
+    ) -> dict[str, Any]:
+        if not self.bridge:
+            raise AdapterError("Minecraft bridge is not initialized")
+
+        res = await self.bridge.send_command(
+            "place_block",
+            params={"x": x, "y": y, "z": z, "block_name": block_name},
+            timeout_seconds=15.0,
+        )
+        return {
+            "isError": False,
+            "content": [
+                {
+                    "type": "text",
+                    "text": f"Placed block {block_name} at ({x}, {y}, {z}): {json.dumps(res)}",
+                }
+            ],
+        }
+
+    async def _tool_craft_recipe(
+        self,
+        recipe_name: str,
+        quantity: int = 1,
+        auto_craft_prerequisites: bool = True,
+    ) -> dict[str, Any]:
+        if not self.bridge:
+            raise AdapterError("Minecraft bridge is not initialized")
+
+        if auto_craft_prerequisites:
+            inv_resp = await self.bridge.send_command("get_inventory", timeout_seconds=5.0)
+            raw_items = inv_resp.get("inventory", []) if isinstance(inv_resp, dict) else []
+            current_inv: dict[str, int] = {}
+            for item in raw_items:
+                if isinstance(item, dict) and "name" in item and "count" in item:
+                    name = str(item["name"])
+                    current_inv[name] = current_inv.get(name, 0) + int(item["count"])
+
+            sequence = MinecraftRecipeGraph.resolve_crafting_sequence(
+                target_item=recipe_name,
+                target_count=quantity,
+                inventory=current_inv,
+            )
+
+            if not sequence:
+                res = await self.bridge.send_command(
+                    "craft_item",
+                    params={"item_name": recipe_name, "quantity": quantity},
+                    timeout_seconds=15.0,
+                )
+                return {
+                    "isError": False,
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": json.dumps({"action": "craft_item", "result": res}),
+                        }
+                    ],
+                }
+
+            crafted_steps: list[dict[str, Any]] = []
+            for step in sequence:
+                step_res = await self.bridge.send_command(
+                    "craft_item",
+                    params={"item_name": step.item, "quantity": step.count},
+                    timeout_seconds=15.0,
+                )
+                crafted_steps.append(
+                    {
+                        "item": step.item,
+                        "count": step.count,
+                        "requires_table": step.requires_table,
+                        "result": step_res,
+                    }
+                )
+
+            return {
+                "isError": False,
+                "content": [
+                    {
+                        "type": "text",
+                        "text": json.dumps(
+                            {
+                                "target": recipe_name,
+                                "quantity": quantity,
+                                "steps_executed": len(crafted_steps),
+                                "steps": crafted_steps,
+                            },
+                            indent=2,
+                        ),
+                    }
+                ],
+            }
+
+        res = await self.bridge.send_command(
+            "craft_item",
+            params={"item_name": recipe_name, "quantity": quantity},
+            timeout_seconds=15.0,
+        )
+        return {
+            "isError": False,
+            "content": [
+                {
+                    "type": "text",
+                    "text": json.dumps({"action": "craft_item", "result": res}),
+                }
+            ],
+        }
+
+    async def _tool_get_block(
+        self,
+        x: int,
+        y: int,
+        z: int,
+    ) -> dict[str, Any]:
+        if not self.bridge:
+            raise AdapterError("Minecraft bridge is not initialized")
+
+        res = await self.bridge.send_command(
+            "get_block",
+            params={"x": x, "y": y, "z": z},
+            timeout_seconds=10.0,
+        )
+        return {
+            "isError": False,
+            "content": [
+                {
+                    "type": "text",
+                    "text": json.dumps(res),
+                }
+            ],
+        }
+
+    async def _tool_find_blocks(
+        self,
+        block_name: str,
+        radius: int = 32,
+        max_count: int = 5,
+    ) -> dict[str, Any]:
+        if not self.bridge:
+            raise AdapterError("Minecraft bridge is not initialized")
+
+        res = await self.bridge.send_command(
+            "find_blocks",
+            params={"block_name": block_name, "radius": radius, "max_count": max_count},
+            timeout_seconds=15.0,
+        )
+        return {
+            "isError": False,
+            "content": [
+                {
+                    "type": "text",
+                    "text": json.dumps(res),
+                }
+            ],
+        }
+
+    async def _tool_look_at(
+        self,
+        x: float,
+        y: float,
+        z: float,
+        pitch: float | None = None,
+        yaw: float | None = None,
+    ) -> dict[str, Any]:
+        if not self.bridge:
+            raise AdapterError("Minecraft bridge is not initialized")
+
+        res = await self.bridge.send_command(
+            "look_at",
+            params={"x": x, "y": y, "z": z, "pitch": pitch, "yaw": yaw},
+            timeout_seconds=10.0,
+        )
+        return {
+            "isError": False,
+            "content": [
+                {
+                    "type": "text",
+                    "text": json.dumps(res),
+                }
+            ],
+        }
+
+    async def _tool_use_item(
+        self,
+        item_name: str,
+    ) -> dict[str, Any]:
+        if not self.bridge:
+            raise AdapterError("Minecraft bridge is not initialized")
+
+        res = await self.bridge.send_command(
+            "use_item",
+            params={"item_name": item_name},
+            timeout_seconds=10.0,
+        )
+        return {
+            "isError": False,
+            "content": [
+                {
+                    "type": "text",
+                    "text": json.dumps(res),
+                }
+            ],
+        }
+
     async def _tool_chat(
         self,
         message: str,
@@ -975,6 +1509,14 @@ class MinecraftAdapter(GameAdapter):
             return {"health": 0, "food": 0}
         res = await self.bridge.send_command("get_stats", timeout_seconds=5.0)
         return dict(res) if isinstance(res, dict) else {"health": 0, "food": 0}
+
+    async def _resource_surroundings(self) -> dict[str, Any]:
+        if not self.bridge:
+            return {"entities": []}
+        res = await self.bridge.send_command(
+            "inspect_surroundings", params={"radius": 32}, timeout_seconds=5.0
+        )
+        return dict(res) if isinstance(res, dict) else {"entities": []}
 
     async def _resource_world_info(self) -> dict[str, Any]:
         if not self.bridge:
