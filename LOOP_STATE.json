@@ -4,7 +4,7 @@
   "current_milestone": "6.1",
   "active_task": "6.1-benchmarks-verified",
   "iteration_count": 12,
-  "last_checkpoint_commit": "fdec605",
+  "last_checkpoint_commit": "f1eeca3",
   "tasks": {
     "1.1": {
       "name": "MCP Protocol Engine",
