@@ -1,0 +1,63 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.9, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\david\Desktop\Projects\gaming-mcp\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\david\Desktop\Projects\gaming-mcp
+configfile: pyproject.toml
+plugins: anyio-4.15.1, asyncio-1.4.0, cov-7.1.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 52 items
+
+tests/test_io/test_audio.py::test_audio_capturer_initialization PASSED   [  1%]
+tests/test_io/test_audio.py::test_audio_buffer_and_metrics PASSED        [  3%]
+tests/test_io/test_audio.py::test_audio_capturer_silence_defaults PASSED [  5%]
+tests/test_io/test_audio.py::test_audio_stream_start_stop_mock PASSED    [  7%]
+tests/test_io/test_audio.py::test_find_wasapi_loopback_device_mock PASSED [  9%]
+tests/test_io/test_curves.py::test_minimum_jerk_factor_boundaries PASSED [ 11%]
+tests/test_io/test_curves.py::test_minimum_jerk_velocity_profile PASSED  [ 13%]
+tests/test_io/test_curves.py::test_minimum_jerk_step PASSED              [ 15%]
+tests/test_io/test_curves.py::test_estimate_fitts_duration PASSED        [ 17%]
+tests/test_io/test_curves.py::test_generate_minimum_jerk_path PASSED     [ 19%]
+tests/test_io/test_curves.py::test_generate_cubic_bezier_path PASSED     [ 21%]
+tests/test_io/test_curves.py::test_generate_relative_camera_deltas PASSED [ 23%]
+tests/test_io/test_gamepad.py::test_mock_gamepad_controller_axes_and_triggers PASSED [ 25%]
+tests/test_io/test_gamepad.py::test_mock_gamepad_controller_buttons PASSED [ 26%]
+tests/test_io/test_gamepad.py::test_vigem_gamepad_controller_unavailable_degradation PASSED [ 28%]
+tests/test_io/test_gamepad.py::test_vigem_gamepad_controller_mocked_driver PASSED [ 30%]
+tests/test_io/test_gamepad.py::test_get_gamepad_controller_factory PASSED [ 32%]
+tests/test_io/test_image.py::test_aces_filmic_tonemap PASSED             [ 34%]
+tests/test_io/test_image.py::test_encode_and_base64_roundtrip PASSED     [ 36%]
+tests/test_io/test_image.py::test_crop_region_clamping PASSED            [ 38%]
+tests/test_io/test_image.py::test_draw_set_of_marks_grid PASSED          [ 40%]
+tests/test_io/test_input.py::test_ps2_scan_code_table_resolution PASSED  [ 42%]
+tests/test_io/test_input.py::test_input_injector_key_tracking_and_release PASSED [ 44%]
+tests/test_io/test_input.py::test_input_injector_mouse_tracking_and_actions PASSED [ 46%]
+tests/test_io/test_input.py::test_mouse_motion_and_drag PASSED           [ 48%]
+tests/test_io/test_input.py::test_input_injector_cancellation_manager_integration PASSED [ 50%]
+tests/test_io/test_process.py::test_window_info_model_and_dimensions PASSED [ 51%]
+tests/test_io/test_process.py::test_win32_window_manager_current_process_name PASSED [ 53%]
+tests/test_io/test_process.py::test_win32_window_manager_window_enumeration PASSED [ 55%]
+tests/test_io/test_process.py::test_win32_window_manager_search_by_title PASSED [ 57%]
+tests/test_io/test_screen.py::test_attach_thread_to_input_desktop PASSED [ 59%]
+tests/test_io/test_screen.py::test_mss_screen_capturer_runtime PASSED    [ 61%]
+tests/test_io/test_screen.py::test_composite_screen_capturer_lifecycle_and_gating PASSED [ 63%]
+tests/test_io/test_screen.py::test_dxgi_capturer_on_windows PASSED       [ 65%]
+tests/test_io/test_security.py::test_window_boundary_guard_clamping_and_validation PASSED [ 67%]
+tests/test_io/test_security.py::test_process_blacklist_guard PASSED      [ 69%]
+tests/test_io/test_security.py::test_emergency_kill_switch_lifecycle PASSED [ 71%]
+tests/test_io/test_security.py::test_emergency_kill_switch_daemon_start_stop PASSED [ 73%]
+tests/test_io/test_timing.py::test_action_chunk_model_validation PASSED  [ 75%]
+tests/test_io/test_timing.py::test_action_chunk_execution_successful PASSED [ 76%]
+tests/test_io/test_timing.py::test_action_chunk_cancellation_pre_execution PASSED [ 78%]
+tests/test_io/test_timing.py::test_action_chunk_cancellation_mid_execution PASSED [ 80%]
+tests/test_io/test_timing.py::test_action_chunk_error_handling PASSED    [ 82%]
+tests/test_io/test_vision.py::test_dhash_identical_images PASSED         [ 84%]
+tests/test_io/test_vision.py::test_dhash_distinct_images PASSED          [ 86%]
+tests/test_io/test_vision.py::test_dhash_region_and_mask PASSED          [ 88%]
+tests/test_io/test_vision.py::test_perceptual_gater_lifecycle PASSED     [ 90%]
+tests/test_adapters/test_computer_use.py::test_adapter_metadata PASSED   [ 92%]
+tests/test_adapters/test_computer_use.py::test_adapter_lifecycle PASSED  [ 94%]
+tests/test_adapters/test_computer_use.py::test_tool_registrations_and_execution PASSED [ 96%]
+tests/test_adapters/test_computer_use.py::test_resource_and_prompt_registrations PASSED [ 98%]
+tests/test_adapters/test_computer_use.py::test_router_integration_with_server PASSED [100%]
+
+============================= 52 passed in 2.48s ==============================
