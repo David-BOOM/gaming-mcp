@@ -4,7 +4,7 @@
   "current_milestone": "5.1",
   "active_task": "5.1a-sqlite-macro-db",
   "iteration_count": 10,
-  "last_checkpoint_commit": "c2242b9",
+  "last_checkpoint_commit": "67ac04b",
   "tasks": {
     "1.1": {
       "name": "MCP Protocol Engine",
