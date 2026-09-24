@@ -1,9 +1,9 @@
 {
   "project": "gaming-mcp",
-  "current_phase": 1,
-  "current_milestone": "1.2",
-  "active_task": "1.2a-game-adapter-spi",
-  "iteration_count": 2,
+  "current_phase": 2,
+  "current_milestone": "2.1",
+  "active_task": "2.1a-dxgi-desktop-duplication",
+  "iteration_count": 3,
   "last_checkpoint_commit": null,
   "tasks": {
     "1.1": {
@@ -20,19 +20,19 @@
     "1.2": {
       "name": "Adapter SPI & Router Architecture",
       "phase": 1,
-      "status": "in_progress",
+      "status": "verified",
       "subtasks": [
-        {"id": "1.2a", "name": "GameAdapter Base SPI", "status": "in_progress"},
-        {"id": "1.2b", "name": "Dynamic Adapter Router", "status": "pending"},
-        {"id": "1.2c", "name": "Configuration Loader (Pydantic v2)", "status": "pending"}
+        {"id": "1.2a", "name": "GameAdapter Base SPI", "status": "verified"},
+        {"id": "1.2b", "name": "Dynamic Adapter Router", "status": "verified"},
+        {"id": "1.2c", "name": "Configuration Loader (Pydantic v2)", "status": "verified"}
       ]
     },
     "2.1": {
       "name": "Hardware-Accelerated Display and Audio Capture",
       "phase": 2,
-      "status": "pending",
+      "status": "in_progress",
       "subtasks": [
-        {"id": "2.1a", "name": "DXGI Desktop Duplication ctypes Wrapper", "status": "pending"},
+        {"id": "2.1a", "name": "DXGI Desktop Duplication ctypes Wrapper", "status": "in_progress"},
         {"id": "2.1b", "name": "MSS Cross-Platform Fallback Capturer", "status": "pending"},
         {"id": "2.1c", "name": "64-bit dHash Perceptual Gating", "status": "pending"},
         {"id": "2.1d", "name": "WASAPI Master Loopback Audio Capture", "status": "pending"}

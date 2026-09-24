@@ -13,6 +13,7 @@ from mcp.server.mcpserver import MCPServer
 from pydantic import BaseModel
 
 from gaming_mcp import __version__
+from gaming_mcp.adapters import AdapterRouter, SwitchAdapterInput
 from gaming_mcp.config import GamingMCPConfig, TransportType
 from gaming_mcp.core.cancellation import CancellationManager
 from gaming_mcp.core.registries import PromptRegistry, ResourceRegistry, ToolRegistry
@@ -64,6 +65,7 @@ class GamingMCPServer:
         self.tools = ToolRegistry()
         self.resources = ResourceRegistry()
         self.prompts = PromptRegistry()
+        self.router = AdapterRouter()
 
         self.mcp_server = MCPServer(name="gaming-mcp", version=__version__)
 
@@ -97,7 +99,7 @@ class GamingMCPServer:
             logger.warning("Could not bind lowlevel cancellation handler: %s", exc)
 
     def _register_builtin_tools(self) -> None:
-        """Register default diagnostic and health tools."""
+        """Register default diagnostic, health, and adapter management tools."""
 
         async def _health_tool() -> dict[str, Any]:
             return self.get_health()
@@ -106,6 +108,20 @@ class GamingMCPServer:
             return {
                 "status": "pong",
                 "timestamp": datetime.now(UTC).isoformat(),
+            }
+
+        async def _switch_adapter_tool(adapter_id: str) -> dict[str, Any]:
+            adapter = await self.router.switch_adapter(adapter_id, self)
+            return {
+                "content": [
+                    {
+                        "type": "text",
+                        "text": (
+                            f"Successfully activated adapter '{adapter.metadata.id}' "
+                            f"({adapter.metadata.display_name})"
+                        ),
+                    }
+                ]
             }
 
         self.register_tool(
@@ -117,6 +133,12 @@ class GamingMCPServer:
             name="ping",
             handler=_ping_tool,
             description="Verify server connectivity and clock synchronization",
+        )
+        self.register_tool(
+            name="switch_adapter",
+            handler=_switch_adapter_tool,
+            description="Hot-swap the active game adapter at runtime without dropping connection",
+            input_model=SwitchAdapterInput,
         )
 
     def _register_builtin_resources(self) -> None:
@@ -163,12 +185,15 @@ class GamingMCPServer:
     def get_health(self) -> dict[str, Any]:
         """Compute structured health dictionary per Part XIII of implementation plan."""
         uptime = round(time.time() - self.start_time, 2)
+        registered_adapters = [m.id for m in self.router.list_adapters()]
+        available = registered_adapters or ["computer_use", "minecraft", "retro", "gymnasium"]
+        active = self.router.active_adapter_id or self.config.adapters.default_adapter
         return {
             "server_version": __version__,
             "uptime_seconds": uptime,
             "transport": self.config.transport.value,
-            "active_adapter": self.config.adapters.default_adapter,
-            "adapters_available": ["computer_use", "minecraft", "retro", "gymnasium"],
+            "active_adapter": active,
+            "adapters_available": available,
             "screen_capture_backend": self.config.screen.preferred_backend,
             "input_backend": self.config.input.preferred_backend,
             "audio_enabled": self.config.audio.enabled,
@@ -225,5 +250,8 @@ class GamingMCPServer:
             return
         self.is_running = False
         logger.info("Shutting down gaming-mcp server")
+        # Shut down active adapter if any
+        if self.router.active_adapter_id:
+            await self.router.unregister_adapter(self.router.active_adapter_id, self)
         # Trigger emergency motor reset to release physical/virtual keys
         await self.cancellation_manager.emergency_reset()

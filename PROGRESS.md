@@ -39,3 +39,31 @@ This document tracks all completed engineering iterations, empirical evidence li
   - `TransportType` derives from `StrEnum` rather than `(str, Enum)` per modern Python 3.11+ conventions (UP042).
 * **Next Target:** Milestone 1.1b -- Implement `src/gaming_mcp/server.py` with standard JSON-RPC 2.0 lifecycle handlers and transports (stdio, SSE).
 
+---
+
+## Iteration 2 -- 2026-09-24: Milestone 1.1 Completion and Milestone 1.2 Adapter SPI & Router Architecture
+
+* **Milestone / Focus:** Milestone 1.1 (MCP Protocol Engine) and Milestone 1.2 (Adapter SPI & Router Architecture). Phase 1 Exit Gate achieved.
+* **Deliverables Completed:**
+  - `src/gaming_mcp/core/cancellation.py`: `CancellationManager` with active task registration, `notifications/cancelled` listening, and immediate motor safety release callbacks.
+  - `src/gaming_mcp/core/registries.py`: `ToolRegistry`, `ResourceRegistry`, and `PromptRegistry` with strict Pydantic v2 argument validation, error envelopes, and subscription tracking.
+  - `src/gaming_mcp/server.py`: `GamingMCPServer` wrapping official MCP SDK 2.x `MCPServer`, built-in `server_health`, `ping`, `switch_adapter` tools, `system://server/health` resource, and stdio/SSE/streamable-HTTP transport dispatch.
+  - `src/gaming_mcp/adapters/base.py`: `GameAdapter` abstract SPI and `AdapterMetadata` Pydantic model with asynchronous lifecycle (`initialize`, `shutdown`, `register_tools`, `register_resources`, `register_prompts`, `health_check`).
+  - `src/gaming_mcp/adapters/router.py`: `AdapterRouter` for dynamic adapter hot-swapping at runtime without dropping client connection, tracking bound tools/resources/prompts.
+  - `tests/test_cancellation.py`: 3 unit tests verifying task tracking, cancellation propagation, and emergency motor reset.
+  - `tests/test_registries.py`: 5 unit tests verifying tool schemas, validation errors, resource reads (JSON, bytes/blob), subscriptions, and prompt rendering.
+  - `tests/test_server.py`: 6 unit tests verifying server lifecycle, health metrics, process RSS memory, shutdown motor reset, and transport runners.
+  - `tests/test_adapters/test_router.py`: 6 unit tests verifying adapter registration, listing, hot-swap tool rebinding, missing adapter error handling, and aggregated health checks.
+* **Evidence:**
+  - `EVIDENCE/1.1-mcp-engine/pytest_coverage.txt` and `EVIDENCE/1.2-adapter-spi/pytest_coverage.txt`: 30/30 unit tests passing cleanly with 93% total coverage.
+  - Core coverage: 97.6% (100% on `core/exceptions.py`, 98% on `core/cancellation.py`, 95% on `core/registries.py`).
+  - Adapters coverage: 97.3% (100% on `adapters/base.py`, 92% on `adapters/router.py`).
+  - Ruff check: 0 errors/warnings across 23 source files.
+  - Mypy: 0 errors under `--strict`.
+  - Zero-emoji audit: 0 infractions across repository.
+* **Surprises & Lessons:**
+  - In `mcp` 2.x, `MCPServer.remove_prompt` throws `ValueError` if the prompt was not registered in its internal manager; adapter unbinding must suppress non-critical cleanup errors.
+  - Tool execution results must explicitly include `"isError": False` for successful custom dictionary payloads to ensure MCP schema consistency.
+* **Next Target:** Milestone 2.1 -- Universal VLA Computer Use Engine: DXGI Desktop Duplication ctypes wrapper and MSS fallback capturer under `src/gaming_mcp/io/screen.py`.
+
+

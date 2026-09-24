@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-09-24T18:32:00Z",
+  "last_updated": "2026-09-24T18:36:30Z",
   "suites": [
     {
       "path": "tests/test_scaffolding.py",
@@ -32,10 +32,18 @@
       "skipped": 0,
       "duration_seconds": 0.10,
       "coverage_percent": 90.0
+    },
+    {
+      "path": "tests/test_adapters/test_router.py",
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.12,
+      "coverage_percent": 92.0
     }
   ],
-  "total_passed": 24,
+  "total_passed": 30,
   "total_failed": 0,
   "total_skipped": 0,
-  "overall_coverage_percent": 92.0
+  "overall_coverage_percent": 93.0
 }
