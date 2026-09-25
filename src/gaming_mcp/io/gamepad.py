@@ -308,13 +308,33 @@ class MockGamepadController(BaseGamepadController):
         self.is_closed = True
 
 
-def get_gamepad_controller(prefer_mock: bool = False) -> BaseGamepadController:
-    """Factory creating an operational gamepad controller or returning a mock/guarded instance."""
+def get_gamepad_controller(
+    prefer_mock: bool = False,
+    fallback_to_mock: bool = True,
+) -> BaseGamepadController:
+    """Factory creating an operational gamepad controller or returning a mock/guarded instance.
+
+    Args:
+        prefer_mock: If True, always return MockGamepadController.
+        fallback_to_mock: If True, automatically fall back to MockGamepadController
+            when ViGEmBus driver is unavailable. If False, return the unready
+            ViGEmGamepadController instance which raises AdapterError(-32002) on actuation.
+
+    Returns:
+        BaseGamepadController: Operational or guarded gamepad controller instance.
+    """
     if prefer_mock:
         return MockGamepadController()
 
     real_controller = ViGEmGamepadController()
     if real_controller.is_available:
         return real_controller
+
+    if fallback_to_mock:
+        logger.warning(
+            "ViGEmBus driver unavailable (%s); falling back to MockGamepadController.",
+            real_controller.status_message,
+        )
+        return MockGamepadController()
 
     return real_controller

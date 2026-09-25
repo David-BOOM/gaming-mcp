@@ -26,6 +26,7 @@ from gaming_mcp.utils.curves import (
     estimate_fitts_duration,
     generate_cubic_bezier_path,
     generate_minimum_jerk_path,
+    generate_relative_camera_deltas,
 )
 
 logger = logging.getLogger("gaming_mcp.io.input")
@@ -488,6 +489,48 @@ class Win32InputInjector:
             time.sleep(step_delay)
 
         return True
+
+    def mouse_look_smooth(
+        self,
+        total_dx: int,
+        total_dy: int,
+        duration_ms: int = 100,
+        samples: int = 15,
+    ) -> bool:
+        """Rotate 3D camera smoothly using minimum-jerk relative mouse deltas.
+
+        Slices total_dx and total_dy into discrete relative increments via
+        generate_relative_camera_deltas, maintaining human-like motor acceleration
+        and deceleration curves across 3D first-person views.
+
+        Args:
+            total_dx: Total horizontal relative mouse delta in counts/pixels.
+            total_dy: Total vertical relative mouse delta in counts/pixels.
+            duration_ms: Total duration of the camera rotation in milliseconds.
+            samples: Number of discrete interpolation sample steps.
+
+        Returns:
+            True if all relative mouse events were dispatched successfully, False otherwise.
+        """
+        if total_dx == 0 and total_dy == 0:
+            return True
+
+        deltas = generate_relative_camera_deltas(
+            total_dx,
+            total_dy,
+            samples=max(1, samples),
+        )
+
+        step_delay = (max(0, duration_ms) / 1000.0) / max(1, len(deltas))
+        success = True
+
+        for dx, dy in deltas:
+            if not self.mouse_move_relative(dx, dy):
+                success = False
+            if step_delay > 0:
+                time.sleep(step_delay)
+
+        return success
 
     def mouse_down(self, button: str = "left") -> bool:
         """Inject mouse button down event."""

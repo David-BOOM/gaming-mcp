@@ -9,8 +9,12 @@ from datetime import UTC, datetime
 from typing import Any
 
 import mcp.types as types
-from mcp.server.mcpserver import MCPServer
 from pydantic import BaseModel
+
+try:
+    from mcp.server.mcpserver import MCPServer
+except ImportError:
+    from mcp.server.fastmcp.server import MCPServer  # type: ignore[import-not-found,no-redef]
 
 from gaming_mcp import __version__
 from gaming_mcp.adapters import AdapterRouter, SwitchAdapterInput
@@ -81,7 +85,8 @@ class GamingMCPServer:
             async def _on_cancelled(
                 _context: Any, params: types.CancelledNotificationParams
             ) -> None:
-                request_id = str(params.request_id) if params.request_id is not None else ""
+                raw_id = getattr(params, "requestId", getattr(params, "request_id", ""))
+                request_id = str(raw_id) if raw_id is not None else ""
                 reason = params.reason or "Client requested cancellation"
                 logger.info(
                     "Received notifications/cancelled for request %s: %s",
