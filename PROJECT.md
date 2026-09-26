@@ -57,10 +57,10 @@ MCP Client (Claude Desktop, Cursor, Custom Agent)
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| E2E | E2E Testing Track | Requirement-driven test suite (Tiers 1-4) published via TEST_READY.md | none | PLANNED |
-| 1 | Actuation Engine & Fallback | Git branch setup, pre-flight fixes, mouse_look_smooth, fallback handling | none | PLANNED |
-| 2 | Game Control Tool Interface | Pydantic v2 schemas and game_control tool implementation with cancellation | M1 | PLANNED |
-| 3 | Auto Adapter Startup Lifecycle | Auto-register adapters, auto-activate default adapter on boot, shutdown cleanup | M2 | PLANNED |
+| E2E | E2E Testing Track | Requirement-driven test suite (Tiers 1-4) published via TEST_READY.md | none | DONE (TEST_READY.md published, 87/87 pass) |
+| 1 | Actuation Engine & Fallback | Git branch setup, pre-flight fixes, mouse_look_smooth, fallback handling | none | DONE (commit a229e86, 315/315 pass) |
+| 2 | Game Control Tool Interface | Pydantic v2 schemas and game_control tool implementation with cancellation | M1 | DONE (87/87 pass) |
+| 3 | Auto Adapter Startup Lifecycle | Auto-register adapters, auto-activate default adapter on boot, shutdown cleanup | M2 | DONE (319/319 pass) |
 | 4 | Final Integration, E2E Pass & Merge | Pass 100% E2E tests, zero emoji audit, clean git merge to main, remote push | E2E, M3 | PLANNED |
 
 ## Interface Contracts

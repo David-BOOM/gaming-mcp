@@ -12,12 +12,13 @@ import mcp.types as types
 from pydantic import BaseModel
 
 try:
-    from mcp.server.mcpserver import MCPServer
+    from mcp.server.mcpserver import MCPServer  # type: ignore[import-not-found]
 except ImportError:
-    from mcp.server.fastmcp.server import MCPServer  # type: ignore[import-not-found,no-redef]
+    from mcp.server.fastmcp.server import MCPServer  # type: ignore[attr-defined]
 
 from gaming_mcp import __version__
-from gaming_mcp.adapters import AdapterRouter, SwitchAdapterInput
+from gaming_mcp.adapters.computer_use import ComputerUseAdapter
+from gaming_mcp.adapters.router import AdapterRouter, SwitchAdapterInput
 from gaming_mcp.config import GamingMCPConfig, TransportType
 from gaming_mcp.core.cancellation import CancellationManager
 from gaming_mcp.core.registries import PromptRegistry, ResourceRegistry, ToolRegistry
@@ -64,6 +65,8 @@ class GamingMCPServer:
         self.config = config or GamingMCPConfig()
         self.start_time = time.time()
         self.is_running = False
+        self.is_initialized = False
+        self._is_shut_down = False
 
         self.cancellation_manager = CancellationManager()
         self.tools = ToolRegistry()
@@ -76,6 +79,45 @@ class GamingMCPServer:
         self._setup_cancellation_handler()
         self._register_builtin_tools()
         self._register_builtin_resources()
+        self._register_builtin_adapters()
+
+    def _register_builtin_adapters(self) -> None:
+        """Register built-in game adapters into the router."""
+        try:
+            self.router.register_adapter(ComputerUseAdapter(self.config))
+        except Exception as exc:
+            logger.warning("Could not register ComputerUseAdapter: %s", exc)
+
+        try:
+            from gaming_mcp.adapters.minecraft import MinecraftAdapter
+
+            self.router.register_adapter(MinecraftAdapter(self.config))
+        except Exception as exc:
+            logger.debug("Could not register MinecraftAdapter: %s", exc)
+
+        try:
+            from gaming_mcp.adapters.retro import RetroAdapter
+
+            self.router.register_adapter(RetroAdapter(self.config))
+        except Exception as exc:
+            logger.debug("Could not register RetroAdapter: %s", exc)
+
+        try:
+            from gaming_mcp.adapters.gymnasium import GymnasiumAdapter
+
+            self.router.register_adapter(GymnasiumAdapter(self.config))
+        except Exception as exc:
+            logger.debug("Could not register GymnasiumAdapter: %s", exc)
+
+    async def initialize(self) -> None:
+        """Execute default adapter startup lifecycle."""
+        if self.is_initialized:
+            return
+        self._is_shut_down = False
+        default_id = self.config.adapters.default_adapter
+        if self.router.get_adapter(default_id) is not None:
+            await self.router.switch_adapter(default_id, self)
+        self.is_initialized = True
 
     def _setup_cancellation_handler(self) -> None:
         """Hook notifications/cancelled into the cancellation manager."""
@@ -211,6 +253,7 @@ class GamingMCPServer:
 
     async def run_stdio(self) -> None:
         """Execute server loop over standard I/O streams."""
+        await self.initialize()
         self.is_running = True
         logger.info("Starting gaming-mcp over stdio transport")
         try:
@@ -220,6 +263,7 @@ class GamingMCPServer:
 
     async def run_sse(self, host: str | None = None, port: int | None = None) -> None:
         """Execute server loop over Server-Sent Events (SSE)."""
+        await self.initialize()
         self.is_running = True
         bind_host = host or self.config.host
         bind_port = port or self.config.port
@@ -231,6 +275,7 @@ class GamingMCPServer:
 
     async def run_streamable_http(self, host: str | None = None, port: int | None = None) -> None:
         """Execute server loop over Streamable HTTP."""
+        await self.initialize()
         self.is_running = True
         bind_host = host or self.config.host
         bind_port = port or self.config.port
@@ -242,6 +287,7 @@ class GamingMCPServer:
 
     async def start(self) -> None:
         """Start server using configured transport."""
+        await self.initialize()
         if self.config.transport == TransportType.STDIO:
             await self.run_stdio()
         elif self.config.transport == TransportType.SSE:
@@ -251,9 +297,11 @@ class GamingMCPServer:
 
     async def shutdown(self) -> None:
         """Gracefully release drivers, reset motors, and halt active routines."""
-        if not self.is_running:
+        if not self.is_running and self._is_shut_down:
             return
         self.is_running = False
+        self.is_initialized = False
+        self._is_shut_down = True
         logger.info("Shutting down gaming-mcp server")
         # Shut down active adapter if any
         if self.router.active_adapter_id:
