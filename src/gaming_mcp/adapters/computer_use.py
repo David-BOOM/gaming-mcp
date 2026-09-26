@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 import numpy as np
 from PIL import Image
@@ -32,6 +32,14 @@ from gaming_mcp.io.security import (
 )
 from gaming_mcp.io.timing import ActionChunk, ActionChunkItem, ActionChunkScheduler
 from gaming_mcp.io.vision import PerceptualGater
+from gaming_mcp.schemas.game_control import (
+    ActionType,
+    GameControlInput,
+    LookDirection,
+    LookInput,
+    MovementType,
+    SequenceStep,
+)
 from gaming_mcp.utils.image import draw_set_of_marks_grid, encode_image, image_to_base64
 
 if TYPE_CHECKING:
@@ -230,6 +238,23 @@ class ComputerUseAdapter(GameAdapter):
     virtual gamepad emulation, audio capture, and window management.
     """
 
+    MOVEMENT_KEY_MAP: ClassVar[dict[MovementType, str]] = {
+        MovementType.FORWARD: "w",
+        MovementType.BACKWARD: "s",
+        MovementType.STRAFE_LEFT: "a",
+        MovementType.STRAFE_RIGHT: "d",
+        MovementType.JUMP: "space",
+        MovementType.SPRINT: "shift",
+        MovementType.CROUCH: "ctrl",
+    }
+
+    ACTION_KEY_MAP: ClassVar[dict[ActionType, str]] = {
+        ActionType.INTERACT: "e",
+        ActionType.RELOAD: "r",
+        ActionType.PAUSE: "escape",
+        ActionType.MENU: "tab",
+    }
+
     def __init__(
         self,
         config: GamingMCPConfig,
@@ -261,6 +286,7 @@ class ComputerUseAdapter(GameAdapter):
         self.perceptual_gater: PerceptualGater | None = None
 
         self.bound_window_rect: tuple[int, int, int, int] | None = None
+        self._active_control_depth: int = 0
 
     @property
     def metadata(self) -> AdapterMetadata:
@@ -454,6 +480,16 @@ class ComputerUseAdapter(GameAdapter):
                 "Locate game window by title regex, bring to foreground, and lock cursor capture."
             ),
             input_model=WindowFocusInput,
+        )
+        registry.register(
+            name="game_control",
+            handler=self.game_control,
+            description=(
+                "Execute general, game-agnostic control commands: directional movement, "
+                "camera look, interactions, hotbar slot selection, chords, and compound "
+                "action sequences."
+            ),
+            input_model=GameControlInput,
         )
 
     def register_resources(self, registry: ResourceRegistry) -> None:
@@ -797,6 +833,235 @@ class ComputerUseAdapter(GameAdapter):
                 }
             ],
         }
+
+    async def game_control(
+        self,
+        params: dict[str, Any] | GameControlInput | None = None,
+        *,
+        movement: MovementType | str | None = None,
+        look: LookInput | dict[str, Any] | None = None,
+        action: ActionType | str | None = None,
+        slot: int | None = None,
+        chord: list[str] | None = None,
+        sequence: list[SequenceStep | dict[str, Any]] | None = None,
+        hold_duration_ms: int = 50,
+        request_id: str | None = None,
+        **kwargs: Any,
+    ) -> dict[str, Any]:
+        """Execute general, game-agnostic control commands.
+
+        Supports directional locomotion, camera look with minimum-jerk trajectory splining,
+        common actions and mouse clicks, inventory slot selection, simultaneous key chords,
+        and compound multi-step timed sequences with client cancellation support.
+        """
+        if not self.input_injector:
+            raise AdapterError("Input injector is not initialized")
+
+        # Validate input model
+        if params is not None:
+            if isinstance(params, GameControlInput):
+                input_model = params
+            elif isinstance(params, dict):
+                input_model = GameControlInput.model_validate(params)
+            else:
+                input_model = GameControlInput.model_validate(params)
+        else:
+            payload: dict[str, Any] = {}
+            if movement is not None:
+                payload["movement"] = movement
+            if look is not None:
+                payload["look"] = look
+            if action is not None:
+                payload["action"] = action
+            if slot is not None:
+                payload["slot"] = slot
+            if chord is not None:
+                payload["chord"] = chord
+            if sequence is not None:
+                payload["sequence"] = sequence
+            payload["hold_duration_ms"] = hold_duration_ms
+            payload.update(kwargs)
+            input_model = GameControlInput.model_validate(payload)
+
+        hold_ms = input_model.hold_duration_ms
+        self._validate_active_window_blacklist()
+
+        self._active_control_depth += 1
+        current_task = asyncio.current_task()
+
+        executed_steps: list[dict[str, Any]] = []
+
+        try:
+            # Check pre-cancellation or cancelling status
+            if (
+                current_task
+                and hasattr(current_task, "cancelling")
+                and current_task.cancelling() > 0
+            ):
+                raise asyncio.CancelledError()
+
+            # 1. Directional locomotion
+            if input_model.movement is not None:
+                mov = input_model.movement
+                if isinstance(mov, str):
+                    mov = MovementType(mov)
+                key = self.MOVEMENT_KEY_MAP.get(mov, "w")
+                self.input_injector.send_keys([key], hold_duration_ms=hold_ms)
+                return {
+                    "success": True,
+                    "status": "executed",
+                    "action_type": f"movement_{mov.value}",
+                    "details": {"key": key, "hold_ms": hold_ms},
+                }
+
+            # 2. Camera look rotation
+            if input_model.look is not None:
+                lk = input_model.look
+                dx = lk.dx or 0
+                dy = lk.dy or 0
+
+                # Directional lookup
+                if lk.direction == LookDirection.LOOK_UP:
+                    dy = -100
+                elif lk.direction == LookDirection.LOOK_DOWN:
+                    dy = 100
+                elif lk.direction == LookDirection.LOOK_LEFT:
+                    dx = -100
+                elif lk.direction == LookDirection.LOOK_RIGHT:
+                    dx = 100
+
+                # Angular conversion (5 pixels per degree sensitivity)
+                if lk.yaw is not None:
+                    dx = round(lk.yaw * 5.0)
+                if lk.pitch is not None:
+                    dy = round(lk.pitch * 5.0)
+
+                if lk.smooth:
+                    self.input_injector.mouse_look_smooth(dx, dy, duration_ms=hold_ms)
+                else:
+                    self.input_injector.mouse_move_relative(dx, dy)
+
+                return {
+                    "success": True,
+                    "status": "executed",
+                    "action_type": "look",
+                    "details": {"dx": dx, "dy": dy, "smooth": lk.smooth},
+                }
+
+            # 3. Common game action
+            if input_model.action is not None:
+                act = input_model.action
+                act_val = act.value if hasattr(act, "value") else str(act)
+                if act == ActionType.PRIMARY_ACTION or act_val == "primary_action":
+                    self.input_injector.mouse_click(button="left")
+                    return {
+                        "success": True,
+                        "status": "executed",
+                        "action_type": "primary_action",
+                        "details": {"button": "left"},
+                    }
+                if act == ActionType.SECONDARY_ACTION or act_val == "secondary_action":
+                    self.input_injector.mouse_click(button="right")
+                    return {
+                        "success": True,
+                        "status": "executed",
+                        "action_type": "secondary_action",
+                        "details": {"button": "right"},
+                    }
+
+                act_enum = ActionType(act) if isinstance(act, str) else act
+                act_key = self.ACTION_KEY_MAP.get(act_enum, "e")
+                self.input_injector.send_keys([act_key], hold_duration_ms=hold_ms)
+                return {
+                    "success": True,
+                    "status": "executed",
+                    "action_type": f"action_{act_val}",
+                    "details": {"key": act_key, "hold_ms": hold_ms},
+                }
+
+            # 4. Hotbar slot selection
+            if input_model.slot is not None:
+                slot_key = str(input_model.slot)
+                self.input_injector.send_keys([slot_key], hold_duration_ms=hold_ms)
+                return {
+                    "success": True,
+                    "status": "executed",
+                    "action_type": "slot_selection",
+                    "details": {"slot": input_model.slot, "key": slot_key},
+                }
+
+            # 5. Key chord execution
+            if input_model.chord is not None:
+                for k in input_model.chord:
+                    self.input_injector.key_down(k)
+                if hold_ms > 0:
+                    await asyncio.sleep(min(hold_ms / 1000.0, 0.05))
+                for k in reversed(input_model.chord):
+                    self.input_injector.key_up(k)
+                return {
+                    "success": True,
+                    "status": "executed",
+                    "action_type": "chord",
+                    "details": {"keys": input_model.chord, "hold_ms": hold_ms},
+                }
+
+            # 6. Compound sequence execution
+            if input_model.sequence is not None:
+                for _step_idx, step in enumerate(input_model.sequence):
+                    task = asyncio.current_task()
+                    if task and hasattr(task, "cancelling") and task.cancelling() > 0:
+                        raise asyncio.CancelledError()
+
+                    if step.delay_ms > 0:
+                        await asyncio.sleep(step.delay_ms / 1000.0)
+
+                    step_res = await self.game_control(
+                        movement=step.movement,
+                        look=step.look,
+                        action=step.action,
+                        slot=step.slot,
+                        chord=step.chord,
+                        hold_duration_ms=step.hold_duration_ms,
+                        request_id=request_id,
+                    )
+                    executed_steps.append(step_res)
+
+                return {
+                    "success": True,
+                    "status": "executed",
+                    "action_type": "sequence",
+                    "details": {"steps_count": len(executed_steps), "steps": executed_steps},
+                }
+
+            # Empty payload (noop)
+            return {
+                "success": True,
+                "status": "noop",
+                "action_type": "none",
+                "details": {"message": "No action specified"},
+            }
+
+        except asyncio.CancelledError:
+            if self.input_injector:
+                self.input_injector.release_all()
+            if self.gamepad:
+                self.gamepad.reset()
+            completed = (
+                len(executed_steps)
+                if input_model and input_model.sequence
+                else 0
+            )
+            return {
+                "success": False,
+                "status": "cancelled",
+                "action_type": "aborted",
+                "details": {
+                    "reason": "Request cancelled by client",
+                    "completed_steps": completed,
+                },
+            }
+        finally:
+            self._active_control_depth -= 1
 
     # -------------------------------------------------------------------------
     # Resource Readers

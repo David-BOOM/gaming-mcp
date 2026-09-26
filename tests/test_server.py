@@ -125,3 +125,44 @@ async def test_server_transport_runners() -> None:
     await server.run_streamable_http(host="0.0.0.0", port=9001)
     server.mcp_server.run_streamable_http_async.assert_awaited_once_with(host="0.0.0.0", port=9001)
     assert server.is_running is False
+
+
+@pytest.mark.asyncio
+async def test_server_automatic_adapter_startup_lifecycle() -> None:
+    """Verify GamingMCPServer.initialize activates default adapter and registers tools."""
+    server = GamingMCPServer()
+    assert server.is_initialized is False
+
+    await server.initialize()
+    assert server.is_initialized is True
+    assert server.router.active_adapter_id == "computer_use"
+
+    # Default adapter tools must be exposed out of the box
+    assert server.tools.get("game_control") is not None
+    assert server.tools.get("screenshot") is not None
+    assert server.tools.get("mouse_click") is not None
+
+    # Idempotent re-initialization
+    await server.initialize()
+    assert server.is_initialized is True
+
+    await server.shutdown()
+    assert server.is_initialized is False
+
+
+@pytest.mark.asyncio
+async def test_server_shutdown_without_run() -> None:
+    """Verify server shutdown executes active adapter cleanup even when not running."""
+    server = GamingMCPServer()
+    await server.initialize()
+    assert server.router.active_adapter is not None
+    assert server.router.active_adapter.is_initialized is True
+    assert server.is_running is False
+
+    await server.shutdown()
+    assert server.is_initialized is False
+    assert server.router.active_adapter_id is None
+
+    # Calling shutdown again when already shut down is a safe no-op
+    await server.shutdown()
+

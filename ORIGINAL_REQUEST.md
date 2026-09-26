@@ -102,3 +102,46 @@ Implement `tests/test_io/test_screen.py` and `tests/test_io/test_audio.py` conta
 - [ ] Linting and code style passes with 0 issues via `ruff check src/ tests/`.
 - [ ] Strictly zero emoji or pictogram characters in all source files, docstrings, and tests (AGENTS.md Rule 1).
 
+## 2026-09-25T15:47:24Z
+
+Plan and implement a universal, game-agnostic control function and automatic adapter startup for gaming-mcp that operates seamlessly across any video game without game-specific customization.
+
+Working directory: c:\Users\david\Desktop\Projects\gaming-mcp
+Integrity mode: development
+
+## Requirements
+
+### R1. Unified General Game Control Tool Interface
+Provide a unified, high-level `game_control` tool exposed to MCP clients that accepts and executes general game commands across any game: directional movement (`forward`, `backward`, `strafe_left`, `strafe_right`, `jump`, `sprint`, `crouch`), camera/look rotation (`look_up`, `look_down`, `look_left`, `look_right`, relative mouse deltas `dx`/`dy`, and yaw/pitch angles), common game interactions (`primary_action`, `secondary_action`, `interact`, `reload`, `pause`, `menu`), hotbar/slot selection, custom key/button chords, and compound multi-step action sequences.
+
+### R2. Automatic Default Adapter Lifecycle and Registration
+Ensure the MCP server automatically initializes and activates the universal game control adapter upon server startup, exposing the universal game control tools out of the box to any connecting MCP client without requiring manual `switch_adapter` tool calls, while maintaining dynamic hot-swapping and graceful shutdown.
+
+### R3. Driver-Level Actuation with Robust Emulation Fallback
+Execute inputs through low-level hardware scan codes (`KEYEVENTF_SCANCODE`) and ViGEmBus virtual gamepad actuation with minimum-jerk trajectory smoothing, while falling back gracefully to mock/software injection when physical controllers or kernel drivers are absent in headless environments.
+
+### R4. Multi-Agent Git Branching and Clean Merge Discipline
+Develop on dedicated git feature branches (`feature/general-game-control`), making incremental commits after each significant step, running pre-commit zero-emoji verification, passing all test suites, and performing clean git merges back into `main` with immediate remote pushes.
+
+## Acceptance Criteria
+
+### MCP Protocol Conformance and Tool Surface
+- [ ] The `game_control` tool is registered and visible in `tools/list` on server startup without manual adapter activation.
+- [ ] Pydantic v2 input schemas strictly validate all parameters with descriptive field documentation and range bounds.
+- [ ] Cancellation notifications (`notifications/cancelled`) promptly abort running action sequences and release active inputs.
+
+### Actuation Fidelity and Generality
+- [ ] Movement actions correctly trigger continuous or discrete key presses with configurable hold durations.
+- [ ] Camera look actions support both relative pixel deltas and angular rotations with smooth interpolation.
+- [ ] Action sequences execute compound timed steps in sequence with sub-millisecond precision.
+- [ ] Window targeting and safety guards (boundary clamping, blacklisted processes, emergency kill-switch) remain enforced.
+
+### Test Verification and Zero Emojis
+- [ ] Complete test suite passes with 100% test success rate in pytest.
+- [ ] Pre-commit verification script confirms exactly 0 emoji or pictogram Unicode infractions repository-wide.
+- [ ] Git feature branch cleanly merged into `main` and pushed to remote origin.
+
+## 2026-09-26T07:05:40Z
+
+The environment was restarted. Milestone 1 implementation (commit a229e86: minimum-jerk smooth camera look, fallback_to_mock gamepad support, and pre-flight fixes) has been verified and pushed to origin/feature/general-game-control. Please resume the project orchestrator and active workers, complete the Milestone 1 Verification Gate, and proceed with Milestone 2 (Universal game_control tool interface) and Milestone 3 (automatic default adapter startup lifecycle). Invariants remain: strictly zero emojis, 100% test pass rate, and conventional commits.
+

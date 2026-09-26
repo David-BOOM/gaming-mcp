@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -54,12 +55,18 @@ class MockInputInjector(Win32InputInjector):
         self.clicks: list[tuple[int, int, str, Any]] = []
         self.drags: list[tuple[int, int, int, int, str, int, int]] = []
         self.keys_sent: list[tuple[list[str], int, int]] = []
+        self.keys_down: list[str] = []
+        self.keys_up: list[str] = []
+        self.smooth_looks: list[tuple[int, int, int, int]] = []
+        self.relative_moves: list[tuple[int, int]] = []
         self.released: bool = False
 
     def key_down(self, key: str) -> bool:
+        self.keys_down.append(key)
         return True
 
     def key_up(self, key: str) -> bool:
+        self.keys_up.append(key)
         return True
 
     def mouse_click(
@@ -94,8 +101,23 @@ class MockInputInjector(Win32InputInjector):
         self.keys_sent.append((list(keys), int(hold_duration_ms), repeat_count))
         return True
 
+    def mouse_move_relative(self, dx: int, dy: int) -> bool:
+        self.relative_moves.append((dx, dy))
+        return True
+
+    def mouse_look_smooth(
+        self,
+        total_dx: int,
+        total_dy: int,
+        duration_ms: int = 100,
+        samples: int = 15,
+    ) -> bool:
+        self.smooth_looks.append((total_dx, total_dy, duration_ms, samples))
+        return True
+
     def release_all(self) -> None:
         self.released = True
+        self.keys_down.clear()
 
 
 class MockWindowManager(Win32WindowManager):
@@ -373,9 +395,94 @@ async def test_router_integration_with_server(mock_adapter: Any) -> None:
     assert server.tools.get("screenshot") is not None
     assert server.tools.get("mouse_click") is not None
     assert server.tools.get("send_keys") is not None
+    assert server.tools.get("game_control") is not None
 
     # Check resources
     assert server.resources.get("game://audio/events") is not None
 
     # Shutdown server
     await server.shutdown()
+
+
+@pytest.mark.asyncio
+async def test_game_control_tool_execution(mock_adapter: Any) -> None:
+    """Verify ComputerUseAdapter.game_control executes all commands properly."""
+    adapter, _capturer, injector, _gamepad, _win_mgr = mock_adapter
+    await adapter.initialize()
+
+    # 1. Movement
+    res_move = await adapter.game_control(movement="forward", hold_duration_ms=60)
+    assert res_move["success"] is True
+    assert res_move["status"] == "executed"
+    assert res_move["action_type"] == "movement_forward"
+    assert injector.keys_sent[-1][0] == ["w"]
+    assert injector.keys_sent[-1][1] == 60
+
+    # 2. Look (smooth)
+    res_look_smooth = await adapter.game_control(look={"direction": "look_up", "smooth": True})
+    assert res_look_smooth["success"] is True
+    assert len(injector.smooth_looks) == 1
+    assert injector.smooth_looks[-1][1] == -100
+
+    # 3. Look (discrete dx/dy)
+    res_look_discrete = await adapter.game_control(look={"dx": 50, "dy": 25, "smooth": False})
+    assert res_look_discrete["success"] is True
+    assert (50, 25) in injector.relative_moves
+
+    # 4. Action (primary_action -> left click)
+    res_act = await adapter.game_control(action="primary_action")
+    assert res_act["success"] is True
+    assert len(injector.clicks) == 1
+    assert injector.clicks[-1][2] == "left"
+
+    # 5. Slot selection
+    res_slot = await adapter.game_control(slot=4)
+    assert res_slot["success"] is True
+    assert injector.keys_sent[-1][0] == ["4"]
+
+    # 6. Chord execution
+    res_chord = await adapter.game_control(chord=["shift", "w"])
+    assert res_chord["success"] is True
+    assert injector.keys_down[-2:] == ["shift", "w"]
+    assert injector.keys_up[-2:] == ["w", "shift"]
+
+    # 7. Sequence execution
+    seq = [
+        {"movement": "strafe_right"},
+        {"action": "interact"},
+    ]
+    res_seq = await adapter.game_control(sequence=seq)
+    assert res_seq["success"] is True
+    assert res_seq["action_type"] == "sequence"
+    assert res_seq["details"]["steps_count"] == 2
+
+    # 8. Empty payload (noop)
+    res_noop = await adapter.game_control()
+    assert res_noop["success"] is True
+    assert res_noop["status"] == "noop"
+
+    await adapter.shutdown()
+
+
+@pytest.mark.asyncio
+async def test_game_control_cancellation_releases_inputs(mock_adapter: Any) -> None:
+    """Verify cancellation aborts sequences and releases hardware inputs."""
+    adapter, _capturer, injector, gamepad, _win_mgr = mock_adapter
+    await adapter.initialize()
+
+    seq = [{"movement": "forward", "delay_ms": 100} for _ in range(5)]
+
+    async def _run() -> dict[str, Any]:
+        return await adapter.game_control(sequence=seq)
+
+    task = asyncio.create_task(_run())
+    await asyncio.sleep(0.02)
+    task.cancel()
+
+    res = await task
+    assert res["success"] is False
+    assert res["status"] == "cancelled"
+    assert injector.released is True
+    assert gamepad.left_stick == (0.0, 0.0)
+
+    await adapter.shutdown()
