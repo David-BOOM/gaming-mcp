@@ -165,4 +165,3 @@ async def test_server_shutdown_without_run() -> None:
 
     # Calling shutdown again when already shut down is a safe no-op
     await server.shutdown()
-

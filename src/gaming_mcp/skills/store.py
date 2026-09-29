@@ -235,9 +235,7 @@ class SkillStore:
             );
             """
         )
-        cur = self._conn.execute(
-            "SELECT COALESCE(MAX(version), 0) FROM schema_migrations;"
-        )
+        cur = self._conn.execute("SELECT COALESCE(MAX(version), 0) FROM schema_migrations;")
         row = cur.fetchone()
         current_version: int = row[0] if row else 0
 
@@ -268,9 +266,7 @@ class SkillStore:
             ValueError: If skill name is already taken by another skill with a different ID.
         """
         with self._lock:
-            cur = self._conn.execute(
-                "SELECT id FROM skills WHERE name = ?;", (skill.name,)
-            )
+            cur = self._conn.execute("SELECT id FROM skills WHERE name = ?;", (skill.name,))
             existing = cur.fetchone()
             if existing is not None and existing["id"] != skill.id:
                 raise ValueError(
@@ -586,17 +582,13 @@ class SkillStore:
             total_success: int = int(row[1]) if row else 0
             total_failure: int = int(row[2]) if row else 0
 
-            cur_history = self._conn.execute(
-                "SELECT COUNT(*) FROM skill_executions;"
-            )
+            cur_history = self._conn.execute("SELECT COUNT(*) FROM skill_executions;")
             hist_row = cur_history.fetchone()
             total_runs: int = int(hist_row[0]) if hist_row else 0
 
         total_attempts = total_success + total_failure
         success_rate = (
-            float(round(total_success / total_attempts, 4))
-            if total_attempts > 0
-            else 0.0
+            float(round(total_success / total_attempts, 4)) if total_attempts > 0 else 0.0
         )
         return {
             "total_skills": total_skills,
@@ -654,11 +646,16 @@ class SkillStore:
     def update_stats(self, skill_id_or_name: str, success: bool) -> None:
         """Increment success or failure count for a skill by ID or name."""
         with self._lock:
-            col = "success_count" if success else "failure_count"
-            self._conn.execute(
-                f"UPDATE skills SET {col} = {col} + 1 WHERE id = ? OR name = ?;",
-                (skill_id_or_name, skill_id_or_name),
-            )
+            if success:
+                self._conn.execute(
+                    "UPDATE skills SET success_count = success_count + 1 WHERE id = ? OR name = ?;",
+                    (skill_id_or_name, skill_id_or_name),
+                )
+            else:
+                self._conn.execute(
+                    "UPDATE skills SET failure_count = failure_count + 1 WHERE id = ? OR name = ?;",
+                    (skill_id_or_name, skill_id_or_name),
+                )
             self._conn.commit()
 
     def get_all_embeddings(self) -> dict[str, np.ndarray]:

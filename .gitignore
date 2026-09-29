@@ -92,6 +92,8 @@
 !*secret*.py
 !*secret*.ts
 !*secret*.js
+!*typesafe*.py
+!*relayrouter*.py
 
 # ==============================================================================
 # 1. Research, Literature & Academic Artifacts
@@ -161,6 +163,25 @@ huggingface_token*.txt
 hf_token*
 discord_token*.txt
 discord_webhook*.txt
+relayrouter_key*.txt
+typesafe_key*.txt
+*relayrouter*key*
+*relayrouter*token*
+*relayrouter*.env*
+*typesafe*key*
+*typesafe*token*
+*typesafe*.env*
+
+# OpenCode Host and Project Configurations
+.opencode/
+opencode.json
+*.opencode.json
+
+# TypeSafe System One Diagnostic Dumps
+systemone_dumps/
+jev_dumps/
+*.jev.json
+*.systemone.json
 
 # Private keys and SSH/GPG credentials
 .ssh/

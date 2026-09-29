@@ -13,6 +13,7 @@ security risks to the host environment. This module enforces three safety envelo
 
 import ctypes
 import logging
+import os
 import platform
 import sys
 import threading
@@ -124,7 +125,13 @@ class ProcessBlacklistGuard:
         """Return True if process_name matches any blacklisted executable."""
         if not process_name:
             return False
-        return process_name.strip().lower() in self._blacklist
+        clean = os.path.basename(process_name.strip().replace("/", "\\")).lower()
+        if clean in self._blacklist:
+            return True
+        if not clean.endswith(".exe") and f"{clean}.exe" in self._blacklist:
+            return True
+        clean_no_ext = clean[:-4] if clean.endswith(".exe") else clean
+        return clean_no_ext in self._blacklist
 
     def assert_not_blacklisted(self, process_name: str, hwnd: int | None = None) -> None:
         """Raise SecurityViolationError if process is blacklisted."""

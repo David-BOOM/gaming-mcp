@@ -70,6 +70,11 @@
       "id": "gymnasium",
       "name": "Gymnasium RL Adapter",
       "description": "OpenAI Gymnasium reinforcement learning environment wrapper with space introspection and stepping."
+    },
+    {
+      "id": "typesafe_jev",
+      "name": "TypeSafe JEV System 1 Decision Adapter",
+      "description": "Low-latency discrete decision and scoring adapter powered by TypeSafe JEV via RelayRouter System One API."
     }
   ],
   "clientConfig": {

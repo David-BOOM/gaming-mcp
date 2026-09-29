@@ -36,9 +36,7 @@ class LocalEmbeddingEngine:
         if dimension <= 0:
             raise ValueError(f"Embedding dimension must be positive, got {dimension}")
         if min_ngram <= 0 or max_ngram < min_ngram:
-            raise ValueError(
-                f"Invalid n-gram bounds: min_ngram={min_ngram}, max_ngram={max_ngram}"
-            )
+            raise ValueError(f"Invalid n-gram bounds: min_ngram={min_ngram}, max_ngram={max_ngram}")
 
         self.dimension = dimension
         self.min_ngram = min_ngram
@@ -133,9 +131,7 @@ class LocalEmbeddingEngine:
         cand_list: list[tuple[str, np.ndarray]] = [
             (
                 cid,
-                c_v
-                if isinstance(c_v, np.ndarray)
-                else np.asarray(c_v, dtype=np.float32),
+                c_v if isinstance(c_v, np.ndarray) else np.asarray(c_v, dtype=np.float32),
             )
             for cid, c_v in candidates
         ]
@@ -226,11 +222,7 @@ class VectorIndex:
         matrix_rows: list[np.ndarray] = []
 
         for cand_id, raw_v in raw_items:
-            vec = (
-                raw_v
-                if isinstance(raw_v, np.ndarray)
-                else np.asarray(raw_v, dtype=np.float32)
-            )
+            vec = raw_v if isinstance(raw_v, np.ndarray) else np.asarray(raw_v, dtype=np.float32)
             if vec.ndim != 1 or vec.shape[0] != dim:
                 raise ValueError(
                     f"Candidate vector '{cand_id}' shape {vec.shape} "

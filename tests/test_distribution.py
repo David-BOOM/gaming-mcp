@@ -132,6 +132,7 @@ def test_mcp_registry_entry_schema() -> None:
     assert "minecraft" in adapters
     assert "retro" in adapters
     assert "gymnasium" in adapters
+    assert "typesafe_jev" in adapters
 
 
 def test_diataxis_docs_suite_exists() -> None:
@@ -164,9 +165,7 @@ def test_zero_emojis_in_distribution_and_docs() -> None:
             all_infractions[str(file_path)] = infractions
 
     total_count = sum(len(v) for v in all_infractions.values())
-    assert not all_infractions, (
-        f"Found {total_count} emoji infractions: {all_infractions}"
-    )
+    assert not all_infractions, f"Found {total_count} emoji infractions: {all_infractions}"
 
 
 def test_pyproject_pep621_metadata() -> None:

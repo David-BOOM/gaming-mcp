@@ -465,12 +465,20 @@ async def test_game_control_tool_execution(mock_adapter: Any) -> None:
 
 
 @pytest.mark.asyncio
-async def test_game_control_cancellation_releases_inputs(mock_adapter: Any) -> None:
+async def test_game_control_cancellation_releases_inputs(
+    mock_adapter: tuple[
+        ComputerUseAdapter,
+        MockScreenCapturer,
+        MockInputInjector,
+        MockGamepadController,
+        MockWindowManager,
+    ],
+) -> None:
     """Verify cancellation aborts sequences and releases hardware inputs."""
     adapter, _capturer, injector, gamepad, _win_mgr = mock_adapter
     await adapter.initialize()
 
-    seq = [{"movement": "forward", "delay_ms": 100} for _ in range(5)]
+    seq: list[dict[str, Any]] = [{"movement": "forward", "delay_ms": 100} for _ in range(5)]
 
     async def _run() -> dict[str, Any]:
         return await adapter.game_control(sequence=seq)

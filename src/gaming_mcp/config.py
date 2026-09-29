@@ -258,6 +258,58 @@ class GymnasiumConfig(BaseModel):
     )
 
 
+class TypeSafeJEVConfig(BaseModel):
+    """Configuration for TypeSafe JEV System 1 discrete decision adapter."""
+
+    enabled: bool = Field(
+        default=True,
+        description="Enable TypeSafe JEV System 1 mode",
+    )
+    base_url: str = Field(
+        default_factory=lambda: (
+            os.getenv("RELAYROUTER_BASE_URL")
+            or os.getenv("TYPESAFE_BASE_URL")
+            or "https://api.relayrouter.ai/v1"
+        ),
+        description="RelayRouter / TypeSafe API base URL",
+    )
+    api_key: str | None = Field(
+        default_factory=lambda: os.getenv("RELAYROUTER_API_KEY") or os.getenv("TYPESAFE_API_KEY"),
+        description="RelayRouter API key (defaults to RELAYROUTER_API_KEY environment variable)",
+    )
+    model: str = Field(
+        default_factory=lambda: (
+            os.getenv("RELAYROUTER_MODEL")
+            or os.getenv("TYPESAFE_MODEL")
+            or os.getenv("JEV_MODEL")
+            or "jev-1.13.0"
+        ),
+        description="TypeSafe model identifier",
+    )
+    timeout_sec: float = Field(
+        default=30.0,
+        ge=1.0,
+        le=120.0,
+        description="HTTP request timeout in seconds",
+    )
+    max_retries: int = Field(
+        default=3,
+        ge=0,
+        le=10,
+        description="Maximum retry attempts on transient network or rate-limit failures",
+    )
+    mock_mode: bool = Field(
+        default=False,
+        description="Run in simulated mock mode without making live network requests",
+    )
+    default_confidence_threshold: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description="Confidence threshold below which decide_and_act skips execution",
+    )
+
+
 class AdapterConfig(BaseModel):
     """Configuration for game adapter integrations."""
 
@@ -276,6 +328,10 @@ class AdapterConfig(BaseModel):
     gymnasium: GymnasiumConfig = Field(
         default_factory=GymnasiumConfig,
         description="Configuration for Gymnasium RL environment adapter",
+    )
+    typesafe_jev: TypeSafeJEVConfig = Field(
+        default_factory=TypeSafeJEVConfig,
+        description="Configuration for TypeSafe JEV System 1 adapter",
     )
 
 
@@ -306,6 +362,8 @@ class GamingMCPConfig(BaseModel):
         target_path: Path | None = None
         if config_path:
             target_path = Path(config_path)
+            if not target_path.exists():
+                raise FileNotFoundError(f"Configuration file not found: {config_path}")
         elif Path("config.json").exists():
             target_path = Path("config.json")
 
@@ -335,5 +393,17 @@ class GamingMCPConfig(BaseModel):
         env_log_level = os.getenv("GAMING_MCP_LOG_LEVEL")
         if env_log_level:
             data["log_level"] = env_log_level
+
+        # Parse TypeSafe / RelayRouter environment overrides
+        adapters_data = data.setdefault("adapters", {})
+        typesafe_data = adapters_data.setdefault("typesafe_jev", {})
+        if env_rr_key := (os.getenv("RELAYROUTER_API_KEY") or os.getenv("TYPESAFE_API_KEY")):
+            typesafe_data["api_key"] = env_rr_key
+        if env_rr_url := (os.getenv("RELAYROUTER_BASE_URL") or os.getenv("TYPESAFE_BASE_URL")):
+            typesafe_data["base_url"] = env_rr_url
+        if env_rr_model := (
+            os.getenv("RELAYROUTER_MODEL") or os.getenv("TYPESAFE_MODEL") or os.getenv("JEV_MODEL")
+        ):
+            typesafe_data["model"] = env_rr_model
 
         return cls(**data)

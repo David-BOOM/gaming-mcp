@@ -32,9 +32,7 @@ def test_schema_initialization_and_migrations(memory_store: SkillStore) -> None:
         assert "skill_executions" in tables
         assert "schema_migrations" in tables
 
-        cur = memory_store._conn.execute(
-            "SELECT version FROM schema_migrations ORDER BY version;"
-        )
+        cur = memory_store._conn.execute("SELECT version FROM schema_migrations ORDER BY version;")
         versions = [row[0] for row in cur.fetchall()]
         assert 1 in versions
 

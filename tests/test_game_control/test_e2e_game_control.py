@@ -38,6 +38,7 @@ if TYPE_CHECKING:
 
 # --- 1.1 Movement Commands (7 tests >= 5) ---
 
+
 @pytest.mark.asyncio
 async def test_tier1_movement_forward(
     game_control_dispatcher: GameControlDispatcher,
@@ -135,6 +136,7 @@ async def test_tier1_movement_crouch(
 
 # --- 1.2 Camera Look Commands (5 tests >= 5) ---
 
+
 @pytest.mark.asyncio
 async def test_tier1_look_cardinal_directions(
     game_control_dispatcher: GameControlDispatcher,
@@ -220,15 +222,14 @@ async def test_tier1_look_discrete_unsmoothed_movement(
     mock_injector: MockInputInjector,
 ) -> None:
     """Verify smooth=False dispatches single instantaneous relative mouse jump."""
-    res = await game_control_dispatcher.execute(
-        {"look": {"dx": 80, "dy": 40, "smooth": False}}
-    )
+    res = await game_control_dispatcher.execute({"look": {"dx": 80, "dy": 40, "smooth": False}})
     assert res["success"] is True
     assert len(mock_injector.smooth_looks) == 0
     assert (80, 40) in mock_injector.relative_moves
 
 
 # --- 1.3 Interactions (6 tests >= 5) ---
+
 
 @pytest.mark.asyncio
 async def test_tier1_action_primary_action(
@@ -306,6 +307,7 @@ async def test_tier1_action_menu(
 
 # --- 1.4 Hotbar Slots (5 tests >= 5) ---
 
+
 @pytest.mark.asyncio
 async def test_tier1_slot_1(
     game_control_dispatcher: GameControlDispatcher,
@@ -362,6 +364,7 @@ async def test_tier1_slot_9(
 
 
 # --- 1.5 Chords (5 tests >= 5) ---
+
 
 @pytest.mark.asyncio
 async def test_tier1_chord_sprint_forward(
@@ -424,6 +427,7 @@ async def test_tier1_chord_three_key_combination(
 
 
 # --- 1.6 Compound Sequences (5 tests >= 5) ---
+
 
 @pytest.mark.asyncio
 async def test_tier1_sequence_movement_and_look(
@@ -514,6 +518,7 @@ async def test_tier1_sequence_multi_step_patrol(
 
 # --- 1.7 Auto-Startup (5 tests >= 5) ---
 
+
 @pytest.mark.asyncio
 async def test_tier1_auto_startup_default_adapter_active(
     mock_test_server: MockTestServer,
@@ -584,6 +589,7 @@ async def test_tier1_auto_startup_resources_registered(
 
 
 # --- 1.8 Dynamic Hot-Swapping (5 tests >= 5) ---
+
 
 class MockSecondaryAdapter(GameAdapter):
     """Secondary mock adapter for hot-swapping tests."""
@@ -708,6 +714,7 @@ async def test_tier1_dynamic_swap_invalid_adapter_raises_error(
 
 # --- 1.9 Cancellation (5 tests >= 5) ---
 
+
 @pytest.mark.asyncio
 async def test_tier1_cancellation_aborts_running_sequence(
     game_control_dispatcher: GameControlDispatcher,
@@ -793,6 +800,7 @@ async def test_tier1_cancellation_notifications_cancelled_handler(
 
 # --- 1.10 Fallback Actuation (5 tests >= 5) ---
 
+
 def test_tier1_fallback_missing_vigembus_uses_mock() -> None:
     """Verify missing ViGEmBus driver falls back gracefully to MockGamepadController."""
     ctrl = get_gamepad_controller(prefer_mock=True)
@@ -845,6 +853,7 @@ def test_tier1_fallback_non_windows_platform_graceful_handling() -> None:
 # ===========================================================================
 
 # --- 2.1 Parameter Boundaries (6 tests >= 5) ---
+
 
 @pytest.mark.asyncio
 async def test_tier2_bva_empty_input_payload(
@@ -903,6 +912,7 @@ def test_tier2_bva_zero_and_negative_hold_durations() -> None:
 
 # --- 2.2 Unknown and Malformed Inputs (5 tests >= 5) ---
 
+
 def test_tier2_bva_unknown_movement_string_rejected() -> None:
     """Verify unsupported movement string raises ValidationError."""
     with pytest.raises(ValidationError):
@@ -935,12 +945,15 @@ async def test_tier2_bva_empty_chord_list_handled(
 def test_tier2_bva_malformed_sequence_step_rejected() -> None:
     """Verify invalid step inside sequence raises ValidationError."""
     with pytest.raises(ValidationError):
-        GameControlInput.model_validate({
-            "sequence": [{"slot": 15}]  # slot > 9
-        })
+        GameControlInput.model_validate(
+            {
+                "sequence": [{"slot": 15}]  # slot > 9
+            }
+        )
 
 
 # --- 2.3 Concurrency and Rapid Commands (5 tests >= 5) ---
+
 
 @pytest.mark.asyncio
 async def test_tier2_bva_rapid_successive_commands(
@@ -1020,6 +1033,7 @@ async def test_tier2_bva_rapid_directional_reversals(
 
 # --- 2.4 Cancellation Timing Variations (5 tests >= 5) ---
 
+
 @pytest.mark.asyncio
 async def test_tier2_bva_cancellation_immediately_before_action(
     game_control_dispatcher: GameControlDispatcher,
@@ -1097,6 +1111,7 @@ async def test_tier2_bva_unknown_request_id_cancellation(
 # ===========================================================================
 # Tier 3: Cross-Feature Combinations (Pairwise Testing)
 # ===========================================================================
+
 
 @pytest.mark.asyncio
 async def test_tier3_pairwise_movement_while_camera_panning(
@@ -1241,6 +1256,7 @@ async def test_tier3_pairwise_auto_startup_and_dynamic_swap_cycle(
 # Tier 4: Real-World Application Workloads
 # ===========================================================================
 
+
 @pytest.mark.asyncio
 async def test_tier4_scenario_first_person_navigation(
     game_control_dispatcher: GameControlDispatcher,
@@ -1340,13 +1356,15 @@ async def test_tier4_scenario_headless_exploration_loop(
     and obstacle clearing jumps.
     """
     for iteration in range(3):
-        res = await game_control_dispatcher.execute({
-            "sequence": [
-                {"movement": "forward", "hold_duration_ms": 50},
-                {"look": {"dx": 40 * (iteration + 1), "dy": 0, "smooth": False}},
-                {"movement": "jump", "hold_duration_ms": 50},
-            ]
-        })
+        res = await game_control_dispatcher.execute(
+            {
+                "sequence": [
+                    {"movement": "forward", "hold_duration_ms": 50},
+                    {"look": {"dx": 40 * (iteration + 1), "dy": 0, "smooth": False}},
+                    {"movement": "jump", "hold_duration_ms": 50},
+                ]
+            }
+        )
         assert res["success"] is True
         assert res["details"]["steps_count"] == 3
 

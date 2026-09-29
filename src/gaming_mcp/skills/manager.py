@@ -231,9 +231,7 @@ class SkillManager:
             uri="skills://registry",
             reader=_read_registry_resource,
             name="Skill Registry",
-            description=(
-                "Catalog of registered composite macro skills and performance metrics."
-            ),
+            description=("Catalog of registered composite macro skills and performance metrics."),
             mime_type="application/json",
         )
         self.resource_registry.register(

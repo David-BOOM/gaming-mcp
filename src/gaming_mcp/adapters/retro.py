@@ -9,8 +9,8 @@ are unavailable.
 from __future__ import annotations
 
 import importlib
+import json
 import logging
-import pickle
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
@@ -466,6 +466,7 @@ class SimulatedRetroCore(BaseRetroBackend):
 
     def save_state(self, slot_name: str) -> bytes:
         """Serialize current emulator snapshot to memory."""
+        self._sync_ram()
         snapshot = {
             "ram": bytes(self._ram),
             "score": self.score,
@@ -482,7 +483,9 @@ class SimulatedRetroCore(BaseRetroBackend):
             "facing": self.facing,
             "total_frames": self._total_frames,
         }
-        serialized = pickle.dumps(snapshot)
+        serialized = json.dumps(
+            {k: v.hex() if isinstance(v, (bytes, bytearray)) else v for k, v in snapshot.items()}
+        ).encode("utf-8")
         self._saved_states[slot_name] = snapshot
         return serialized
 
@@ -494,8 +497,22 @@ class SimulatedRetroCore(BaseRetroBackend):
                 f"Available slots: {list(self._saved_states.keys())}"
             )
 
-        snapshot = self._saved_states[slot_name]
-        self._ram = bytearray(snapshot["ram"])
+        raw_snapshot = self._saved_states[slot_name]
+        snapshot: dict[str, Any]
+        if isinstance(raw_snapshot, (bytes, bytearray)):
+            snapshot = json.loads(raw_snapshot.decode("utf-8"))
+        elif isinstance(raw_snapshot, str):
+            snapshot = json.loads(raw_snapshot)
+        else:
+            snapshot = raw_snapshot
+
+        raw_ram = snapshot["ram"]
+        if isinstance(raw_ram, str):
+            self._ram = bytearray(bytes.fromhex(raw_ram))
+        elif isinstance(raw_ram, (bytes, bytearray)):
+            self._ram = bytearray(raw_ram)
+        else:
+            self._ram = bytearray(raw_ram)
         self.score = snapshot["score"]
         self.lives = snapshot["lives"]
         self.x_pos = snapshot["x_pos"]

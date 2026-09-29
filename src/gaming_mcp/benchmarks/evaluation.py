@@ -380,10 +380,7 @@ class MinesweeperBoard:
             if 0 <= safe_x + dx < self.width and 0 <= safe_y + dy < self.height
         }
         all_coords = [
-            (x, y)
-            for x in range(self.width)
-            for y in range(self.height)
-            if (x, y) not in safe_zone
+            (x, y) for x in range(self.width) for y in range(self.height) if (x, y) not in safe_zone
         ]
         self.mines = set(self.rng.sample(all_coords, self.num_mines))
 
@@ -564,9 +561,7 @@ class MarioBenchmarkRunner:
         # Autonomous play policy:
         # Move RIGHT + sprint B, jump A when approaching warp pipe milestones
         while (
-            core.x_pos < target_x
-            and core.frame_count < max_frames
-            and core.game_state == "running"
+            core.x_pos < target_x and core.frame_count < max_frames and core.game_state == "running"
         ):
             # Obstacle detection: warp pipes at modulo boundaries
             approaching_pipe = (core.x_pos % 320) in range(120, 160)
@@ -868,12 +863,7 @@ class ActionTripwireSimulator:
             2,
         )
 
-        passed = (
-            player_hp > 0
-            and damage_taken == 0
-            and combo_success
-            and avg_latency < 25.0
-        )
+        passed = player_hp > 0 and damage_taken == 0 and combo_success and avg_latency < 25.0
 
         return Tier4Result(
             doom_level_cleared=True,
@@ -1010,7 +1000,7 @@ Overall Status: {"PASSED" if all_passed else "FAILED"}
 - Status: {"[PASS]" if t2.pass_target else "[FAIL]"}
 
 ## Tier 3: 3D Open World (Minecraft Survival Crafting)
-- Target Pipeline: {' -> '.join(t3.target_pipeline)}
+- Target Pipeline: {" -> ".join(t3.target_pipeline)}
 - All Milestones Completed: {"Yes" if t3.all_milestones_completed else "No"}
 - Simulated Elapsed Time: {t3.total_elapsed_seconds}s
 - Status: {"[PASS]" if t3.pass_target else "[FAIL]"}

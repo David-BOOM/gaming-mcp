@@ -29,6 +29,7 @@ from gaming_mcp.utils.curves import generate_relative_camera_deltas
 # Pydantic v2 Interface Contracts (PROJECT.md Specification)
 # ---------------------------------------------------------------------------
 
+
 class MovementType(StrEnum):
     """Supported directional movement commands."""
 
@@ -149,9 +150,7 @@ class GameControlOutput(BaseModel):
 
 # Availability flag for M2 production schemas
 try:
-    HAS_PROD_SCHEMAS = (
-        importlib.util.find_spec("gaming_mcp.schemas.game_control") is not None
-    )
+    HAS_PROD_SCHEMAS = importlib.util.find_spec("gaming_mcp.schemas.game_control") is not None
 except (ImportError, ModuleNotFoundError):
     HAS_PROD_SCHEMAS = False
 
@@ -159,6 +158,7 @@ except (ImportError, ModuleNotFoundError):
 # ---------------------------------------------------------------------------
 # Test Mocks and Harness Components
 # ---------------------------------------------------------------------------
+
 
 class MockScreenCapturer:
     """Mock screen capturer returning synthetic frame buffers."""
@@ -309,6 +309,7 @@ class MockWindowManager(Win32WindowManager):
 # Reference Game Control Dispatcher (Specification Verification Oracle)
 # ---------------------------------------------------------------------------
 
+
 class GameControlDispatcher:
     """Executes GameControlInput requests through the actuation subsystem.
 
@@ -374,7 +375,7 @@ class GameControlDispatcher:
 
         hold_ms = input_model.hold_duration_ms
 
-        is_root = (self._active_depth == 0)
+        is_root = self._active_depth == 0
         self._active_depth += 1
         current_task = asyncio.current_task()
         if is_root and request_id and current_task:
@@ -556,6 +557,7 @@ class GameControlDispatcher:
 # ---------------------------------------------------------------------------
 # Pytest Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def mock_injector() -> MockInputInjector:

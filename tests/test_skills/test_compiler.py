@@ -113,9 +113,7 @@ def test_parameter_resolution_raw_dicts_and_passthrough() -> None:
         "x": {"type": "float", "default": 0.0},
         "name": "str",
     }
-    res = compiler.validate_and_resolve_parameters(
-        raw_defs, {"name": "player1", "extra_arg": 999}
-    )
+    res = compiler.validate_and_resolve_parameters(raw_defs, {"name": "player1", "extra_arg": 999})
     assert res["x"] == 0.0
     assert res["name"] == "player1"
     assert res["extra_arg"] == 999

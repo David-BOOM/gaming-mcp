@@ -549,9 +549,7 @@ def export_benchmark_artifacts(
             "gamepad_backend": latency_result.gamepad.backend,
         },
         "all_benchmarks_passed": (
-            matrix_result.all_tiers_passed
-            and latency_result.all_passed
-            and token_result.passed
+            matrix_result.all_tiers_passed and latency_result.all_passed and token_result.passed
         ),
         "multi_genre_matrix": matrix_result.model_dump(),
         "latency_profile": latency_result.model_dump(),
@@ -690,114 +688,118 @@ def export_benchmark_artifacts(
             f"acquired at {m.elapsed_seconds}s"
         )
 
-    lines.extend([
-        f"* Total Elapsed Simulated Time: {matrix_result.tier3.total_elapsed_seconds}s",
-        f"* Final Inventory Breakdown: {json.dumps(matrix_result.tier3.final_inventory)}\n",
-        "### Tier 4: Real-Time Action (Action Chunking & Reflex Tripwires)",
-        "* Doom Level Clearance: "
-        + ("Cleared" if matrix_result.tier4.doom_level_cleared else "Failed"),
-        f"* Final Health: {matrix_result.tier4.doom_final_health} HP",
-        f"* Damage Taken: {matrix_result.tier4.doom_damage_taken} HP",
-        "* Street Fighter II Combo: "
-        + ("Success" if matrix_result.tier4.sf2_combo_execution_success else "Failure"),
-        f"* Average Reflex Tripwire Latency: {matrix_result.tier4.average_reflex_latency_ms} ms "
-        f"(Target: < 25.0 ms)\n",
-        "---\n",
-        "## 3. Subsystem Latency Benchmarks\n",
-        _make_md_row(
-            "Subsystem",
-            "Samples",
-            "Min (ms)",
-            "Mean (ms)",
-            "Median (ms)",
-            "p95 (ms)",
-            "p99 (ms)",
-            "Target",
-            "Status",
-        ),
-        _make_md_row(
-            "-----------",
-            "-------",
-            "--------",
-            "---------",
-            "-----------",
-            "--------",
-            "--------",
-            "------",
-            "------",
-        ),
-        _make_md_row(
-            "DXGI Capture",
-            latency_result.capture.dxgi_metrics.sample_count,
-            latency_result.capture.dxgi_metrics.min_ms,
-            latency_result.capture.dxgi_metrics.mean_ms,
-            latency_result.capture.dxgi_metrics.median_ms,
-            latency_result.capture.dxgi_metrics.p95_ms,
-            latency_result.capture.dxgi_metrics.p99_ms,
-            "< 15.0 ms",
-            "[PASS]" if latency_result.capture.dxgi_metrics.passed else "[FAIL]",
-        ),
-        _make_md_row(
-            "MSS Capture",
-            latency_result.capture.mss_metrics.sample_count,
-            latency_result.capture.mss_metrics.min_ms,
-            latency_result.capture.mss_metrics.mean_ms,
-            latency_result.capture.mss_metrics.median_ms,
-            latency_result.capture.mss_metrics.p95_ms,
-            latency_result.capture.mss_metrics.p99_ms,
-            "< 35.0 ms",
-            "[PASS]" if latency_result.capture.mss_metrics.passed else "[FAIL]",
-        ),
-        _make_md_row(
-            "Scan-Code Input",
-            latency_result.injection.metrics.sample_count,
-            latency_result.injection.metrics.min_ms,
-            latency_result.injection.metrics.mean_ms,
-            latency_result.injection.metrics.median_ms,
-            latency_result.injection.metrics.p95_ms,
-            latency_result.injection.metrics.p99_ms,
-            "< 2.0 ms",
-            "[PASS]" if latency_result.injection.passed else "[FAIL]",
-        ),
-        _make_md_row(
-            "Virtual Gamepad",
-            latency_result.gamepad.metrics.sample_count,
-            latency_result.gamepad.metrics.min_ms,
-            latency_result.gamepad.metrics.mean_ms,
-            latency_result.gamepad.metrics.median_ms,
-            latency_result.gamepad.metrics.p95_ms,
-            latency_result.gamepad.metrics.p99_ms,
-            "< 1.0 ms",
-            "[PASS]" if latency_result.gamepad.passed else "[FAIL]",
-        ),
-        "\n---\n",
-        "## 4. Perceptual Token Economics (64-bit dHash Gating)\n",
-        f"* **Baseline Token Consumption (Un-Gated):** "
-        f"{token_result.baseline_tokens_consumed:,} tokens",
-        f"* **Gated Token Consumption (With dHash):** "
-        f"{token_result.gated_tokens_consumed:,} tokens",
-        f"* **Total Tokens Saved:** {token_result.tokens_saved:,} tokens",
-        f"* **Measured Token Reduction:** **{token_result.token_reduction_percentage}%** "
-        f"(Target: > {token_result.target_reduction_percentage}%)",
-        f"* **Status:** {'[PASS]' if token_result.passed else '[FAIL]'}\n",
-        "### Workload Scenario Breakdown\n",
-        _make_md_row(
-            "Scenario",
-            "Total Frames",
-            "Transmitted",
-            "Suppressed",
-            "Suppression Rate",
-            "Mean Hamming Distance",
-        ),
-        _make_md_row(
-            "--------",
-            "------------",
-            "-----------",
-            "----------",
-            "----------------",
-            "---------------------",
-        ),
-    ])
+    lines.extend(
+        [
+            f"* Total Elapsed Simulated Time: {matrix_result.tier3.total_elapsed_seconds}s",
+            f"* Final Inventory Breakdown: {json.dumps(matrix_result.tier3.final_inventory)}\n",
+            "### Tier 4: Real-Time Action (Action Chunking & Reflex Tripwires)",
+            "* Doom Level Clearance: "
+            + ("Cleared" if matrix_result.tier4.doom_level_cleared else "Failed"),
+            f"* Final Health: {matrix_result.tier4.doom_final_health} HP",
+            f"* Damage Taken: {matrix_result.tier4.doom_damage_taken} HP",
+            "* Street Fighter II Combo: "
+            + ("Success" if matrix_result.tier4.sf2_combo_execution_success else "Failure"),
+            (
+                f"* Average Reflex Tripwire Latency: "
+                f"{matrix_result.tier4.average_reflex_latency_ms} ms (Target: < 25.0 ms)\n"
+            ),
+            "---\n",
+            "## 3. Subsystem Latency Benchmarks\n",
+            _make_md_row(
+                "Subsystem",
+                "Samples",
+                "Min (ms)",
+                "Mean (ms)",
+                "Median (ms)",
+                "p95 (ms)",
+                "p99 (ms)",
+                "Target",
+                "Status",
+            ),
+            _make_md_row(
+                "-----------",
+                "-------",
+                "--------",
+                "---------",
+                "-----------",
+                "--------",
+                "--------",
+                "------",
+                "------",
+            ),
+            _make_md_row(
+                "DXGI Capture",
+                latency_result.capture.dxgi_metrics.sample_count,
+                latency_result.capture.dxgi_metrics.min_ms,
+                latency_result.capture.dxgi_metrics.mean_ms,
+                latency_result.capture.dxgi_metrics.median_ms,
+                latency_result.capture.dxgi_metrics.p95_ms,
+                latency_result.capture.dxgi_metrics.p99_ms,
+                "< 15.0 ms",
+                "[PASS]" if latency_result.capture.dxgi_metrics.passed else "[FAIL]",
+            ),
+            _make_md_row(
+                "MSS Capture",
+                latency_result.capture.mss_metrics.sample_count,
+                latency_result.capture.mss_metrics.min_ms,
+                latency_result.capture.mss_metrics.mean_ms,
+                latency_result.capture.mss_metrics.median_ms,
+                latency_result.capture.mss_metrics.p95_ms,
+                latency_result.capture.mss_metrics.p99_ms,
+                "< 35.0 ms",
+                "[PASS]" if latency_result.capture.mss_metrics.passed else "[FAIL]",
+            ),
+            _make_md_row(
+                "Scan-Code Input",
+                latency_result.injection.metrics.sample_count,
+                latency_result.injection.metrics.min_ms,
+                latency_result.injection.metrics.mean_ms,
+                latency_result.injection.metrics.median_ms,
+                latency_result.injection.metrics.p95_ms,
+                latency_result.injection.metrics.p99_ms,
+                "< 2.0 ms",
+                "[PASS]" if latency_result.injection.passed else "[FAIL]",
+            ),
+            _make_md_row(
+                "Virtual Gamepad",
+                latency_result.gamepad.metrics.sample_count,
+                latency_result.gamepad.metrics.min_ms,
+                latency_result.gamepad.metrics.mean_ms,
+                latency_result.gamepad.metrics.median_ms,
+                latency_result.gamepad.metrics.p95_ms,
+                latency_result.gamepad.metrics.p99_ms,
+                "< 1.0 ms",
+                "[PASS]" if latency_result.gamepad.passed else "[FAIL]",
+            ),
+            "\n---\n",
+            "## 4. Perceptual Token Economics (64-bit dHash Gating)\n",
+            f"* **Baseline Token Consumption (Un-Gated):** "
+            f"{token_result.baseline_tokens_consumed:,} tokens",
+            f"* **Gated Token Consumption (With dHash):** "
+            f"{token_result.gated_tokens_consumed:,} tokens",
+            f"* **Total Tokens Saved:** {token_result.tokens_saved:,} tokens",
+            f"* **Measured Token Reduction:** **{token_result.token_reduction_percentage}%** "
+            f"(Target: > {token_result.target_reduction_percentage}%)",
+            f"* **Status:** {'[PASS]' if token_result.passed else '[FAIL]'}\n",
+            "### Workload Scenario Breakdown\n",
+            _make_md_row(
+                "Scenario",
+                "Total Frames",
+                "Transmitted",
+                "Suppressed",
+                "Suppression Rate",
+                "Mean Hamming Distance",
+            ),
+            _make_md_row(
+                "--------",
+                "------------",
+                "-----------",
+                "----------",
+                "----------------",
+                "---------------------",
+            ),
+        ]
+    )
 
     for s in token_result.scenarios:
         lines.append(
@@ -811,10 +813,12 @@ def export_benchmark_artifacts(
             ).strip()
         )
 
-    lines.extend([
-        "\n---\n",
-        "*Automated Benchmark Verification Suite -- gaming-mcp v0.1.0*\n",
-    ])
+    lines.extend(
+        [
+            "\n---\n",
+            "*Automated Benchmark Verification Suite -- gaming-mcp v0.1.0*\n",
+        ]
+    )
 
     md_content = "\n".join(lines)
     with open(md_file, "w", encoding="utf-8") as f:

@@ -377,8 +377,8 @@ async def test_hot_swap_mcp_server_rebinding_with_spy() -> None:
     def _spy_remove(name: str) -> None:
         removed_tools.append(name)
 
-    server.mcp_server.add_tool = MagicMock(side_effect=_spy_add)
-    server.mcp_server.remove_tool = MagicMock(side_effect=_spy_remove)
+    server.mcp_server.add_tool = MagicMock(side_effect=_spy_add)  # type: ignore[method-assign]
+    server.mcp_server.remove_tool = MagicMock(side_effect=_spy_remove)  # type: ignore[method-assign]
 
     # Initialize server (activates computer_use)
     await server.initialize()
@@ -576,52 +576,37 @@ async def test_shutdown_resilience_when_adapter_shutdown_explodes() -> None:
 
 
 def test_zero_emojis_in_repository() -> None:
-    """Empirically scan source, tests, and challenger files for emoji Unicode characters."""
+    """Empirically scan the entire repository for emoji Unicode characters."""
     forbidden_ranges = [
         (0x1F000, 0x1FFFF),  # Supplemental symbols, pictographs, emoticons
-        (0x2600, 0x27BF),    # Miscellaneous symbols, Dingbats
-        (0x2B50, 0x2B55),    # Stars and other symbols
+        (0x2600, 0x27BF),  # Miscellaneous symbols, Dingbats
+        (0x2B50, 0x2B55),  # Stars and other symbols
     ]
+    skip_dirs = {".git", ".venv", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
+    extensions = (".py", ".md", ".json", ".toml", ".yaml", ".yml", ".txt")
 
     infractions: list[str] = []
-
     root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-    target_dirs = [
-        os.path.join(root_dir, "src"),
-        os.path.join(root_dir, "tests"),
-        os.path.join(root_dir, ".agents", "teamwork", "teamwork_preview_challenger_m2_m3_2"),
-    ]
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        dirnames[:] = [d for d in dirnames if d not in skip_dirs]
+        for filename in filenames:
+            if not filename.endswith(extensions):
+                continue
 
-    for target_dir in target_dirs:
-        if not os.path.exists(target_dir):
-            continue
-        for dirpath, dirnames, filenames in os.walk(target_dir):
-            dirnames[:] = [
-                d for d in dirnames if d not in (".git", ".venv", "__pycache__", ".pytest_cache")
-            ]
+            filepath = os.path.join(dirpath, filename)
+            try:
+                with open(filepath, encoding="utf-8", errors="ignore") as f:
+                    for line_no, line in enumerate(f, start=1):
+                        for char in line:
+                            cp = ord(char)
+                            for start, end in forbidden_ranges:
+                                if start <= cp <= end:
+                                    rel_path = os.path.relpath(filepath, root_dir)
+                                    infractions.append(f"{rel_path}:{line_no} U+{cp:04X} ({char})")
+            except Exception as read_err:
+                infractions.append(f"Failed to read {filepath}: {read_err}")
 
-            for filename in filenames:
-                if not filename.endswith((".py", ".md", ".json", ".toml")):
-                    continue
-
-                filepath = os.path.join(dirpath, filename)
-                try:
-                    with open(filepath, encoding="utf-8", errors="ignore") as f:
-                        for line_no, line in enumerate(f, start=1):
-                            for char in line:
-                                cp = ord(char)
-                                for start, end in forbidden_ranges:
-                                    if start <= cp <= end:
-                                        rel_path = os.path.relpath(filepath, root_dir)
-                                        infractions.append(
-                                            f"{rel_path}:{line_no} U+{cp:04X} ({char})"
-                                        )
-                except Exception as read_err:
-                    infractions.append(f"Failed to read {filepath}: {read_err}")
-
-    assert not infractions, (
-        f"Found {len(infractions)} emoji infractions:\n"
-        + "\n".join(infractions[:10])
+    assert not infractions, f"Found {len(infractions)} emoji infractions:\n" + "\n".join(
+        infractions[:10]
     )
-

@@ -66,6 +66,12 @@ def test_config_loader_from_file(tmp_path: Path) -> None:
     assert cfg.adapters.default_adapter == "minecraft"
 
 
+def test_config_loader_missing_explicit_file_raises() -> None:
+    """Verify loading from non-existent explicit config path raises FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
+        GamingMCPConfig.load("non_existent_config_file_path.json")
+
+
 def test_config_loader_env_override(monkeypatch: pytest.MonkeyPatch) -> None:
     """Verify environment variables override configuration defaults."""
     monkeypatch.setenv("GAMING_MCP_TRANSPORT", "sse")

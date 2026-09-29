@@ -178,6 +178,22 @@ async def test_prompt_registry() -> None:
     messages = await registry.render("game_strategy", {"game": "minecraft"})
     assert "minecraft" in messages[0]["content"]
 
+    # Test generator accepting dict arguments
+    async def _dict_generator(args: dict[str, Any]) -> dict[str, Any]:
+        return {"description": f"Strategy for {args.get('target', 'all')}", "messages": []}
+
+    registry.register("dict_prompt", _dict_generator)
+    dict_res = await registry.render("dict_prompt", {"target": "boss"})
+    assert dict_res["description"] == "Strategy for boss"
+
+    # Test generator with no arguments
+    async def _no_arg_generator() -> list[dict[str, Any]]:
+        return [{"role": "system", "content": "Default prompt"}]
+
+    registry.register("no_arg_prompt", _no_arg_generator)
+    no_arg_res = await registry.render("no_arg_prompt")
+    assert no_arg_res[0]["content"] == "Default prompt"
+
     with pytest.raises(KeyError):
         await registry.render("missing_prompt")
 

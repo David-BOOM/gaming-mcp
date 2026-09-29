@@ -43,6 +43,8 @@ from gaming_mcp.schemas.game_control import (
 from gaming_mcp.utils.image import draw_set_of_marks_grid, encode_image, image_to_base64
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from gaming_mcp.config import GamingMCPConfig
     from gaming_mcp.core.registries import PromptRegistry, ResourceRegistry, ToolRegistry
 
@@ -843,7 +845,7 @@ class ComputerUseAdapter(GameAdapter):
         action: ActionType | str | None = None,
         slot: int | None = None,
         chord: list[str] | None = None,
-        sequence: list[SequenceStep | dict[str, Any]] | None = None,
+        sequence: Sequence[SequenceStep | dict[str, Any]] | None = None,
         hold_duration_ms: int = 50,
         request_id: str | None = None,
         **kwargs: Any,
@@ -1046,11 +1048,7 @@ class ComputerUseAdapter(GameAdapter):
                 self.input_injector.release_all()
             if self.gamepad:
                 self.gamepad.reset()
-            completed = (
-                len(executed_steps)
-                if input_model and input_model.sequence
-                else 0
-            )
+            completed = len(executed_steps) if input_model and input_model.sequence else 0
             return {
                 "success": False,
                 "status": "cancelled",

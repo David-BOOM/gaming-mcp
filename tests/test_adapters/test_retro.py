@@ -652,3 +652,22 @@ def test_native_retro_backend_mock() -> None:
     # Close
     backend.close()
     mock_env.close.assert_called_once()
+
+
+def test_simulated_core_save_and_load_serialized_bytes() -> None:
+    """Verify SimulatedRetroCore can load states persisted as raw JSON bytes across instances."""
+    core1 = SimulatedRetroCore()
+    core1.score = 9999
+    core1.coins = 42
+    core1.lives = 5
+    raw_bytes = core1.save_state("slot_bytes")
+    assert isinstance(raw_bytes, bytes)
+
+    core2 = SimulatedRetroCore()
+    core2.saved_states["slot_bytes"] = raw_bytes
+    core2.load_state("slot_bytes")
+
+    assert core2.score == 9999
+    assert core2.coins == 42
+    assert core2.lives == 5
+    assert bytes(core2._ram) == bytes(core1._ram)

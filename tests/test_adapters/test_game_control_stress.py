@@ -160,6 +160,7 @@ def stress_harness() -> StressHarness:
 # 1. Boundary Parameter Tests
 # ===========================================================================
 
+
 @pytest.mark.asyncio
 async def test_boundary_invalid_movement_enum(stress_harness: StressHarness) -> None:
     """Verify invalid movement values are rejected by schema validation."""
@@ -256,8 +257,8 @@ async def test_boundary_malformed_chord_inputs(stress_harness: StressHarness) ->
     large_chord = ["ctrl", "alt", "shift", "f12", "space"]
     res_large = await adapter.game_control(chord=large_chord, hold_duration_ms=10)
     assert res_large["success"] is True
-    assert injector.keys_down[-len(large_chord):] == large_chord
-    assert injector.keys_up[-len(large_chord):] == list(reversed(large_chord))
+    assert injector.keys_down[-len(large_chord) :] == large_chord
+    assert injector.keys_up[-len(large_chord) :] == list(reversed(large_chord))
 
     # Invalid chord type (string instead of list)
     with pytest.raises(ValidationError):
@@ -299,8 +300,7 @@ async def test_boundary_huge_sequence_execution(stress_harness: StressHarness) -
 
     step_count = 100
     steps: list[SequenceItem] = [
-        {"movement": "forward", "hold_duration_ms": 0, "delay_ms": 0}
-        for _ in range(step_count)
+        {"movement": "forward", "hold_duration_ms": 0, "delay_ms": 0} for _ in range(step_count)
     ]
 
     res = await adapter.game_control(sequence=steps)
@@ -318,6 +318,7 @@ async def test_boundary_huge_sequence_execution(stress_harness: StressHarness) -
 # ===========================================================================
 # 2. Concurrency Stress Tests
 # ===========================================================================
+
 
 @pytest.mark.asyncio
 async def test_concurrency_rapid_sequential_calls(stress_harness: StressHarness) -> None:
@@ -344,10 +345,7 @@ async def test_concurrency_parallel_gather_calls(stress_harness: StressHarness) 
     adapter, _, _, _ = stress_harness
     await adapter.initialize()
 
-    tasks = [
-        adapter.game_control(movement="strafe_left", hold_duration_ms=0)
-        for _ in range(25)
-    ]
+    tasks = [adapter.game_control(movement="strafe_left", hold_duration_ms=0) for _ in range(25)]
     results = await asyncio.gather(*tasks)
 
     assert len(results) == 25
@@ -394,6 +392,7 @@ async def test_concurrency_high_load_mixed_workload(stress_harness: StressHarnes
 # ===========================================================================
 # 3. Cancellation Stress Tests
 # ===========================================================================
+
 
 @pytest.mark.asyncio
 async def test_cancellation_mid_sequence_aborts_and_releases(stress_harness: StressHarness) -> None:
@@ -499,6 +498,7 @@ async def test_cancellation_depth_unwinding(stress_harness: StressHarness) -> No
 # 4. Security Guardrail & Lifecycle Tests
 # ===========================================================================
 
+
 @pytest.mark.asyncio
 async def test_security_blacklist_rejection(stress_harness: StressHarness) -> None:
     """Verify game_control is blocked when the active window is a blacklisted process."""
@@ -561,6 +561,7 @@ async def test_tool_registry_mcp_validation_envelopes(stress_harness: StressHarn
 # 5. Advanced Adversarial Stress & Chaos Scenarios
 # ===========================================================================
 
+
 @pytest.mark.asyncio
 async def test_adversarial_cancellation_manager_abort(stress_harness: StressHarness) -> None:
     """Verify CancellationManager.cancel_request halts game_control and triggers motor reset."""
@@ -613,9 +614,7 @@ async def test_adversarial_concurrent_chaos_workload(stress_harness: StressHarne
             task_types.append("to_cancel")
         else:
             # Fast normal commands
-            t = asyncio.create_task(
-                adapter.game_control(movement="forward", hold_duration_ms=0)
-            )
+            t = asyncio.create_task(adapter.game_control(movement="forward", hold_duration_ms=0))
             tasks.append(t)
             task_types.append("normal")
 

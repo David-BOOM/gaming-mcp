@@ -9,12 +9,12 @@ from datetime import UTC, datetime
 from typing import Any
 
 import mcp.types as types
-from pydantic import BaseModel
 
 try:
-    from mcp.server.mcpserver import MCPServer  # type: ignore[import-not-found]
+    from mcp.server.mcpserver import MCPServer
 except ImportError:
-    from mcp.server.fastmcp.server import MCPServer  # type: ignore[attr-defined]
+    from mcp.server import MCPServer
+from pydantic import BaseModel
 
 from gaming_mcp import __version__
 from gaming_mcp.adapters.computer_use import ComputerUseAdapter
@@ -108,6 +108,13 @@ class GamingMCPServer:
             self.router.register_adapter(GymnasiumAdapter(self.config))
         except Exception as exc:
             logger.debug("Could not register GymnasiumAdapter: %s", exc)
+
+        try:
+            from gaming_mcp.adapters.typesafe_jev import TypeSafeJEVAdapter
+
+            self.router.register_adapter(TypeSafeJEVAdapter(self.config))
+        except Exception as exc:
+            logger.debug("Could not register TypeSafeJEVAdapter: %s", exc)
 
     async def initialize(self) -> None:
         """Execute default adapter startup lifecycle."""

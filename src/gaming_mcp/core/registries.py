@@ -279,7 +279,7 @@ class PromptDefinition:
 
     name: str
     description: str
-    generator: Callable[..., Awaitable[list[dict[str, Any]]]]
+    generator: Callable[..., Awaitable[Any]]
     arguments: list[dict[str, Any]] = field(default_factory=list)
 
 
@@ -292,7 +292,7 @@ class PromptRegistry:
     def register(
         self,
         name: str,
-        generator: Callable[..., Awaitable[list[dict[str, Any]]]],
+        generator: Callable[..., Awaitable[Any]],
         description: str = "",
         arguments: list[dict[str, Any]] | None = None,
     ) -> None:
@@ -318,7 +318,7 @@ class PromptRegistry:
 
     async def render(
         self, name: str, arguments: dict[str, Any] | None = None
-    ) -> list[dict[str, Any]]:
+    ) -> Any:
         """Render prompt template with provided arguments."""
         prompt = self._prompts.get(name)
         if not prompt:
@@ -327,4 +327,10 @@ class PromptRegistry:
         sig = inspect.signature(prompt.generator)
         if len(sig.parameters) == 0:
             return await prompt.generator()
-        return await prompt.generator(**args)
+        first_param = next(iter(sig.parameters.values()))
+        if len(sig.parameters) == 1 and first_param.name in ("args", "arguments"):
+            return await prompt.generator(args)
+        try:
+            return await prompt.generator(**args)
+        except TypeError:
+            return await prompt.generator(args)

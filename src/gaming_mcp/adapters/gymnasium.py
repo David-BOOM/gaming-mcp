@@ -336,9 +336,7 @@ class SimulatedCartPoleEnv:
         tip_x = pivot_x + pole_len * math.sin(theta)
         tip_y = pivot_y - pole_len * math.cos(theta)
 
-        draw.line(
-            [(pivot_x, pivot_y), (tip_x, tip_y)], fill=(205, 92, 92), width=int(pole_width)
-        )
+        draw.line([(pivot_x, pivot_y), (tip_x, tip_y)], fill=(205, 92, 92), width=int(pole_width))
 
         # Draw pivot pin
         pin_radius = 5.0
@@ -356,10 +354,7 @@ class SimulatedCartPoleEnv:
         font = ImageFont.load_default()
         hud_lines = [
             f"Env: CartPole-v1 (Simulated) | Step: {self.step_count}/{self.max_episode_steps}",
-            (
-                f"Position: {x:+.3f} m | "
-                f"Velocity: {self.state[1] if self.state else 0.0:+.3f} m/s"
-            ),
+            (f"Position: {x:+.3f} m | Velocity: {self.state[1] if self.state else 0.0:+.3f} m/s"),
             (
                 f"Angle: {theta:+.3f} rad ({math.degrees(theta):+.1f} deg) | "
                 f"Angular Vel: {self.state[3] if self.state else 0.0:+.3f} rad/s"
@@ -443,9 +438,7 @@ class NativeGymnasiumEnv:
         if action_space is not None:
             space_type = type(action_space).__name__
             if space_type == "Discrete":
-                parsed_action = (
-                    int(action[0]) if isinstance(action, (list, tuple)) else int(action)
-                )
+                parsed_action = int(action[0]) if isinstance(action, (list, tuple)) else int(action)
             elif space_type == "Box":
                 if isinstance(action, (int, float)):
                     parsed_action = np.array([action], dtype=action_space.dtype)
@@ -703,9 +696,7 @@ class GymnasiumAdapter(GameAdapter):
     # Reactive Subscriptions
     # -------------------------------------------------------------------------
 
-    def subscribe_resource(
-        self, uri: str, callback: Callable[[str, dict[str, Any]], None]
-    ) -> None:
+    def subscribe_resource(self, uri: str, callback: Callable[[str, dict[str, Any]], None]) -> None:
         """Register a reactive listener callback for resource updates."""
         if uri not in self._subscriptions:
             self._subscriptions[uri] = set()
@@ -758,9 +749,7 @@ class GymnasiumAdapter(GameAdapter):
     # Tool Implementations
     # -------------------------------------------------------------------------
 
-    async def _tool_gym_step(
-        self, action: int | list[float] | list[int]
-    ) -> dict[str, Any]:
+    async def _tool_gym_step(self, action: int | list[float] | list[int]) -> dict[str, Any]:
         """Step the active Gymnasium environment by executing an action."""
         if not self.is_initialized or self._env is None:
             raise AdapterError("GymnasiumAdapter is not initialized. Call initialize() first.")
@@ -869,7 +858,8 @@ class GymnasiumAdapter(GameAdapter):
         }
 
     async def _tool_gym_render(
-        self, format: Literal["png", "jpeg"] = "png"  # noqa: A002
+        self,
+        format: Literal["png", "jpeg"] = "png",  # noqa: A002
     ) -> dict[str, Any]:
         """Render current environment frame and return as base64 image."""
         if not self.is_initialized or self._env is None:

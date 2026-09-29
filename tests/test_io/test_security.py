@@ -56,6 +56,12 @@ def test_process_blacklist_guard() -> None:
     assert guard.is_blacklisted("taskmgr.exe") is True
     assert guard.is_blacklisted("credentialuibroker.exe") is True
 
+    # Full paths and extension-less
+    assert guard.is_blacklisted(r"C:\Windows\System32\cmd.exe") is True
+    assert guard.is_blacklisted("C:/Windows/System32/powershell.exe") is True
+    assert guard.is_blacklisted("cmd") is True
+    assert guard.is_blacklisted("powershell") is True
+
     # Allowed game processes
     assert guard.is_blacklisted("minecraft.exe") is False
     assert guard.is_blacklisted("javaw.exe") is False
