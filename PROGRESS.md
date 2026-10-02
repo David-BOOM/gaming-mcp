@@ -395,3 +395,42 @@ This document tracks all completed engineering iterations, empirical evidence li
   - `EVIDENCE/benchmark/benchmark_results.json` and `EVIDENCE/benchmark/benchmark_report.md` updated with fresh execution metrics.
 * **Next Target:** Maintain CI/CD passing state and zero-emoji compliance.
 
+---
+
+## Iteration 15 -- 2026-10-02: Security Guardrails, Win32 64-Bit Safety, Kill-Switch Latching, and Protocol Elicitation Hardening
+
+* **Milestone / Focus:** Phase 8 Milestone 8.1: Security Guardrails and Protocol Elicitation Hardening. Blindspot audit and comprehensive remediation.
+* **Deliverables Completed:**
+  - `src/gaming_mcp/io/process.py`:
+    - Configured Win32 64-bit ctypes prototypes for `ClientToScreen` and `MapWindowPoints` (`wintypes.HWND`, `ctypes.POINTER(wintypes.POINT)`).
+    - Mapped window `client_rect` to physical screen coordinates using `ClientToScreen` for top-left and bottom-right points.
+    - Implemented `_get_process_name_via_snapshot(pid)` fallback utilizing `CreateToolhelp32Snapshot` to resolve elevated administrative processes (`cmd.exe`, `powershell.exe`, `taskmgr.exe`, `wt.exe`) where `OpenProcess` returns access denied.
+  - `src/gaming_mcp/io/security.py`:
+    - Expanded `DEFAULT_BLACKLIST` with modern terminals and system binaries (`wt.exe`, `openconsole.exe`, `wsl.exe`, `bash.exe`, `consent.exe`, `rundll32.exe`).
+    - Latched input injector lock in `EmergencyKillSwitch.trigger()` and unlocked in `reset()`.
+  - `src/gaming_mcp/io/input.py`:
+    - Added `lock()`, `unlock()`, and `is_locked` methods to `Win32InputInjector`.
+    - Enforced `SafetyKillSwitchTriggered` exception in `_send_input`, `key_down`, and `mouse_move_absolute` when injector is locked, allowing safe key release.
+  - `src/gaming_mcp/io/timing.py`:
+    - Updated `ActionChunkScheduler` with `kill_switch` monitoring and `_get_stop_reason` checks before and after sleep intervals to cancel queued actions immediately upon kill-switch activation.
+  - `src/gaming_mcp/adapters/computer_use.py`:
+    - Wired adapter's `input_injector`, `gamepad`, and `kill_switch` into `ActionChunkScheduler` and `EmergencyKillSwitch`.
+    - Added security prompt checks in `_validate_active_window_blacklist` to block interaction with UAC dialogs and Windows Security windows.
+  - `src/gaming_mcp/core/elicitation.py`:
+    - Created `ElicitationGate`, `ElicitationRequest`, and `ElicitationResponse` implementing MCP `elicitation/createMessage` pattern for high-risk and irreversible operations with configurable timeouts, audit history, and `ElicitationDeniedError`.
+  - `src/gaming_mcp/core/registries.py`:
+    - Added `progress_callback` support to `ToolRegistry.execute`.
+    - Added `add_update_listener`, `remove_update_listener`, and `notify_updated` to `ResourceRegistry` for reactive push notifications.
+  - `src/gaming_mcp/server.py`:
+    - Integrated `self.elicitation = ElicitationGate()` into `GamingMCPServer`.
+  - Automated Test Suites:
+    - `tests/test_core/test_elicitation.py`: 6 tests verifying critical action registry, auto-approval, denied requests, approval handlers, rejection handlers, and timeouts.
+    - `tests/test_io/test_security_audit.py`: 12 tests verifying modern blacklist shells, input injector locking, kill-switch latching, action chunk scheduler abortion, and Win32 64-bit snapshot fallback.
+    - `tests/test_core/test_registries_progress.py`: 2 tests verifying tool progress callbacks and resource update listeners.
+* **Evidence:**
+    - Full test suite: 401/401 tests passing across 35 test suites in 15.15s.
+    - Ruff check: 0 errors/warnings across all source and test files.
+    - Mypy: 0 errors across 86 source files under strict type checking.
+    - Automated hygiene and emoji audit: 0 emoji infractions across 308 files and 124 git log entries.
+* **Next Target:** Stage, commit, and push per repository rules.
+

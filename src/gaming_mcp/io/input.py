@@ -252,6 +252,7 @@ class Win32InputInjector:
     def __init__(self) -> None:
         self._held_keys: set[str] = set()
         self._held_mouse_buttons: set[str] = set()
+        self._is_locked = False
         self._lock = threading.Lock()
         self.is_windows = IS_WINDOWS
 
@@ -262,8 +263,31 @@ class Win32InputInjector:
                 self._setup_user32_signatures()
                 get_input_executor()
 
-    def _send_input(self, inp: INPUT) -> bool:
+    def lock(self) -> None:
+        """Lock input injector, preventing any further physical actuation."""
+        with self._lock:
+            self._is_locked = True
+
+    def unlock(self) -> None:
+        """Unlock input injector after security remediation."""
+        with self._lock:
+            self._is_locked = False
+
+    @property
+    def is_locked(self) -> bool:
+        """Return True if input injector is currently locked."""
+        with self._lock:
+            return self._is_locked
+
+    def _send_input(self, inp: INPUT, is_release: bool = False) -> bool:
         """Dispatch SendInput with automatic input-desktop re-attachment on ERROR_ACCESS_DENIED."""
+        if not is_release and self.is_locked:
+            from gaming_mcp.core.exceptions import SafetyKillSwitchTriggered
+
+            raise SafetyKillSwitchTriggered(
+                "Input injection aborted: Emergency hardware kill-switch is active."
+            )
+
         if not self.is_windows or not self._user32:
             return True
 
@@ -368,7 +392,7 @@ class Win32InputInjector:
         inp.u.ki.time = 0
         inp.u.ki.dwExtraInfo = 0
 
-        return self._send_input(inp)
+        return self._send_input(inp, is_release=True)
 
     def press_key(
         self,
@@ -423,6 +447,13 @@ class Win32InputInjector:
 
     def mouse_move_absolute(self, x: int, y: int) -> bool:
         """Set absolute mouse cursor position."""
+        if self.is_locked:
+            from gaming_mcp.core.exceptions import SafetyKillSwitchTriggered
+
+            raise SafetyKillSwitchTriggered(
+                "Input injection aborted: Emergency hardware kill-switch is active."
+            )
+
         if not self.is_windows or not self._user32:
             logger.debug("Non-Windows mouse_move_absolute: x=%d, y=%d", x, y)
             return True
@@ -584,7 +615,7 @@ class Win32InputInjector:
         inp.u.mi.time = 0
         inp.u.mi.dwExtraInfo = 0
 
-        return self._send_input(inp)
+        return self._send_input(inp, is_release=True)
 
     def mouse_click(
         self,

@@ -1,5 +1,10 @@
 """Core protocol, registration, and lifecycle primitives."""
 
+from gaming_mcp.core.elicitation import (
+    ElicitationGate,
+    ElicitationRequest,
+    ElicitationResponse,
+)
 from gaming_mcp.core.exceptions import (
     AdapterError,
     AdapterInitializationError,
@@ -22,6 +27,9 @@ __all__ = [
     "CaptureError",
     "DXGICaptureError",
     "ElicitationDeniedError",
+    "ElicitationGate",
+    "ElicitationRequest",
+    "ElicitationResponse",
     "GamingMCPError",
     "InputInjectionError",
     "SafetyKillSwitchError",

@@ -19,7 +19,11 @@ from pydantic import BaseModel, Field
 from gaming_mcp.adapters.base import AdapterMetadata, GameAdapter
 from gaming_mcp.core.exceptions import (
     AdapterError,
+    SecurityViolationError,
 )
+
+if TYPE_CHECKING:
+    from gaming_mcp.core.cancellation import CancellationManager
 from gaming_mcp.io.audio import WASAPIAudioCapturer
 from gaming_mcp.io.gamepad import BaseGamepadController, get_gamepad_controller
 from gaming_mcp.io.input import Win32InputInjector
@@ -266,6 +270,7 @@ class ComputerUseAdapter(GameAdapter):
         audio_capturer: WASAPIAudioCapturer | None = None,
         window_manager: Win32WindowManager | None = None,
         action_scheduler: ActionChunkScheduler | None = None,
+        cancellation_manager: CancellationManager | None = None,
     ) -> None:
         super().__init__(config)
         self._custom_capturer = screen_capturer
@@ -274,6 +279,7 @@ class ComputerUseAdapter(GameAdapter):
         self._custom_audio = audio_capturer
         self._custom_window_mgr = window_manager
         self._custom_scheduler = action_scheduler
+        self.cancellation_manager = cancellation_manager
 
         self.screen_capturer: CompositeScreenCapturer | Any | None = None
         self.input_injector: Win32InputInjector | None = None
@@ -353,16 +359,7 @@ class ComputerUseAdapter(GameAdapter):
         else:
             self.window_manager = Win32WindowManager()
 
-        # 6. Action Chunk Scheduler
-        if self._custom_scheduler:
-            self.action_scheduler = self._custom_scheduler
-        else:
-            self.action_scheduler = ActionChunkScheduler(
-                input_injector=self.input_injector,
-                gamepad=self.gamepad,
-            )
-
-        # 7. Safety Guards
+        # 6. Safety Guards
         self.boundary_guard = WindowBoundaryGuard()
         additional_bl = (
             set(self.config.security.blacklisted_processes)
@@ -372,9 +369,24 @@ class ComputerUseAdapter(GameAdapter):
         self.blacklist_guard = ProcessBlacklistGuard(additional_blacklist=additional_bl)
 
         if self.config.security.enable_kill_switch:
-            self.kill_switch = EmergencyKillSwitch()
+            self.kill_switch = EmergencyKillSwitch(
+                input_injector=self.input_injector,
+                gamepad=self.gamepad,
+                cancellation_manager=self.cancellation_manager,
+            )
             self.kill_switch.add_callback(self._on_kill_switch)
             self.kill_switch.start()
+
+        # 7. Action Chunk Scheduler
+        if self._custom_scheduler:
+            self.action_scheduler = self._custom_scheduler
+        else:
+            self.action_scheduler = ActionChunkScheduler(
+                input_injector=self.input_injector,
+                gamepad=self.gamepad,
+                cancellation_manager=self.cancellation_manager,
+                kill_switch=self.kill_switch,
+            )
 
         # 8. Perceptual Gater
         self.perceptual_gater = PerceptualGater(threshold=self.config.screen.dhash_threshold)
@@ -1137,3 +1149,12 @@ class ComputerUseAdapter(GameAdapter):
         fg = self.window_manager.get_foreground_window()
         if fg:
             self.blacklist_guard.assert_not_blacklisted(fg.process_name, hwnd=fg.hwnd)
+            title_lower = fg.title.lower()
+            if any(
+                term in title_lower
+                for term in ["user account control", "windows security", "credential manager"]
+            ):
+                raise SecurityViolationError(
+                    "process_blacklist",
+                    f"Access to security prompt window '{fg.title}' is denied by security policy.",
+                )

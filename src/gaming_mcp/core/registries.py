@@ -1,6 +1,7 @@
 """Typed registries for MCP Tools, Resources, and Prompts."""
 
 import asyncio
+import contextlib
 import inspect
 import time
 from collections.abc import Awaitable, Callable
@@ -71,6 +72,9 @@ class ToolRegistry:
         arguments: dict[str, Any] | None = None,
         cancellation_manager: CancellationManager | None = None,
         request_id: str | None = None,
+        progress_callback: (
+            Callable[[float, float | None, str | None], Awaitable[None]] | None
+        ) = None,
     ) -> dict[str, Any]:
         """Execute a tool with argument validation and error envelope handling."""
         tool = self._tools.get(name)
@@ -103,14 +107,18 @@ class ToolRegistry:
             cancellation_manager.register_task(request_id, current_task)
 
         try:
-            # Inspect handler signature to pass arguments appropriately
+            # Inspect handler signature to pass arguments and optional progress callback
             sig = inspect.signature(tool.handler)
+            call_kwargs = dict(parsed_args)
+            if "progress_callback" in sig.parameters and progress_callback is not None:
+                call_kwargs["progress_callback"] = progress_callback
+
             if len(sig.parameters) == 0:
                 result = await tool.handler()
             elif len(sig.parameters) == 1 and next(iter(sig.parameters.keys())) == "args":
-                result = await tool.handler(parsed_args)
+                result = await tool.handler(call_kwargs)
             else:
-                result = await tool.handler(**parsed_args)
+                result = await tool.handler(**call_kwargs)
 
             elapsed_ms = (time.perf_counter() - start_time) * 1000.0
 
@@ -169,6 +177,26 @@ class ResourceRegistry:
 
     def __init__(self) -> None:
         self._resources: dict[str, ResourceDefinition] = {}
+        self._update_listeners: list[Callable[[str], Awaitable[None]]] = []
+
+    def add_update_listener(self, listener: Callable[[str], Awaitable[None]]) -> None:
+        """Register asynchronous callback for resource update events."""
+        if listener not in self._update_listeners:
+            self._update_listeners.append(listener)
+
+    def remove_update_listener(self, listener: Callable[[str], Awaitable[None]]) -> None:
+        """Unregister callback for resource update events."""
+        if listener in self._update_listeners:
+            self._update_listeners.remove(listener)
+
+    async def notify_updated(self, uri: str) -> None:
+        """Broadcast resource update event to all registered listeners."""
+        res = self._resources.get(uri)
+        if not res:
+            return
+        for listener in list(self._update_listeners):
+            with contextlib.suppress(Exception):
+                await listener(uri)
 
     def register(
         self,
@@ -316,9 +344,7 @@ class PromptRegistry:
         """Return all registered prompt definitions."""
         return list(self._prompts.values())
 
-    async def render(
-        self, name: str, arguments: dict[str, Any] | None = None
-    ) -> Any:
+    async def render(self, name: str, arguments: dict[str, Any] | None = None) -> Any:
         """Render prompt template with provided arguments."""
         prompt = self._prompts.get(name)
         if not prompt:

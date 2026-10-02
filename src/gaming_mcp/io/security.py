@@ -42,6 +42,12 @@ DEFAULT_BLACKLIST: set[str] = {
     "mmc.exe",
     "explorer.exe",
     "conhost.exe",
+    "wt.exe",
+    "openconsole.exe",
+    "wsl.exe",
+    "bash.exe",
+    "consent.exe",
+    "rundll32.exe",
 }
 
 # Win32 Virtual Key Codes for Kill-Switch
@@ -201,9 +207,11 @@ class EmergencyKillSwitch:
             "EMERGENCY HARDWARE KILL-SWITCH TRIGGERED: Halting all input actuation immediately."
         )
 
-        # 1. Release all keyboard and mouse keys
+        # 1. Release all keyboard and mouse keys and latch injector lock
         try:
             self.input_injector.release_all()
+            if hasattr(self.input_injector, "lock"):
+                self.input_injector.lock()
         except Exception as exc:
             logger.error("Error releasing keys on kill-switch trigger: %s", exc)
 
@@ -237,6 +245,8 @@ class EmergencyKillSwitch:
         """Reset triggered state after security remediation."""
         with self._lock:
             self._is_triggered = False
+        if hasattr(self.input_injector, "unlock"):
+            self.input_injector.unlock()
 
     def assert_not_triggered(self) -> None:
         """Raise SafetyKillSwitchTriggered if kill-switch is active."""

@@ -386,7 +386,6 @@ This document provides the authoritative reference specification for all Model C
 | -32001 | `AdapterNotFoundError`       | Requested `adapter_id` not found in registry. Call `server_health` to view available adapters. |
 | -32002 | `AdapterInitializationError` | Hardware driver or child process failed to start. Verify prerequisites. |
 | -32003 | `CaptureError`               | Frame acquisition failure. Capturer automatically falls back to MSS. |
-| -32004 | `InputInjectionError`        | Hardware scan code or virtual gamepad write failed. |
-| -32010 | `SecurityViolationError`     | Action blocked by window boundary clipping or process blacklist. |
-| -32015 | `SkillExecutionError`        | Composite macro failed during step execution. |
-| -32020 | `ElicitationDeniedError`     | Human user denied authorization for an action. |
+| -32004 | `SecurityViolationError`     | Action blocked by window boundary clipping or process blacklist. |
+| -32005 | `SafetyKillSwitchError`      | Emergency hardware kill-switch activated. Input actuation locked. |
+| -32006 | `ElicitationDeniedError`     | Human user denied authorization for an action. |

@@ -9,11 +9,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 import mcp.types as types
-
-try:
-    from mcp.server.mcpserver import MCPServer
-except ImportError:
-    from mcp.server import MCPServer
+from mcp.server.mcpserver import MCPServer
 from pydantic import BaseModel
 
 from gaming_mcp import __version__
@@ -21,6 +17,7 @@ from gaming_mcp.adapters.computer_use import ComputerUseAdapter
 from gaming_mcp.adapters.router import AdapterRouter, SwitchAdapterInput
 from gaming_mcp.config import GamingMCPConfig, TransportType
 from gaming_mcp.core.cancellation import CancellationManager
+from gaming_mcp.core.elicitation import ElicitationGate
 from gaming_mcp.core.registries import PromptRegistry, ResourceRegistry, ToolRegistry
 
 logger = logging.getLogger("gaming_mcp.server")
@@ -69,6 +66,7 @@ class GamingMCPServer:
         self._is_shut_down = False
 
         self.cancellation_manager = CancellationManager()
+        self.elicitation = ElicitationGate()
         self.tools = ToolRegistry()
         self.resources = ResourceRegistry()
         self.prompts = PromptRegistry()

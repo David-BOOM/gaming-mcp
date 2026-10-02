@@ -58,6 +58,7 @@
      ```python
      try:
          import vgamepad
+
          gamepad = vgamepad.VX360Gamepad()
          gamepad_available = True
      except Exception as exc:

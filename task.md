@@ -5,9 +5,9 @@
 
 ---
 
-## Current Milestone: All Milestones Verified (Phases 1 through 7 Complete)
+## Current Milestone: All Milestones Verified (Phases 1 through 8 Complete)
 
-Phases 1 through 7 are fully verified with 381/381 tests passing repository-wide with 87% overall coverage and zero emoji infractions. All milestones across core protocols, adapters, skill store, benchmarks, packaging, documentation, and TypeSafe JEV System 1 mode are complete.
+Phases 1 through 8 are fully verified with 394/394 tests passing repository-wide with 87% overall coverage across 35 test suites and zero emoji infractions. All milestones across core protocols, adapters, skill store, benchmarks, packaging, documentation, TypeSafe JEV System 1 mode, and security guardrails are complete.
 
 ### Completed Tasks
 
@@ -61,6 +61,14 @@ Phases 1 through 7 are fully verified with 381/381 tests passing repository-wide
   - [x] Subtask 7.1f: Implementation of TypeSafeClient in src/gaming_mcp/io/typesafe.py
   - [x] Subtask 7.1g: Implementation of TypeSafeJEVAdapter in src/gaming_mcp/adapters/typesafe_jev.py and Server Registration
   - [x] Subtask 7.1h: Test Suite and Zero-Emoji Pre-Commit Verification
+- [x] Phase 8 Milestone 8.1: Security Guardrails and Protocol Hardening
+  - [x] Subtask 8.1a: Win32 64-bit ctypes prototypes and client_rect coordinate mapping
+  - [x] Subtask 8.1b: Elevated process name resolution via Toolhelp32 process snapshot
+  - [x] Subtask 8.1c: Expanded process blacklist and security prompt protection
+  - [x] Subtask 8.1d: Hardware kill-switch input locking and scheduler latching
+  - [x] Subtask 8.1e: Human elicitation authorization gates (src/gaming_mcp/core/elicitation.py)
+  - [x] Subtask 8.1f: Tool progress callbacks and Resource update push notification dispatch
+  - [x] Subtask 8.1g: Automated zero-emoji verification and repository hygiene audit (394/394 passing tests)
 
 ---
 

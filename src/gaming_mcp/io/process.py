@@ -24,6 +24,7 @@ IS_WINDOWS = sys.platform == "win32" or platform.system() == "Windows"
 # Win32 Window / Process Constants
 SW_RESTORE = 9
 PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+TH32CS_SNAPPROCESS = 0x00000002
 
 
 class WindowInfo(BaseModel):
@@ -113,6 +114,17 @@ class Win32WindowManager:
         self._user32.GetClientRect.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.RECT)]
         self._user32.GetClientRect.restype = wintypes.BOOL
 
+        self._user32.ClientToScreen.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.POINT)]
+        self._user32.ClientToScreen.restype = wintypes.BOOL
+
+        self._user32.MapWindowPoints.argtypes = [
+            wintypes.HWND,
+            wintypes.HWND,
+            ctypes.POINTER(wintypes.POINT),
+            wintypes.UINT,
+        ]
+        self._user32.MapWindowPoints.restype = ctypes.c_int
+
         self._user32.GetWindowThreadProcessId.argtypes = [
             wintypes.HWND,
             ctypes.POINTER(wintypes.DWORD),
@@ -152,8 +164,58 @@ class Win32WindowManager:
         ]
         self._kernel32.QueryFullProcessImageNameW.restype = wintypes.BOOL
 
+        if hasattr(self._kernel32, "CreateToolhelp32Snapshot"):
+            self._kernel32.CreateToolhelp32Snapshot.argtypes = [wintypes.DWORD, wintypes.DWORD]
+            self._kernel32.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
+        if hasattr(self._kernel32, "Process32FirstW"):
+            self._kernel32.Process32FirstW.argtypes = [wintypes.HANDLE, ctypes.c_void_p]
+            self._kernel32.Process32FirstW.restype = wintypes.BOOL
+        if hasattr(self._kernel32, "Process32NextW"):
+            self._kernel32.Process32NextW.argtypes = [wintypes.HANDLE, ctypes.c_void_p]
+            self._kernel32.Process32NextW.restype = wintypes.BOOL
+
         self._kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
         self._kernel32.CloseHandle.restype = wintypes.BOOL
+
+    def _get_process_name_via_snapshot(self, pid: int) -> str:
+        """Fallback to Toolhelp32 snapshot when OpenProcess is denied on elevated processes."""
+        if not self.is_windows or not self._kernel32 or pid <= 0:
+            return ""
+
+        class PROCESSENTRY32W(ctypes.Structure):
+            _fields_ = [
+                ("dwSize", wintypes.DWORD),
+                ("cntUsage", wintypes.DWORD),
+                ("th32ProcessID", wintypes.DWORD),
+                ("th32DefaultHeapID", ctypes.c_size_t),
+                ("th32ModuleID", wintypes.DWORD),
+                ("cntThreads", wintypes.DWORD),
+                ("th32ParentProcessID", wintypes.DWORD),
+                ("pcPriClassBase", ctypes.c_long),
+                ("dwFlags", wintypes.DWORD),
+                ("szExeFile", ctypes.c_wchar * 260),
+            ]
+
+        try:
+            h_snap = self._kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
+            if not h_snap or h_snap == wintypes.HANDLE(-1).value:
+                return ""
+
+            try:
+                entry = PROCESSENTRY32W()
+                entry.dwSize = ctypes.sizeof(PROCESSENTRY32W)
+                if self._kernel32.Process32FirstW(h_snap, ctypes.byref(entry)):
+                    while True:
+                        if entry.th32ProcessID == pid:
+                            return str(entry.szExeFile)
+                        if not self._kernel32.Process32NextW(h_snap, ctypes.byref(entry)):
+                            break
+            finally:
+                self._kernel32.CloseHandle(h_snap)
+        except Exception as exc:
+            logger.debug("Toolhelp32 snapshot failed for pid %d: %s", pid, exc)
+
+        return ""
 
     def get_process_name(self, pid: int) -> str:
         """Resolve executable name from process ID."""
@@ -161,18 +223,19 @@ class Win32WindowManager:
             return ""
 
         h_proc = self._kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
-        if not h_proc:
-            return ""
+        if h_proc:
+            try:
+                buf = ctypes.create_unicode_buffer(1024)
+                size = wintypes.DWORD(1024)
+                if self._kernel32.QueryFullProcessImageNameW(h_proc, 0, buf, ctypes.byref(size)):
+                    full_path = buf.value
+                    if full_path:
+                        return os.path.basename(full_path)
+            finally:
+                self._kernel32.CloseHandle(h_proc)
 
-        try:
-            buf = ctypes.create_unicode_buffer(1024)
-            size = wintypes.DWORD(1024)
-            if self._kernel32.QueryFullProcessImageNameW(h_proc, 0, buf, ctypes.byref(size)):
-                full_path = buf.value
-                return os.path.basename(full_path)
-            return ""
-        finally:
-            self._kernel32.CloseHandle(h_proc)
+        # Fallback to Toolhelp32 process snapshot if OpenProcess failed (e.g. elevated processes)
+        return self._get_process_name_via_snapshot(pid)
 
     def get_window_info(self, hwnd: int) -> WindowInfo | None:
         """Build WindowInfo structure for a specific window handle."""
@@ -203,15 +266,29 @@ class Win32WindowManager:
         else:
             rect = (0, 0, 0, 0)
 
-        # Client Rect
+        # Client Rect mapped to screen coordinates
         c_rect = wintypes.RECT()
         if self._user32.GetClientRect(hwnd, ctypes.byref(c_rect)):
-            client_rect = (
-                int(c_rect.left),
-                int(c_rect.top),
-                int(c_rect.right),
-                int(c_rect.bottom),
-            )
+            pt_tl = wintypes.POINT(int(c_rect.left), int(c_rect.top))
+            pt_br = wintypes.POINT(int(c_rect.right), int(c_rect.bottom))
+            if (
+                hasattr(self._user32, "ClientToScreen")
+                and self._user32.ClientToScreen(hwnd, ctypes.byref(pt_tl))
+                and self._user32.ClientToScreen(hwnd, ctypes.byref(pt_br))
+            ):
+                client_rect = (
+                    int(pt_tl.x),
+                    int(pt_tl.y),
+                    int(pt_br.x),
+                    int(pt_br.y),
+                )
+            else:
+                client_rect = (
+                    int(c_rect.left),
+                    int(c_rect.top),
+                    int(c_rect.right),
+                    int(c_rect.bottom),
+                )
         else:
             client_rect = (0, 0, 0, 0)
 

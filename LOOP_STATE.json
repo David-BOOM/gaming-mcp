@@ -1,10 +1,10 @@
 {
   "project": "gaming-mcp",
-  "current_phase": 7,
-  "current_milestone": "7.1",
+  "current_phase": 8,
+  "current_milestone": "8.1",
   "active_task": "all-milestones-verified",
-  "iteration_count": 14,
-  "last_checkpoint_commit": "270e626",
+  "iteration_count": 15,
+  "last_checkpoint_commit": "1c9f5c9",
   "tasks": {
     "1.1": {
       "name": "MCP Protocol Engine",
@@ -152,6 +152,20 @@
         {"id": "7.1f", "name": "Implementation of TypeSafeClient in typesafe.py", "status": "verified"},
         {"id": "7.1g", "name": "Implementation of TypeSafeJEVAdapter and Server Registration", "status": "verified"},
         {"id": "7.1h", "name": "Test Suite and Zero-Emoji Pre-Commit Verification", "status": "verified"}
+      ]
+    },
+    "8.1": {
+      "name": "Security Guardrails and Protocol Elicitation Hardening",
+      "phase": 8,
+      "status": "verified",
+      "subtasks": [
+        {"id": "8.1a", "name": "Win32 64-bit ctypes prototypes and client_rect coordinate mapping", "status": "verified"},
+        {"id": "8.1b", "name": "Elevated process name resolution via Toolhelp32 process snapshot", "status": "verified"},
+        {"id": "8.1c", "name": "Expanded process blacklist and security prompt protection", "status": "verified"},
+        {"id": "8.1d", "name": "Hardware kill-switch input locking and scheduler latching", "status": "verified"},
+        {"id": "8.1e", "name": "Human elicitation authorization gates (ElicitationGate)", "status": "verified"},
+        {"id": "8.1f", "name": "Tool progress callbacks and Resource update push notification dispatch", "status": "verified"},
+        {"id": "8.1g", "name": "Automated zero-emoji verification and repository hygiene audit", "status": "verified"}
       ]
     }
   },

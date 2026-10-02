@@ -127,3 +127,36 @@ Connecting TypeSafe JEV introduces a structured discrete decision mechanism into
 ### C. Architectural Verdict
 The TypeSafeJEVAdapter design fully conforms to MCP specification and Gaming MCP's dual-paradigm architecture. Implementation and end-to-end testing are fully completed and verified with 381/381 automated tests passing repository-wide (87% coverage across 6,263 statements) and zero emoji infractions.
 
+---
+
+## 7. Blindspot Audit & Protocol Hardening Review
+
+**Audit Date:** 2026-10-02
+**Evaluation Scope:** Exhaustive System Blindspot Audit, Win32 64-bit Safety, Process Blacklist Elevation, Emergency Kill-Switch Latching, and MCP Human Elicitation Conformance
+**Audit Protocol:** Multi-Layered Static Analysis, Win32 Subsystem Inspection, and Automated Verification
+
+### A. Critical Blindspots Identified & Remediated
+1. **Win32 64-Bit Pointer Truncation in Coordinate Mapping**:
+   - *Vulnerability*: `ClientToScreen` and `MapWindowPoints` lacked explicit `argtypes` and `restype` signatures. On 64-bit Windows, passing 64-bit window handles without explicit `wintypes.HWND` truncated pointers to 32-bit `c_int`, causing coordinate translations to fail or zero out.
+   - *Remediation*: Explicitly configured `argtypes` (`wintypes.HWND`, `ctypes.POINTER(wintypes.POINT)`) and `restype` (`wintypes.BOOL`) in `src/gaming_mcp/io/process.py`.
+2. **Window Client Rect vs Physical Screen Rect Confusion**:
+   - *Vulnerability*: `GetClientRect` returns coordinates relative to the client area origin `(0, 0, width, height)`. Clamping or injecting coordinates against this rect improperly targeted the top-left corner of the primary display.
+   - *Remediation*: Translated `client_rect` top-left and bottom-right points to screen coordinates via `ClientToScreen` in `WindowInfo` construction.
+3. **Elevated Process Blacklist Bypass**:
+   - *Vulnerability*: `OpenProcess` with `PROCESS_QUERY_LIMITED_INFORMATION` returns access denied when querying administrative processes (e.g. elevated PowerShell, CMD, Task Manager). The resulting empty process name bypassed `assert_not_blacklisted`.
+   - *Remediation*: Implemented `_get_process_name_via_snapshot(pid)` utilizing `CreateToolhelp32Snapshot` process list traversal as a reliable unprivileged fallback to identify elevated executables.
+4. **Modern Shell Blacklist Gaps**:
+   - *Vulnerability*: Windows Terminal (`wt.exe`), OpenConsole (`openconsole.exe`), WSL (`wsl.exe`), Git Bash (`bash.exe`), UAC Consent (`consent.exe`), and `rundll32.exe` were missing from default protection.
+   - *Remediation*: Added all modern shell environments and security dialog executables to `DEFAULT_BLACKLIST` in `src/gaming_mcp/io/security.py`. Added security dialog title matching in `_validate_active_window_blacklist`.
+5. **Emergency Kill-Switch Actuation Lock Missing**:
+   - *Vulnerability*: Triggering `EmergencyKillSwitch` released depressed keys but did not prevent subsequent tool invocations from immediately dispatching new inputs or executing queued action chunks.
+   - *Remediation*: Added `lock()`, `unlock()`, and `is_locked` to `Win32InputInjector`. Triggering the kill-switch latches the lock state and cancels running sequences in `ActionChunkScheduler`.
+6. **MCP Human Elicitation Gate Unimplemented**:
+   - *Vulnerability*: Destructive operations (save file deletion, overwrite, in-game purchases) lacked a formal MCP `elicitation/createMessage` authorization gate.
+   - *Remediation*: Implemented `ElicitationGate`, `ElicitationRequest`, and `ElicitationResponse` in `src/gaming_mcp/core/elicitation.py`, raising `ElicitationDeniedError` on decline or timeout. Wired into `GamingMCPServer`.
+
+### B. Audit Verification Outcome
+* Automated Test Suite: 394/394 tests passing across 35 test suites in 14.00s.
+* Static Analysis: Ruff 0 errors/warnings across 86 files; Mypy strict 0 errors across 86 files.
+* Repository Hygiene: Automated Unicode verification confirming strictly 0 emoji infractions across 308 files and 124 git log entries.
+

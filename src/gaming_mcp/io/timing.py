@@ -60,13 +60,30 @@ class ActionChunkScheduler:
         input_injector: Win32InputInjector | None = None,
         gamepad: BaseGamepadController | None = None,
         cancellation_manager: CancellationManager | None = None,
+        kill_switch: Any | None = None,
     ) -> None:
         self.input_injector = input_injector or Win32InputInjector()
         self.gamepad = gamepad or get_gamepad_controller()
         self.cancellation_manager = cancellation_manager
+        self.kill_switch = kill_switch
 
         if self.cancellation_manager is not None:
             self.cancellation_manager.register_callback(self.emergency_reset)
+        if self.kill_switch is not None and hasattr(self.kill_switch, "add_callback"):
+            self.kill_switch.add_callback(self.emergency_reset)
+
+    def _get_stop_reason(self, cancellation_token: asyncio.Event | None) -> str | None:
+        """Check if action execution must be immediately aborted."""
+        if cancellation_token is not None and cancellation_token.is_set():
+            return "Cancellation token fired"
+        if (
+            self.kill_switch is not None
+            and getattr(self.kill_switch, "is_triggered", False) is True
+        ):
+            return "Emergency hardware kill-switch is active"
+        if getattr(self.input_injector, "is_locked", False) is True:
+            return "Input injector is locked by emergency kill-switch"
+        return None
 
     def emergency_reset(self) -> None:
         """Immediately release all held keys, mouse buttons, and gamepad controls."""
@@ -91,13 +108,14 @@ class ActionChunkScheduler:
         executed_count = 0
 
         for item in sorted_actions:
-            # 1. Check cancellation before sleeping
-            if cancellation_token is not None and cancellation_token.is_set():
+            # 1. Check cancellation and kill-switch before sleeping
+            stop_reason = self._get_stop_reason(cancellation_token)
+            if stop_reason:
                 self.emergency_reset()
                 return {
                     "status": "cancelled",
                     "executed_count": executed_count,
-                    "reason": "Cancellation token fired prior to action dispatch",
+                    "reason": stop_reason,
                     "duration_ms": round((time.perf_counter() - start_time) * 1000.0, 2),
                 }
 
@@ -114,13 +132,14 @@ class ActionChunkScheduler:
             while time.perf_counter() < target_time:
                 pass
 
-            # 3. Check cancellation again after wake-up
-            if cancellation_token is not None and cancellation_token.is_set():
+            # 3. Check cancellation and kill-switch again after wake-up
+            stop_reason = self._get_stop_reason(cancellation_token)
+            if stop_reason:
                 self.emergency_reset()
                 return {
                     "status": "cancelled",
                     "executed_count": executed_count,
-                    "reason": "Cancellation token fired after sleep wait",
+                    "reason": stop_reason,
                     "duration_ms": round((time.perf_counter() - start_time) * 1000.0, 2),
                 }
 
