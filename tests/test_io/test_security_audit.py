@@ -1,5 +1,6 @@
 """Security guardrails, Win32 64-bit safety, and kill-switch latching tests."""
 
+from collections.abc import Callable
 import ctypes
 import os
 import sys
@@ -104,7 +105,7 @@ def test_win32_input_injector_all_actuation_blocked_when_locked() -> None:
     injector = Win32InputInjector()
     injector.lock()
 
-    actuation_calls = [
+    actuation_calls: list[Callable[[], object]] = [
         lambda: injector.key_down("a"),
         lambda: injector.mouse_down("left"),
         lambda: injector.mouse_move_absolute(50, 50),
