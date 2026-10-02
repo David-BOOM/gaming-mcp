@@ -1,12 +1,16 @@
 """Security guardrails, Win32 64-bit safety, and kill-switch latching tests."""
 
-from collections.abc import Callable
+from __future__ import annotations
+
 import ctypes
 import os
 import sys
 from ctypes import wintypes
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 import pytest
 
