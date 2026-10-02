@@ -346,6 +346,13 @@ class Win32InputInjector:
 
     def key_down(self, key: str) -> bool:
         """Inject a hardware scan-code key down event and track active hold."""
+        if self.is_locked:
+            from gaming_mcp.core.exceptions import SafetyKillSwitchTriggered
+
+            raise SafetyKillSwitchTriggered(
+                "Input injection rejected: Emergency hardware kill-switch is latched."
+            )
+
         scan_code, is_extended = self.resolve_scan_code(key)
 
         with self._lock:
@@ -430,6 +437,13 @@ class Win32InputInjector:
 
     def mouse_move_relative(self, dx: int, dy: int) -> bool:
         """Inject a relative mouse motion event (MOUSEEVENTF_MOVE). Essential for 3D camera."""
+        if self.is_locked:
+            from gaming_mcp.core.exceptions import SafetyKillSwitchTriggered
+
+            raise SafetyKillSwitchTriggered(
+                "Input injection rejected: Emergency hardware kill-switch is latched."
+            )
+
         if not self.is_windows or not self._user32:
             logger.debug("Non-Windows mouse_move_relative: dx=%d, dy=%d", dx, dy)
             return True
@@ -565,6 +579,13 @@ class Win32InputInjector:
 
     def mouse_down(self, button: str = "left") -> bool:
         """Inject mouse button down event."""
+        if self.is_locked:
+            from gaming_mcp.core.exceptions import SafetyKillSwitchTriggered
+
+            raise SafetyKillSwitchTriggered(
+                "Input injection rejected: Emergency hardware kill-switch is latched."
+            )
+
         btn = button.lower()
         with self._lock:
             self._held_mouse_buttons.add(btn)

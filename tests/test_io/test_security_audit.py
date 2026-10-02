@@ -313,3 +313,137 @@ def test_client_rect_screen_coordinate_mapping_mock() -> None:
         assert info.rect == (100, 200, 900, 800)
         # Client rect must be offset to absolute screen coordinates: (108, 231, 892, 792)
         assert info.client_rect == (108, 231, 892, 792)
+
+
+def test_win32_input_injector_no_state_pollution_when_locked() -> None:
+    """When locked, key and mouse presses must not pollute internal held sets."""
+    injector = Win32InputInjector()
+    injector.lock()
+    assert injector.is_locked is True
+
+    with pytest.raises(SafetyKillSwitchTriggered):
+        injector.key_down("w")
+    with pytest.raises(SafetyKillSwitchTriggered):
+        injector.mouse_down("left")
+    with pytest.raises(SafetyKillSwitchTriggered):
+        injector.mouse_move_relative(10, 10)
+
+    # State must remain pristine
+    assert len(injector.held_keys) == 0
+    assert len(injector.held_mouse_buttons) == 0
+
+
+def test_win32_input_injector_lock_enforced_in_mock_mode() -> None:
+    """Lock must be enforced unconditionally even on non-Windows platforms."""
+    injector = Win32InputInjector()
+    injector.is_windows = False
+    injector.lock()
+    assert injector.is_locked is True
+
+    with pytest.raises(SafetyKillSwitchTriggered):
+        injector.key_down("space")
+    with pytest.raises(SafetyKillSwitchTriggered):
+        injector.mouse_down("right")
+    with pytest.raises(SafetyKillSwitchTriggered):
+        injector.mouse_move_relative(5, -5)
+    with pytest.raises(SafetyKillSwitchTriggered):
+        injector.mouse_move_absolute(50, 50)
+
+
+def test_client_to_screen_failure_returns_zero_rect() -> None:
+    """ClientToScreen failure must yield (0, 0, 0, 0) rather than corrupt local coords."""
+    wm = Win32WindowManager()
+    assert wm._user32 is not None
+
+    def fake_get_window_rect(h: int, ref: Any) -> bool:
+        r = ctypes.cast(ref, ctypes.POINTER(wintypes.RECT)).contents
+        r.left, r.top, r.right, r.bottom = 100, 200, 900, 800
+        return True
+
+    def fake_get_client_rect(h: int, ref: Any) -> bool:
+        r = ctypes.cast(ref, ctypes.POINTER(wintypes.RECT)).contents
+        r.left, r.top, r.right, r.bottom = 0, 0, 800, 600
+        return True
+
+    with (
+        patch.object(wm._user32, "GetWindowRect", side_effect=fake_get_window_rect),
+        patch.object(wm._user32, "GetClientRect", side_effect=fake_get_client_rect),
+        patch.object(wm._user32, "ClientToScreen", return_value=False),
+    ):
+        info = wm.get_window_info(54321)
+        assert info is not None
+        assert info.client_rect == (0, 0, 0, 0)
+
+
+@pytest.mark.asyncio
+async def test_gamepad_control_rejected_when_kill_switch_active() -> None:
+    """ComputerUseAdapter must reject gamepad control when kill switch is triggered."""
+    from gaming_mcp.adapters.computer_use import ComputerUseAdapter
+    from gaming_mcp.config import GamingMCPConfig
+
+    adapter = ComputerUseAdapter(GamingMCPConfig())
+    await adapter.initialize()
+
+    # Trigger kill switch
+    assert adapter.kill_switch is not None
+    adapter.kill_switch.trigger()
+    assert adapter.kill_switch.is_triggered is True
+
+    with pytest.raises(SafetyKillSwitchTriggered):
+        await adapter._tool_gamepad_control(buttons_pressed=["A"])
+
+
+@pytest.mark.asyncio
+async def test_action_chunk_cancelled_reports_error_code() -> None:
+    """Action chunk abortion must report isError: True with code -32005."""
+    from gaming_mcp.adapters.computer_use import ComputerUseAdapter
+    from gaming_mcp.config import GamingMCPConfig
+
+    adapter = ComputerUseAdapter(GamingMCPConfig())
+    await adapter.initialize()
+
+    # Cancelled result simulation
+    with patch.object(
+        adapter.action_scheduler,
+        "execute_chunk",
+        return_value={"status": "cancelled", "reason": "Test abort"},
+    ):
+        res = await adapter._tool_execute_action_chunk(
+            actions=[{"type": "key_press", "offset_ms": 0, "parameters": {"key": "w"}}],
+            total_duration_ms=100,
+        )
+        assert res["isError"] is True
+        assert res["error_code"] == -32005
+        assert "Test abort" in res["content"][0]["text"]
+
+
+@pytest.mark.asyncio
+async def test_unidentifiable_foreground_window_fails_closed() -> None:
+    """On Windows, unidentifiable foreground window must fail closed."""
+    from gaming_mcp.adapters.computer_use import ComputerUseAdapter
+    from gaming_mcp.config import GamingMCPConfig
+    from gaming_mcp.io.process import WindowInfo
+
+    adapter = ComputerUseAdapter(GamingMCPConfig())
+    await adapter.initialize()
+    assert adapter.window_manager is not None
+
+    unidentifiable_win = WindowInfo(
+        hwnd=9999,
+        title="Protected Overlay",
+        class_name="UnknownClass",
+        process_id=4444,
+        process_name="",
+    )
+
+    with (
+        patch.object(adapter.window_manager, "is_windows", True),
+        patch.object(
+            adapter.window_manager,
+            "get_foreground_window",
+            return_value=unidentifiable_win,
+        ),
+    ):
+        with pytest.raises(SecurityViolationError) as exc_info:
+            adapter._validate_active_window_blacklist()
+        assert "unidentifiable foreground window" in str(exc_info.value).lower()

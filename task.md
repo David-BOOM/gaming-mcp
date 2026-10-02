@@ -7,7 +7,7 @@
 
 ## Current Milestone: All Milestones Verified (Phases 1 through 8 Complete)
 
-Phases 1 through 8 are fully verified with 401/401 tests passing repository-wide with 87% overall coverage across 35 test suites and zero emoji infractions. All milestones across core protocols, adapters, skill store, benchmarks, packaging, documentation, TypeSafe JEV System 1 mode, and security guardrails are complete.
+Phases 1 through 8 are fully verified with 412/412 tests passing repository-wide with 87% overall coverage across 35 test suites and zero emoji infractions. All milestones across core protocols, adapters, skill store, benchmarks, packaging, documentation, TypeSafe JEV System 1 mode, and security guardrails are complete.
 
 ### Completed Tasks
 
@@ -68,7 +68,8 @@ Phases 1 through 8 are fully verified with 401/401 tests passing repository-wide
   - [x] Subtask 8.1d: Hardware kill-switch input locking and scheduler latching
   - [x] Subtask 8.1e: Human elicitation authorization gates (src/gaming_mcp/core/elicitation.py)
   - [x] Subtask 8.1f: Tool progress callbacks and Resource update push notification dispatch
-  - [x] Subtask 8.1g: Automated zero-emoji verification and repository hygiene audit (394/394 passing tests)
+  - [x] Subtask 8.1g: Automated zero-emoji verification and repository hygiene audit
+  - [x] Subtask 8.1h: Blindspot check remediation: input lock state purity, kill-switch order race fix, SetThreadDesktop ctypes prototype, unidentifiable window fail-closed security, and MCP 3-state elicitation gate suite (412/412 passing tests)
 
 ---
 

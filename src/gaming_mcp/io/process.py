@@ -27,6 +27,27 @@ PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
 TH32CS_SNAPPROCESS = 0x00000002
 
 
+if IS_WINDOWS:
+
+    class PROCESSENTRY32W(ctypes.Structure):
+        _fields_ = [
+            ("dwSize", wintypes.DWORD),
+            ("cntUsage", wintypes.DWORD),
+            ("th32ProcessID", wintypes.DWORD),
+            ("th32DefaultHeapID", ctypes.c_size_t),
+            ("th32ModuleID", wintypes.DWORD),
+            ("cntThreads", wintypes.DWORD),
+            ("th32ParentProcessID", wintypes.DWORD),
+            ("pcPriClassBase", ctypes.c_long),
+            ("dwFlags", wintypes.DWORD),
+            ("szExeFile", ctypes.c_wchar * 260),
+        ]
+else:
+
+    class PROCESSENTRY32W(ctypes.Structure):  # type: ignore[no-redef]
+        _fields_ = []
+
+
 class WindowInfo(BaseModel):
     """Metadata describing an operating system window."""
 
@@ -153,6 +174,10 @@ class Win32WindowManager:
         self._user32.CloseDesktop.argtypes = [wintypes.HANDLE]
         self._user32.CloseDesktop.restype = wintypes.BOOL
 
+        if hasattr(self._user32, "SetThreadDesktop"):
+            self._user32.SetThreadDesktop.argtypes = [wintypes.HANDLE]
+            self._user32.SetThreadDesktop.restype = wintypes.BOOL
+
         self._kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
         self._kernel32.OpenProcess.restype = wintypes.HANDLE
 
@@ -168,10 +193,16 @@ class Win32WindowManager:
             self._kernel32.CreateToolhelp32Snapshot.argtypes = [wintypes.DWORD, wintypes.DWORD]
             self._kernel32.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
         if hasattr(self._kernel32, "Process32FirstW"):
-            self._kernel32.Process32FirstW.argtypes = [wintypes.HANDLE, ctypes.c_void_p]
+            self._kernel32.Process32FirstW.argtypes = [
+                wintypes.HANDLE,
+                ctypes.POINTER(PROCESSENTRY32W),
+            ]
             self._kernel32.Process32FirstW.restype = wintypes.BOOL
         if hasattr(self._kernel32, "Process32NextW"):
-            self._kernel32.Process32NextW.argtypes = [wintypes.HANDLE, ctypes.c_void_p]
+            self._kernel32.Process32NextW.argtypes = [
+                wintypes.HANDLE,
+                ctypes.POINTER(PROCESSENTRY32W),
+            ]
             self._kernel32.Process32NextW.restype = wintypes.BOOL
 
         self._kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
@@ -181,20 +212,6 @@ class Win32WindowManager:
         """Fallback to Toolhelp32 snapshot when OpenProcess is denied on elevated processes."""
         if not self.is_windows or not self._kernel32 or pid <= 0:
             return ""
-
-        class PROCESSENTRY32W(ctypes.Structure):
-            _fields_ = [
-                ("dwSize", wintypes.DWORD),
-                ("cntUsage", wintypes.DWORD),
-                ("th32ProcessID", wintypes.DWORD),
-                ("th32DefaultHeapID", ctypes.c_size_t),
-                ("th32ModuleID", wintypes.DWORD),
-                ("cntThreads", wintypes.DWORD),
-                ("th32ParentProcessID", wintypes.DWORD),
-                ("pcPriClassBase", ctypes.c_long),
-                ("dwFlags", wintypes.DWORD),
-                ("szExeFile", ctypes.c_wchar * 260),
-            ]
 
         try:
             h_snap = self._kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
@@ -207,7 +224,7 @@ class Win32WindowManager:
                 if self._kernel32.Process32FirstW(h_snap, ctypes.byref(entry)):
                     while True:
                         if entry.th32ProcessID == pid:
-                            return str(entry.szExeFile)
+                            return os.path.basename(str(entry.szExeFile))
                         if not self._kernel32.Process32NextW(h_snap, ctypes.byref(entry)):
                             break
             finally:
@@ -283,12 +300,7 @@ class Win32WindowManager:
                     int(pt_br.y),
                 )
             else:
-                client_rect = (
-                    int(c_rect.left),
-                    int(c_rect.top),
-                    int(c_rect.right),
-                    int(c_rect.bottom),
-                )
+                client_rect = (0, 0, 0, 0)
         else:
             client_rect = (0, 0, 0, 0)
 

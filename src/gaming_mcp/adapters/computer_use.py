@@ -583,7 +583,12 @@ class ComputerUseAdapter(GameAdapter):
             if win:
                 if self.blacklist_guard:
                     self.blacklist_guard.assert_not_blacklisted(win.process_name, hwnd=win.hwnd)
-                capture_region = (win.left, win.top, win.width, win.height)
+                c_w = win.client_rect[2] - win.client_rect[0]
+                c_h = win.client_rect[3] - win.client_rect[1]
+                if c_w > 0 and c_h > 0:
+                    capture_region = (win.client_rect[0], win.client_rect[1], c_w, c_h)
+                else:
+                    capture_region = (win.left, win.top, win.width, win.height)
 
         if region is not None and capture_region is None:
             if isinstance(region, dict):
@@ -747,6 +752,21 @@ class ComputerUseAdapter(GameAdapter):
         chunk = ActionChunk(actions=chunk_items, total_duration_ms=total_duration_ms)
 
         chunk_res = await self.action_scheduler.execute_chunk(chunk)
+        if chunk_res.get("status") == "cancelled":
+            reason = chunk_res.get(
+                "reason", "Cancelled by emergency kill-switch or cancellation request"
+            )
+            return {
+                "isError": True,
+                "error_code": -32005,
+                "content": [
+                    {
+                        "type": "text",
+                        "text": f"Action chunk execution aborted: {reason}",
+                    }
+                ],
+            }
+
         executed_count = chunk_res.get("executed_count", 0)
         elapsed_ms = float(chunk_res.get("duration_ms", 0.0))
 
@@ -771,6 +791,9 @@ class ComputerUseAdapter(GameAdapter):
         buttons_pressed: list[str] | None = None,
         duration_ms: int = 200,
     ) -> dict[str, Any]:
+        if self.kill_switch:
+            self.kill_switch.assert_not_triggered()
+
         if not self.gamepad:
             raise AdapterError("Gamepad controller is not initialized")
 
@@ -832,7 +855,12 @@ class ComputerUseAdapter(GameAdapter):
         if bring_to_front:
             self.window_manager.bring_to_front(win.hwnd)
 
-        self.bound_window_rect = (win.left, win.top, win.right, win.bottom)
+        c_w = win.client_rect[2] - win.client_rect[0]
+        c_h = win.client_rect[3] - win.client_rect[1]
+        if c_w > 0 and c_h > 0:
+            self.bound_window_rect = win.client_rect
+        else:
+            self.bound_window_rect = (win.left, win.top, win.right, win.bottom)
 
         return {
             "isError": False,
@@ -1133,7 +1161,12 @@ class ComputerUseAdapter(GameAdapter):
         if rect is None and self.window_manager:
             fg = self.window_manager.get_foreground_window()
             if fg and not fg.is_minimized:
-                rect = (fg.left, fg.top, fg.right, fg.bottom)
+                c_w = fg.client_rect[2] - fg.client_rect[0]
+                c_h = fg.client_rect[3] - fg.client_rect[1]
+                if c_w > 0 and c_h > 0:
+                    rect = fg.client_rect
+                else:
+                    rect = (fg.left, fg.top, fg.right, fg.bottom)
 
         if rect is not None:
             self.boundary_guard.set_rect(rect)
@@ -1148,6 +1181,14 @@ class ComputerUseAdapter(GameAdapter):
 
         fg = self.window_manager.get_foreground_window()
         if fg:
+            if not fg.process_name and self.window_manager.is_windows and fg.hwnd != 0:
+                raise SecurityViolationError(
+                    "process_blacklist",
+                    (
+                        f"Access to unidentifiable foreground window (HWND={fg.hwnd}) "
+                        "is denied by security policy."
+                    ),
+                )
             self.blacklist_guard.assert_not_blacklisted(fg.process_name, hwnd=fg.hwnd)
             title_lower = fg.title.lower()
             if any(

@@ -9,7 +9,7 @@ authorization is confirmed.
 import asyncio
 import logging
 from collections.abc import Awaitable, Callable
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, Field
 
@@ -43,6 +43,10 @@ class ElicitationResponse(BaseModel):
 
     action: str = Field(..., description="Action identifier")
     approved: bool = Field(..., description="True if authorization was granted")
+    decision: Literal["accept", "decline", "cancel"] = Field(
+        default="accept",
+        description="Official MCP 3-state action outcome",
+    )
     reason: str = Field(
         default="",
         description="Human justification or rejection explanation",
@@ -79,7 +83,9 @@ class ElicitationGate:
         self.default_timeout_sec = default_timeout_sec
         self.auto_approve = auto_approve
         self.handler = handler
-        self._critical_actions = set(critical_actions or self.DEFAULT_CRITICAL_ACTIONS)
+        self._critical_actions = {
+            a.lower().strip() for a in (critical_actions or self.DEFAULT_CRITICAL_ACTIONS)
+        }
         self._history: list[dict[str, Any]] = []
 
     def register_critical_action(self, action: str) -> None:
@@ -132,6 +138,7 @@ class ElicitationGate:
             response = ElicitationResponse(
                 action=action,
                 approved=True,
+                decision="accept",
                 reason="Auto-approved by configuration",
                 responder="auto_approver",
             )
@@ -146,6 +153,7 @@ class ElicitationGate:
             response = ElicitationResponse(
                 action=action,
                 approved=False,
+                decision="decline",
                 reason="No human elicitation handler registered",
                 responder="system",
             )
@@ -163,6 +171,7 @@ class ElicitationGate:
             response = ElicitationResponse(
                 action=action,
                 approved=False,
+                decision="cancel",
                 reason=f"Human elicitation timed out after {req_timeout:.1f}s",
                 responder="system",
             )
@@ -173,6 +182,7 @@ class ElicitationGate:
             response = ElicitationResponse(
                 action=action,
                 approved=False,
+                decision="cancel",
                 reason=f"Handler exception: {exc}",
                 responder="system",
             )
@@ -181,10 +191,11 @@ class ElicitationGate:
 
         self._record_history(request, response)
 
-        if not response.approved:
+        if not response.approved or response.decision != "accept":
             logger.warning(
-                "Human elicitation denied authorization for action '%s': %s",
+                "Human elicitation denied authorization for action '%s' (decision=%s): %s",
                 action,
+                response.decision,
                 response.reason,
             )
             raise ElicitationDeniedError(action)
@@ -199,11 +210,12 @@ class ElicitationGate:
                 "action": request.action,
                 "risk_level": request.risk_level,
                 "approved": response.approved,
+                "decision": response.decision,
                 "reason": response.reason,
                 "responder": response.responder,
             }
         )
 
     def get_history(self) -> list[dict[str, Any]]:
-        """Return history of all evaluated elicitation requests."""
-        return list(self._history)
+        """Return deep copy history of all evaluated elicitation requests."""
+        return [dict(record) for record in self._history]

@@ -207,13 +207,13 @@ class EmergencyKillSwitch:
             "EMERGENCY HARDWARE KILL-SWITCH TRIGGERED: Halting all input actuation immediately."
         )
 
-        # 1. Release all keyboard and mouse keys and latch injector lock
+        # 1. Latch injector lock FIRST to prevent concurrent injection, then release keys
         try:
-            self.input_injector.release_all()
             if hasattr(self.input_injector, "lock"):
                 self.input_injector.lock()
+            self.input_injector.release_all()
         except Exception as exc:
-            logger.error("Error releasing keys on kill-switch trigger: %s", exc)
+            logger.error("Error locking and releasing keys on kill-switch trigger: %s", exc)
 
         # 2. Reset virtual gamepad
         try:

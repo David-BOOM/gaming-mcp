@@ -155,8 +155,27 @@ The TypeSafeJEVAdapter design fully conforms to MCP specification and Gaming MCP
    - *Vulnerability*: Destructive operations (save file deletion, overwrite, in-game purchases) lacked a formal MCP `elicitation/createMessage` authorization gate.
    - *Remediation*: Implemented `ElicitationGate`, `ElicitationRequest`, and `ElicitationResponse` in `src/gaming_mcp/core/elicitation.py`, raising `ElicitationDeniedError` on decline or timeout. Wired into `GamingMCPServer`.
 
+7. **Input Injector State Pollution and Mock Bypass**:
+   - *Vulnerability*: In `Win32InputInjector`, `_held_keys` and `_held_mouse_buttons` were updated before checking lock status, causing phantom key releases upon later `release_all()`. Furthermore, mock mode (`is_windows=False`) bypassed lock checks entirely.
+   - *Remediation*: Placed lock verification before state updates and platform checks across `key_down`, `mouse_down`, and `mouse_move_relative`.
+8. **Emergency Kill-Switch Locking Order Race Condition**:
+   - *Vulnerability*: In `EmergencyKillSwitch.trigger()`, `release_all()` was executed before latching `lock()`, allowing concurrent threads to inject input between release and lock.
+   - *Remediation*: Inverted sequence to latch `lock()` before calling `release_all()`.
+9. **Unidentifiable Foreground Window Fail-Open**:
+   - *Vulnerability*: If an active foreground window could not resolve its process name, `assert_not_blacklisted("")` returned `True`, allowing unchecked actuation into unidentifiable windows.
+   - *Remediation*: Enforced fail-closed behavior in `_validate_active_window_blacklist`, rejecting input when active Windows processes cannot be resolved.
+10. **SetThreadDesktop 64-Bit Prototype and Toolhelp32 Struct Typing**:
+    - *Vulnerability*: `SetThreadDesktop` lacked ctypes `argtypes`/`restype`, and `PROCESSENTRY32W` was redefined locally in functions without typed pointer arguments.
+    - *Remediation*: Added explicit Win32 prototype for `SetThreadDesktop` and hoisted `PROCESSENTRY32W` to module scope with `ctypes.POINTER(PROCESSENTRY32W)` typing.
+11. **Virtual Gamepad Kill-Switch Bypass and Cancelled Chunk Reporting**:
+    - *Vulnerability*: Gamepad actuation bypassed kill switch assertions, and aborted action chunks returned `isError: False`.
+    - *Remediation*: Added `kill_switch.assert_not_triggered()` to gamepad control and explicit JSON-RPC error `-32005` return for cancelled action chunks.
+12. **MCP 3-State Elicitation and Immutability Audit**:
+    - *Vulnerability*: `ElicitationGate` constructor failed to normalize action strings, and `get_history()` returned shallow copies allowing internal state mutation.
+    - *Remediation*: Normalized action names, implemented deep dictionary copying in `get_history()`, and supported official MCP 3-state decisions (`accept`, `decline`, `cancel`).
+
 ### B. Audit Verification Outcome
-* Automated Test Suite: 401/401 tests passing across 35 test suites in 15.15s.
+* Automated Test Suite: 412/412 tests passing across 35 test suites in 14.21s.
 * Static Analysis: Ruff 0 errors/warnings across 86 files; Mypy strict 0 errors across 86 files.
-* Repository Hygiene: Automated Unicode verification confirming strictly 0 emoji infractions across 308 files and 124 git log entries.
+* Repository Hygiene: Automated Unicode verification confirming strictly 0 emoji infractions across 308 files and 130 git log entries.
 
