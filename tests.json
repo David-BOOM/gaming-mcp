@@ -1,145 +1,233 @@
 {
-  "last_updated": "2026-09-25T01:03:00Z",
+  "last_updated": "2026-09-29T10:44:52Z",
   "suites": [
     {
-      "path": "tests/test_scaffolding.py",
-      "passed": 10,
+      "path": "tests/test_adapters/test_computer_use.py",
+      "passed": 7,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 0.20,
-      "coverage_percent": 90.0
+      "duration_seconds": 0.26
     },
     {
-      "path": "tests/test_cancellation.py",
-      "passed": 3,
+      "path": "tests/test_adapters/test_game_control_stress.py",
+      "passed": 23,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 0.05,
-      "coverage_percent": 98.0
+      "duration_seconds": 0.27
     },
     {
-      "path": "tests/test_registries.py",
-      "passed": 5,
+      "path": "tests/test_adapters/test_gymnasium.py",
+      "passed": 19,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 0.08,
-      "coverage_percent": 95.0
+      "duration_seconds": 0.04
     },
     {
-      "path": "tests/test_server.py",
-      "passed": 6,
+      "path": "tests/test_adapters/test_minecraft.py",
+      "passed": 11,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 0.10,
-      "coverage_percent": 90.0
+      "duration_seconds": 4.01
+    },
+    {
+      "path": "tests/test_adapters/test_retro.py",
+      "passed": 19,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.06
     },
     {
       "path": "tests/test_adapters/test_router.py",
       "passed": 6,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 0.12,
-      "coverage_percent": 92.0
+      "duration_seconds": 0.02
     },
     {
-      "path": "tests/test_io/test_screen.py",
-      "passed": 4,
+      "path": "tests/test_adapters/test_typesafe_jev.py",
+      "passed": 16,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 0.40,
-      "coverage_percent": 86.0
+      "duration_seconds": 0.93
+    },
+    {
+      "path": "tests/test_benchmarks/test_evaluation.py",
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.6
+    },
+    {
+      "path": "tests/test_benchmarks/test_profiler.py",
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 1.46
+    },
+    {
+      "path": "tests/test_cancellation.py",
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.02
+    },
+    {
+      "path": "tests/test_distribution.py",
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.02
+    },
+    {
+      "path": "tests/test_game_control/test_e2e_game_control.py",
+      "passed": 87,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.66
     },
     {
       "path": "tests/test_io/test_audio.py",
       "passed": 5,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 0.15,
-      "coverage_percent": 81.0
-    },
-    {
-      "path": "tests/test_io/test_image.py",
-      "passed": 4,
-      "failed": 0,
-      "skipped": 0,
-      "duration_seconds": 0.10,
-      "coverage_percent": 88.0
-    },
-    {
-      "path": "tests/test_io/test_vision.py",
-      "passed": 4,
-      "failed": 0,
-      "skipped": 0,
-      "duration_seconds": 0.10,
-      "coverage_percent": 89.0
+      "duration_seconds": 1.01
     },
     {
       "path": "tests/test_io/test_curves.py",
       "passed": 7,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 0.10,
-      "coverage_percent": 98.0
-    },
-    {
-      "path": "tests/test_io/test_input.py",
-      "passed": 5,
-      "failed": 0,
-      "skipped": 0,
-      "duration_seconds": 0.35,
-      "coverage_percent": 84.0
+      "duration_seconds": 0.0
     },
     {
       "path": "tests/test_io/test_gamepad.py",
       "passed": 5,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 0.15,
-      "coverage_percent": 92.0
+      "duration_seconds": 0.01
     },
     {
-      "path": "tests/test_io/test_timing.py",
+      "path": "tests/test_io/test_image.py",
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.0
+    },
+    {
+      "path": "tests/test_io/test_input.py",
       "passed": 5,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 0.40,
-      "coverage_percent": 81.0
+      "duration_seconds": 0.23
+    },
+    {
+      "path": "tests/test_io/test_input_smooth.py",
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.01
     },
     {
       "path": "tests/test_io/test_process.py",
       "passed": 4,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 0.15,
-      "coverage_percent": 82.0
+      "duration_seconds": 0.01
+    },
+    {
+      "path": "tests/test_io/test_screen.py",
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.31
     },
     {
       "path": "tests/test_io/test_security.py",
       "passed": 4,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 0.20,
-      "coverage_percent": 88.0
+      "duration_seconds": 0.02
     },
     {
-      "path": "tests/test_adapters/test_computer_use.py",
+      "path": "tests/test_io/test_timing.py",
       "passed": 5,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 0.80,
-      "coverage_percent": 81.0
+      "duration_seconds": 0.12
     },
     {
-      "path": "tests/test_adapters/test_minecraft.py",
+      "path": "tests/test_io/test_vision.py",
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.01
+    },
+    {
+      "path": "tests/test_lifecycle_stress.py",
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 3.42
+    },
+    {
+      "path": "tests/test_registries.py",
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.0
+    },
+    {
+      "path": "tests/test_scaffolding.py",
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.01
+    },
+    {
+      "path": "tests/test_server.py",
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.55
+    },
+    {
+      "path": "tests/test_skills/test_compiler.py",
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.0
+    },
+    {
+      "path": "tests/test_skills/test_embeddings.py",
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.01
+    },
+    {
+      "path": "tests/test_skills/test_executor.py",
       "passed": 7,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 3.66,
-      "coverage_percent": 74.0
+      "duration_seconds": 0.03
+    },
+    {
+      "path": "tests/test_skills/test_manager.py",
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.02
+    },
+    {
+      "path": "tests/test_skills/test_store.py",
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.02
     }
   ],
-  "total_passed": 89,
+  "total_passed": 381,
   "total_failed": 0,
   "total_skipped": 0,
-  "overall_coverage_percent": 85.0
+  "overall_coverage_percent": 87.0
 }

@@ -33,7 +33,7 @@ This document provides the authoritative reference specification for all Model C
 #### `switch_adapter`
 * **Description:** Hot-swap the active game adapter at runtime without dropping client transport connections.
 * **Input Parameters:**
-  * `adapter_id` (string, required): Identifier of adapter to activate (`computer_use`, `minecraft`, `retro`, `gymnasium`).
+  * `adapter_id` (string, required): Identifier of adapter to activate (`computer_use`, `minecraft`, `retro`, `gymnasium`, `typesafe_jev`).
 
 ### Built-in Resources
 
@@ -317,7 +317,61 @@ This document provides the authoritative reference specification for all Model C
 
 ---
 
-## 7. Error Code Reference
+## 7. TypeSafe JEV System 1 Decision Adapter (`typesafe_jev`)
+
+### Tools
+
+#### `jev_evaluate_choice`
+* **Description:** Evaluate discrete candidate options against current game screen, audio, or text telemetry using the TypeSafe JEV System 1 model. Returns the selected choice, confidence score, and candidate probability distribution.
+* **Input Parameters:**
+  * `instructions` (string, required): Decision prompt directive explaining the choice context.
+  * `options` (dictionary of string to string, or array of strings, required): Candidate options mapping IDs to descriptions.
+  * `context_text` (string, optional): Additional text context or game telemetry.
+  * `capture_screen` (boolean, default false): Capture live display as visual state input.
+  * `capture_audio` (boolean, default false): Capture live audio as acoustic state input.
+  * `custom_image` (string, optional): Base64 data URL for custom visual state.
+  * `custom_audio` (string, optional): Base64 data URL for custom audio state.
+* **Return Payload:** `choice_id`, `choice_text`, `confidence`, `probabilities`, `latency_ms`.
+
+#### `jev_evaluate_score`
+* **Description:** Evaluate danger, risk, or tactical score across 2 to 10 ordinal levels using the TypeSafe JEV System 1 model. Returns continuous expected score index in range `[0.0, N-1.0]`, confidence score, and categorical legend.
+* **Input Parameters:**
+  * `instructions` (string, required): Scoring prompt directive.
+  * `criteria` (array of strings, 2-10 items, required): Ordinal scale level descriptions in ascending order.
+  * `context_text` (string, optional): Additional text context or telemetry.
+  * `capture_screen` (boolean, default false): Capture live display as visual state.
+  * `capture_audio` (boolean, default false): Capture live audio as acoustic state.
+  * `custom_image` (string, optional): Base64 data URL for custom visual state.
+  * `custom_audio` (string, optional): Base64 data URL for custom audio state.
+* **Return Payload:** `score_index`, `level_text`, `confidence`, `probabilities`, `latency_ms`.
+
+#### `jev_decide_and_act`
+* **Description:** Evaluate candidate actions and dispatch the winning motor actuation if decision confidence meets the specified confidence threshold.
+* **Input Parameters:**
+  * `instructions` (string, required): Decision directive for evaluating candidate actions.
+  * `actions` (dictionary of string to string or object, required): Mapping of action candidate name to key or input macro.
+  * `confidence_threshold` (number, range 0.0-1.0, default 0.5): Minimum confidence required to dispatch winning action.
+  * `execute` (boolean, default true): Whether to actuate input if confidence threshold is met.
+  * `context_text` (string, optional): Additional text context or telemetry.
+  * `capture_screen` (boolean, default false): Capture live display as visual state.
+  * `capture_audio` (boolean, default false): Capture live audio as acoustic state.
+* **Return Payload:** `winning_action`, `confidence`, `executed`, `threshold_met`, `probabilities`.
+
+### Resources
+
+#### `jev://telemetry`
+* **MIME Type:** `application/json`
+* **Description:** Operational telemetry including total request counts, average latency, and token consumption metrics.
+
+### Prompts
+
+#### `typesafe_tactical_scaffold`
+* **Description:** Guidance template for orchestrating LLMs to decompose game goals into JEV choices.
+* **Arguments:** `objective` (string, required), `current_state` (string, optional).
+
+---
+
+## 8. Error Code Reference
 
 `gaming-mcp` maps all exceptions to standardized JSON-RPC 2.0 error responses:
 

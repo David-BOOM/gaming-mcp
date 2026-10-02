@@ -207,3 +207,49 @@ In `config.json`, specify boundary clamping, process blacklists, and privacy red
 2. **Process Blacklist:** Before executing keyboard or mouse injections, the server inspects the process name of the active foreground window. If it matches an entry in `blacklisted_processes`, the action is blocked.
 3. **Privacy Redaction Zones:** Specified coordinate rectangles (such as the Windows Taskbar or system clock) are zeroed out with black fill before screenshot serialization.
 4. **Emergency Hardware Kill-Switch:** A dedicated background thread monitors global low-level keyboard input for `Ctrl + Alt + Shift + Pause/Break`. Pressing this combination instantaneously releases all held keys, resets virtual gamepad sticks, and clears the action queue.
+
+---
+
+## Recipe 6: Configuring TypeSafe JEV System 1 Decision Mode
+
+### Objective
+Enable fast discrete decision-making, categorical choice selection, and numerical risk scoring via TypeSafe JEV (`jev-1.13.0`) hosted on RelayRouter.
+
+### Step 1: Set Environment Variables
+Set your RelayRouter or TypeSafe API credentials:
+
+```powershell
+$env:RELAYROUTER_API_KEY="your-api-key-here"
+```
+
+Optionally override the model or base URL:
+```powershell
+$env:RELAYROUTER_BASE_URL="https://api.relayrouter.ai/v1"
+$env:RELAYROUTER_MODEL="jev-1.13.0"
+```
+
+### Step 2: Configure Adapter in config.json
+Specify the adapter configuration in `config.json`:
+
+```json
+{
+  "adapters": {
+    "default_adapter": "typesafe_jev",
+    "typesafe_jev": {
+      "enabled": true,
+      "base_url": "https://api.relayrouter.ai/v1",
+      "model": "jev-1.13.0",
+      "timeout_sec": 30.0,
+      "max_retries": 3
+    }
+  }
+}
+```
+
+### Step 3: Run the Server
+Launch the server with the `typesafe_jev` adapter active:
+
+```powershell
+uv run gaming-mcp --adapter typesafe_jev
+```
+

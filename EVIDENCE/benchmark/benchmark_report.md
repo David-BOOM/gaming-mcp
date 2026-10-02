@@ -1,6 +1,6 @@
 # Gaming MCP Server -- Benchmark Evaluation and Profiling Report
 
-* **Generated:** 2026-09-24T21:49:54Z
+* **Generated:** 2026-09-29T10:42:27Z
 * **Operating System:** win32
 * **Python Runtime:** 3.12.9
 * **Overall Status:** [PASS]
@@ -23,13 +23,13 @@ This report establishes empirical verification for Milestone 6.1 (Multi-Genre Be
 
 | Tier 3: Open World | Minecraft Pipeline | Completed | All 5 Stages | [PASS] |
 
-| Tier 4: Action | Reflex Tripwire Latency | 8.83 ms | < 25.0 ms | [PASS] |
+| Tier 4: Action | Reflex Tripwire Latency | 8.66 ms | < 25.0 ms | [PASS] |
 
 | Latency: DXGI Capture | p95 Acquisition Time | 5.177 ms | < 15.0 ms | [PASS] |
 
-| Latency: MSS Capture | p95 Acquisition Time | 13.363 ms | < 35.0 ms | [PASS] |
+| Latency: MSS Capture | p95 Acquisition Time | 12.399 ms | < 35.0 ms | [PASS] |
 
-| Latency: Scan-Code | p95 Injection Time | 0.343 ms | < 2.0 ms | [PASS] |
+| Latency: Scan-Code | p95 Injection Time | 0.426 ms | < 2.0 ms | [PASS] |
 
 | Latency: Gamepad Update | p95 Dispatch Time | 0.001 ms | < 1.0 ms | [PASS] |
 
@@ -41,16 +41,16 @@ This report establishes empirical verification for Milestone 6.1 (Multi-Genre Be
 ## 2. Multi-Genre Evaluation Matrix Details
 
 ### Tier 1: Turn-Based Strategy (Freeciv)
-* Games Evaluated: 20
-* Games Won: 20
+* Games Evaluated: 10
+* Games Won: 10
 * Win Rate: 100.0% (Target: > 75.0%)
-* Average Turns to Victory: 14.4
-* Average Map Exploration: 34.04%
+* Average Turns to Victory: 14.5
+* Average Map Exploration: 34.12%
 
 ### Tier 2: 2D Grid & Platformer (Minesweeper & Super Mario Bros)
-* Minesweeper Evaluated Games: 20
+* Minesweeper Evaluated Games: 10
 * Minesweeper Spatial Misclick Count: 0 (0.0% misclick rate)
-* Minesweeper Win Rate: 85.0%
+* Minesweeper Win Rate: 80.0%
 * Mario Level: World 1-1
 * Mario Completed: Yes
 * Final X Position: 3112 / 3100 px
@@ -73,7 +73,7 @@ This report establishes empirical verification for Milestone 6.1 (Multi-Genre Be
 * Final Health: 100 HP
 * Damage Taken: 0 HP
 * Street Fighter II Combo: Success
-* Average Reflex Tripwire Latency: 8.83 ms (Target: < 25.0 ms)
+* Average Reflex Tripwire Latency: 8.66 ms (Target: < 25.0 ms)
 
 ---
 
@@ -85,11 +85,11 @@ This report establishes empirical verification for Milestone 6.1 (Multi-Genre Be
 
 | DXGI Capture | 50 | 3.329 | 4.555 | 4.631 | 5.177 | 5.785 | < 15.0 ms | [PASS] |
 
-| MSS Capture | 50 | 9.308 | 11.841 | 11.188 | 13.363 | 48.697 | < 35.0 ms | [PASS] |
+| MSS Capture | 50 | 7.83 | 11.956 | 11.071 | 12.399 | 56.983 | < 35.0 ms | [PASS] |
 
-| Scan-Code Input | 50 | 0.208 | 0.278 | 0.263 | 0.343 | 0.495 | < 2.0 ms | [PASS] |
+| Scan-Code Input | 50 | 0.232 | 0.318 | 0.309 | 0.426 | 0.564 | < 2.0 ms | [PASS] |
 
-| Virtual Gamepad | 50 | 0.001 | 0.001 | 0.001 | 0.001 | 0.012 | < 1.0 ms | [PASS] |
+| Virtual Gamepad | 50 | 0.001 | 0.001 | 0.001 | 0.001 | 0.009 | < 1.0 ms | [PASS] |
 
 
 ---

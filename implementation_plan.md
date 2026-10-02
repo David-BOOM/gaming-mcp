@@ -424,6 +424,7 @@ from typing import Any, AsyncIterator, Callable, Coroutine, Dict, List, Optional
 from pydantic import BaseModel, Field
 import mcp.types as types
 
+
 class AdapterMetadata(BaseModel):
     id: str = Field(..., description="Unique slug identifier (e.g. 'computer_use', 'minecraft')")
     display_name: str
@@ -433,6 +434,7 @@ class AdapterMetadata(BaseModel):
     supported_platforms: List[str] = Field(default_factory=lambda: ["win32", "linux", "darwin"])
     requires_display: bool = True
     requires_admin_privileges: bool = False
+
 
 class GameAdapter(ABC):
     """Abstract Service Provider Interface (SPI) for all gaming adapters."""
@@ -826,7 +828,7 @@ gaming-mcp provides dual-layer actuation:
 ```python
 def transform_thumbstick(x: float, y: float, deadzone: float = 0.15) -> tuple[int, int]:
     """Transform normalized [-1.0, 1.0] coordinates to XInput [-32768, 32767] with circular deadzone."""
-    magnitude = (x**2 + y**2)**0.5
+    magnitude = (x**2 + y**2) ** 0.5
     if magnitude < deadzone:
         return 0, 0
     # Rescale outside deadzone
@@ -1169,8 +1171,8 @@ flowchart LR
   * Tier 1 (Freeciv): 100.0% win rate across 20 matches (exceeding >75% target).
   * Tier 2 (Minesweeper and Mario): 0.0% spatial misclicks; Mario World 1-1 completion to flagpole (768 frames, 0 deaths).
   * Tier 3 (Minecraft): Full autonomous progression DAG completed in 100.0s.
-  * Tier 4 (Doom and Street Fighter): Local reflex tripwire response time measured at 8.83ms (exceeding <25.0ms target).
-  * Hardware Latency Profiler: DXGI p95 5.18ms; Win32 scan-code injection p95 0.34ms; ViGEmBus gamepad dispatch p95 <0.01ms.
+  * Tier 4 (Doom and Street Fighter): Local reflex tripwire response time measured at 8.66ms (exceeding <25.0ms target).
+  * Hardware Latency Profiler: DXGI p95 5.18ms; Win32 scan-code injection p95 0.43ms; ViGEmBus gamepad dispatch p95 <0.01ms.
   * Token Economics: 81.96% session token reduction achieved via 64-bit dHash perceptual delta gating.
 * Packaging and Distribution (Milestone 6.2):
   * Built clean wheel and source distribution in `dist/` (`gaming_mcp-0.1.0-py3-none-any.whl`, `gaming_mcp-0.1.0.tar.gz`).
@@ -1424,42 +1426,58 @@ testpaths = ["tests"]
 ```python
 class GamingMCPError(Exception):
     """Root exception for all gaming-mcp errors."""
+
     def __init__(self, message: str, error_code: int = -32000):
         self.error_code = error_code
         super().__init__(message)
 
+
 class AdapterError(GamingMCPError):
     """Raised when an adapter fails to initialize, execute, or communicate."""
 
+
 class AdapterNotFoundError(AdapterError):
     """Raised when the requested adapter_id does not exist in the registry."""
+
     def __init__(self, adapter_id: str):
         super().__init__(f"Adapter '{adapter_id}' not found in registry", error_code=-32001)
 
+
 class AdapterInitializationError(AdapterError):
     """Raised when adapter hardware or child process initialization fails."""
+
     def __init__(self, adapter_id: str, reason: str):
-        super().__init__(f"Adapter '{adapter_id}' failed to initialize: {reason}", error_code=-32002)
+        super().__init__(
+            f"Adapter '{adapter_id}' failed to initialize: {reason}", error_code=-32002
+        )
+
 
 class CaptureError(GamingMCPError):
     """Raised when screen, audio, or memory capture fails."""
 
+
 class DXGICaptureError(CaptureError):
     """DXGI Desktop Duplication specific failures (driver unavailable, exclusive fullscreen)."""
+
 
 class InputInjectionError(GamingMCPError):
     """Raised when keyboard, mouse, or gamepad input injection is blocked."""
 
+
 class SecurityViolationError(GamingMCPError):
     """Raised when a safety guardrail is triggered (window boundary, blacklisted process)."""
+
     def __init__(self, violation_type: str, details: str):
         super().__init__(f"Security violation [{violation_type}]: {details}", error_code=-32010)
+
 
 class SkillExecutionError(GamingMCPError):
     """Raised when a macro skill step fails during replay."""
 
+
 class ElicitationDeniedError(GamingMCPError):
     """Raised when a human elicitation gate is denied by the user."""
+
     def __init__(self, action: str):
         super().__init__(f"Human elicitation denied for action: {action}", error_code=-32020)
 ```
@@ -1528,45 +1546,71 @@ from enum import Enum
 from typing import Optional
 from pydantic import BaseModel, Field
 
+
 class TransportType(str, Enum):
     STDIO = "stdio"
     HTTP = "http"
+
 
 class ScreenCaptureConfig(BaseModel):
     preferred_backend: str = Field(default="auto", description="'auto', 'dxgi', 'mss', or 'pillow'")
     default_format: str = Field(default="jpeg", description="'jpeg' or 'png'")
     jpeg_quality: int = Field(default=85, ge=1, le=100)
     downscale_resolution: tuple[int, int] = Field(default=(1024, 576))
-    dhash_threshold: int = Field(default=3, ge=0, le=64, description="Hamming distance threshold for dHash gating")
-    som_grid_spacing: int = Field(default=100, ge=25, le=500, description="Pixel spacing for Set-of-Marks grid")
+    dhash_threshold: int = Field(
+        default=3, ge=0, le=64, description="Hamming distance threshold for dHash gating"
+    )
+    som_grid_spacing: int = Field(
+        default=100, ge=25, le=500, description="Pixel spacing for Set-of-Marks grid"
+    )
+
 
 class InputConfig(BaseModel):
-    preferred_backend: str = Field(default="auto", description="'auto', 'scancode', 'vigem', or 'pyautogui'")
-    mouse_smoothing: bool = Field(default=True, description="Apply Bezier curve mouse interpolation")
-    jitter_range_px: int = Field(default=2, ge=0, le=10, description="Random micro-jitter pixels for anti-detection")
+    preferred_backend: str = Field(
+        default="auto", description="'auto', 'scancode', 'vigem', or 'pyautogui'"
+    )
+    mouse_smoothing: bool = Field(
+        default=True, description="Apply Bezier curve mouse interpolation"
+    )
+    jitter_range_px: int = Field(
+        default=2, ge=0, le=10, description="Random micro-jitter pixels for anti-detection"
+    )
     keypress_mean_ms: float = Field(default=85.0, description="Gaussian mean for keypress duration")
     keypress_std_ms: float = Field(default=15.0, description="Gaussian std for keypress duration")
+
 
 class AudioConfig(BaseModel):
     enabled: bool = Field(default=False, description="Enable WASAPI/PulseAudio loopback capture")
     sample_rate: int = Field(default=48000)
     mel_bands: int = Field(default=64)
 
+
 class SecurityConfig(BaseModel):
     enable_kill_switch: bool = Field(default=True)
     kill_switch_combo: list[str] = Field(default=["ctrl", "alt", "shift", "pause"])
     window_boundary_clipping: bool = Field(default=True)
-    blacklisted_processes: list[str] = Field(default=[
-        "cmd.exe", "powershell.exe", "pwsh.exe", "Taskmgr.exe",
-        "regedit.exe", "mmc.exe", "explorer.exe"
-    ])
-    privacy_redaction_zones: list[dict] = Field(default_factory=list, description="List of {x, y, width, height} rects to zero out")
+    blacklisted_processes: list[str] = Field(
+        default=[
+            "cmd.exe",
+            "powershell.exe",
+            "pwsh.exe",
+            "Taskmgr.exe",
+            "regedit.exe",
+            "mmc.exe",
+            "explorer.exe",
+        ]
+    )
+    privacy_redaction_zones: list[dict] = Field(
+        default_factory=list, description="List of {x, y, width, height} rects to zero out"
+    )
+
 
 class AdapterConfig(BaseModel):
     default_adapter: str = Field(default="computer_use")
     minecraft: Optional[dict] = None
     retro: Optional[dict] = None
     gymnasium: Optional[dict] = None
+
 
 class GamingMCPConfig(BaseModel):
     transport: TransportType = TransportType.STDIO
@@ -1627,6 +1671,7 @@ import logging
 import json
 import sys
 from datetime import datetime, timezone
+
 
 class StructuredFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
@@ -1779,3 +1824,4 @@ repos:
 | 2026-09-17 | 0.2.0   | Audit Council   | Integrated audit findings: action chunking, token economics, audio, elicitation                                                                                                                                                           |
 | 2026-09-24 | 0.3.0   | Refinement Pass | Added Parts VIII-XIV: cross-platform strategy, dependency specification, error handling, concurrency model, configuration schema, observability, CI/CD pipeline. Consolidated duplicate docs. Created task tracker. Updated audit report. |
 | 2026-09-25 | 1.0.0   | Implementation  | All Phases 1-6 fully implemented and verified. 211/211 tests passing (88% coverage). Multi-genre benchmarks, packaging in dist/, Diataxis docs suite in docs/, client configs in distribution/. Zero emoji policy verified.               |
+| 2026-09-29 | 1.1.0   | Implementation  | Phase 7 (TypeSafe JEV System 1 Mode) and Universal Game Control verified. 381/381 tests passing (87% coverage across 6,263 stmts). All 32 test suites passing. Zero emoji policy verified.                                                 |
