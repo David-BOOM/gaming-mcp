@@ -71,10 +71,12 @@ class GamingMCPServer:
         self.resources = ResourceRegistry()
         self.prompts = PromptRegistry()
         self.router = AdapterRouter()
+        self._active_sessions: set[Any] = set()
 
         self.mcp_server = MCPServer(name="gaming-mcp", version=__version__)
 
         self._setup_cancellation_handler()
+        self._setup_resource_subscription_handlers()
         self._register_builtin_tools()
         self._register_builtin_resources()
         self._register_builtin_adapters()
@@ -82,7 +84,13 @@ class GamingMCPServer:
     def _register_builtin_adapters(self) -> None:
         """Register built-in game adapters into the router."""
         try:
-            self.router.register_adapter(ComputerUseAdapter(self.config))
+            self.router.register_adapter(
+                ComputerUseAdapter(
+                    self.config,
+                    cancellation_manager=self.cancellation_manager,
+                    elicitation_gate=self.elicitation,
+                )
+            )
         except Exception as exc:
             logger.warning("Could not register ComputerUseAdapter: %s", exc)
 
@@ -96,7 +104,9 @@ class GamingMCPServer:
         try:
             from gaming_mcp.adapters.retro import RetroAdapter
 
-            self.router.register_adapter(RetroAdapter(self.config))
+            self.router.register_adapter(
+                RetroAdapter(self.config, elicitation_gate=self.elicitation)
+            )
         except Exception as exc:
             logger.debug("Could not register RetroAdapter: %s", exc)
 
@@ -149,6 +159,72 @@ class GamingMCPServer:
             )
         except Exception as exc:
             logger.warning("Could not bind lowlevel cancellation handler: %s", exc)
+
+    def _setup_resource_subscription_handlers(self) -> None:
+        """Hook resources/subscribe, resources/unsubscribe, and subscriptions/listen."""
+        try:
+            lowlevel = self.mcp_server._lowlevel_server
+
+            async def _on_subscribe(
+                context: Any, params: types.SubscribeRequestParams
+            ) -> types.EmptyResult:
+                uri = str(params.uri)
+                logger.info("Received resources/subscribe for %s", uri)
+                session = getattr(context, "session", None)
+                if session is not None:
+                    self._active_sessions.add(session)
+                self.resources.subscribe(uri, "client")
+                return types.EmptyResult()
+
+            async def _on_unsubscribe(
+                _context: Any, params: types.UnsubscribeRequestParams
+            ) -> types.EmptyResult:
+                uri = str(params.uri)
+                logger.info("Received resources/unsubscribe for %s", uri)
+                self.resources.unsubscribe(uri, "client")
+                return types.EmptyResult()
+
+            async def _on_listen(
+                context: Any, _params: types.SubscriptionsListenRequestParams
+            ) -> types.SubscriptionsListenResult:
+                logger.info("Received subscriptions/listen")
+                session = getattr(context, "session", None)
+                if session is not None:
+                    self._active_sessions.add(session)
+                return types.SubscriptionsListenResult()
+
+            lowlevel.add_request_handler(
+                "resources/subscribe",
+                types.SubscribeRequestParams,
+                _on_subscribe,
+            )
+            lowlevel.add_request_handler(
+                "resources/unsubscribe",
+                types.UnsubscribeRequestParams,
+                _on_unsubscribe,
+            )
+            lowlevel.add_request_handler(
+                "subscriptions/listen",
+                types.SubscriptionsListenRequestParams,
+                _on_listen,
+            )
+
+            # Wire resource update broadcast to active client sessions
+            async def _on_resource_updated(uri: str) -> None:
+                dead_sessions: list[Any] = []
+                for session in list(self._active_sessions):
+                    try:
+                        if hasattr(session, "send_resource_updated"):
+                            await session.send_resource_updated(uri)
+                    except Exception as broadcast_err:
+                        logger.debug("Error sending resource update to session: %s", broadcast_err)
+                        dead_sessions.append(session)
+                for ds in dead_sessions:
+                    self._active_sessions.discard(ds)
+
+            self.resources.add_update_listener(_on_resource_updated)
+        except Exception as exc:
+            logger.warning("Could not bind lowlevel resource subscription handlers: %s", exc)
 
     def _register_builtin_tools(self) -> None:
         """Register default diagnostic, health, and adapter management tools."""

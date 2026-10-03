@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import io
 import json
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -17,6 +18,7 @@ from gaming_mcp.adapters.retro import (
     SimulatedRetroCore,
 )
 from gaming_mcp.config import GamingMCPConfig, RetroConfig
+from gaming_mcp.core.elicitation import ElicitationGate, ElicitationResponse
 from gaming_mcp.core.registries import PromptRegistry, ResourceRegistry, ToolRegistry
 from gaming_mcp.server import GamingMCPServer
 
@@ -317,6 +319,73 @@ async def test_tool_retro_save_and_load_state(retro_config: GamingMCPConfig) -> 
         assert current_vars2["x_pos"] == vars_slot2["x_pos"]
     finally:
         await adapter.shutdown()
+
+
+@pytest.mark.asyncio
+async def test_tool_retro_save_state_elicitation_gate(retro_config: GamingMCPConfig) -> None:
+    """Verify human elicitation gate protects destructive save state slot overwrites."""
+    # 1. Test unhandled gate: first save succeeds, second save (overwrite) is denied with -32006
+    gate_unhandled = ElicitationGate()
+    adapter_unhandled = RetroAdapter(config=retro_config, elicitation_gate=gate_unhandled)
+    reg_unhandled = ToolRegistry()
+
+    await adapter_unhandled.initialize()
+    adapter_unhandled.register_tools(reg_unhandled)
+    try:
+        # First save to a new slot must not trigger elicitation
+        save_initial = await reg_unhandled.execute("retro_save_state", {"slot_name": "slot_alpha"})
+        assert save_initial.get("isError") is False
+
+        # Overwriting the existing slot must trigger elicitation and fail closed when unhandled
+        save_overwrite_denied = await reg_unhandled.execute(
+            "retro_save_state", {"slot_name": "slot_alpha"}
+        )
+        assert save_overwrite_denied.get("isError") is True
+        assert save_overwrite_denied.get("error_code") == -32006
+        assert "Human elicitation denied" in save_overwrite_denied["content"][0]["text"]
+    finally:
+        await adapter_unhandled.shutdown()
+
+    # 2. Test auto_approve gate: overwrite proceeds safely
+    gate_approved = ElicitationGate(auto_approve=True)
+    adapter_approved = RetroAdapter(config=retro_config, elicitation_gate=gate_approved)
+    reg_approved = ToolRegistry()
+
+    await adapter_approved.initialize()
+    adapter_approved.register_tools(reg_approved)
+    try:
+        await reg_approved.execute("retro_save_state", {"slot_name": "slot_beta"})
+        save_overwrite_approved = await reg_approved.execute(
+            "retro_save_state", {"slot_name": "slot_beta"}
+        )
+        assert save_overwrite_approved.get("isError") is False
+    finally:
+        await adapter_approved.shutdown()
+
+    # 3. Test explicit handler denial: records denial decision
+    async def _deny_handler(req: Any) -> ElicitationResponse:
+        return ElicitationResponse(
+            action=req.action,
+            approved=False,
+            decision="decline",
+            reason="User cancelled overwrite",
+        )
+
+    gate_callback = ElicitationGate(handler=_deny_handler)
+    adapter_callback = RetroAdapter(config=retro_config, elicitation_gate=gate_callback)
+    reg_callback = ToolRegistry()
+
+    await adapter_callback.initialize()
+    adapter_callback.register_tools(reg_callback)
+    try:
+        await reg_callback.execute("retro_save_state", {"slot_name": "slot_gamma"})
+        save_overwrite_rejected = await reg_callback.execute(
+            "retro_save_state", {"slot_name": "slot_gamma"}
+        )
+        assert save_overwrite_rejected.get("isError") is True
+        assert save_overwrite_rejected.get("error_code") == -32006
+    finally:
+        await adapter_callback.shutdown()
 
 
 # -----------------------------------------------------------------------------

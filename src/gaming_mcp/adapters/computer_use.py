@@ -24,6 +24,7 @@ from gaming_mcp.core.exceptions import (
 
 if TYPE_CHECKING:
     from gaming_mcp.core.cancellation import CancellationManager
+    from gaming_mcp.core.elicitation import ElicitationGate
 from gaming_mcp.io.audio import WASAPIAudioCapturer
 from gaming_mcp.io.gamepad import BaseGamepadController, get_gamepad_controller
 from gaming_mcp.io.input import Win32InputInjector
@@ -271,6 +272,7 @@ class ComputerUseAdapter(GameAdapter):
         window_manager: Win32WindowManager | None = None,
         action_scheduler: ActionChunkScheduler | None = None,
         cancellation_manager: CancellationManager | None = None,
+        elicitation_gate: ElicitationGate | None = None,
     ) -> None:
         super().__init__(config)
         self._custom_capturer = screen_capturer
@@ -280,6 +282,7 @@ class ComputerUseAdapter(GameAdapter):
         self._custom_window_mgr = window_manager
         self._custom_scheduler = action_scheduler
         self.cancellation_manager = cancellation_manager
+        self.elicitation_gate = elicitation_gate
 
         self.screen_capturer: CompositeScreenCapturer | Any | None = None
         self.input_injector: Win32InputInjector | None = None

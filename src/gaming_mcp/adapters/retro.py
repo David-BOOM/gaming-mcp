@@ -24,6 +24,7 @@ from gaming_mcp.core.exceptions import AdapterError
 from gaming_mcp.utils.image import encode_image
 
 if TYPE_CHECKING:
+    from gaming_mcp.core.elicitation import ElicitationGate
     from gaming_mcp.core.registries import PromptRegistry, ResourceRegistry, ToolRegistry
 
 logger = logging.getLogger("gaming_mcp.adapters.retro")
@@ -748,10 +749,12 @@ class RetroAdapter(GameAdapter):
         self,
         config: GamingMCPConfig | None = None,
         backend: BaseRetroBackend | None = None,
+        elicitation_gate: ElicitationGate | None = None,
     ) -> None:
         super().__init__(config or GamingMCPConfig())
         self._custom_backend = backend
         self.backend: BaseRetroBackend | None = None
+        self.elicitation_gate = elicitation_gate
 
     @property
     def metadata(self) -> AdapterMetadata:
@@ -971,6 +974,18 @@ class RetroAdapter(GameAdapter):
     ) -> dict[str, Any]:
         if not self.is_initialized or not self.backend:
             raise AdapterError("RetroAdapter is not initialized")
+
+        if (
+            self.elicitation_gate
+            and self.elicitation_gate.is_critical_action("overwrite_save")
+            and hasattr(self.backend, "_saved_states")
+            and slot_name in self.backend._saved_states
+        ):
+            await self.elicitation_gate.request_authorization(
+                action="overwrite_save",
+                prompt=f"Confirm overwriting existing save state slot '{slot_name}'?",
+                metadata={"slot_name": slot_name, "backend": self.backend.__class__.__name__},
+            )
 
         state_bytes = self.backend.save_state(slot_name)
         return {

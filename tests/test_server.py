@@ -1,6 +1,7 @@
 """Tests for GamingMCPServer lifecycle, health reporting, and transport routing."""
 
-from unittest.mock import AsyncMock
+from typing import Any, cast
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -165,3 +166,52 @@ async def test_server_shutdown_without_run() -> None:
 
     # Calling shutdown again when already shut down is a safe no-op
     await server.shutdown()
+
+
+@pytest.mark.asyncio
+async def test_server_resource_subscriptions_and_capabilities() -> None:
+    """Verify MCP protocol v2025-06-18 and v2026-07-28 subscription handlers and capabilities."""
+    import mcp.types as types
+
+    server = GamingMCPServer()
+    lowlevel = server.mcp_server._lowlevel_server
+
+    # Capability verification for v2025-06-18
+    caps_legacy = lowlevel.get_capabilities(protocol_version="2025-06-18")
+    assert caps_legacy.resources is not None
+    assert caps_legacy.resources.subscribe is True
+
+    # Capability verification for modern v2026-07-28
+    caps_modern = lowlevel.get_capabilities(protocol_version="2026-07-28")
+    assert caps_modern.resources is not None
+    assert caps_modern.resources.subscribe is True
+
+    # Test resources/subscribe handler
+    assert "resources/subscribe" in lowlevel._request_handlers
+    handler_entry_sub = lowlevel._request_handlers["resources/subscribe"]
+    test_uri = "system://server/health"
+    mock_ctx = cast("Any", MagicMock(session=None))
+
+    sub_result = await handler_entry_sub.handler(
+        mock_ctx, types.SubscribeRequestParams(uri=test_uri)
+    )
+    assert isinstance(sub_result, types.EmptyResult)
+    assert "client" in server.resources.get_subscribers(test_uri)
+
+    # Test subscriptions/listen handler
+    assert "subscriptions/listen" in lowlevel._request_handlers
+    handler_entry_listen = lowlevel._request_handlers["subscriptions/listen"]
+    filter_obj = types.SubscriptionFilter()
+    listen_result = await handler_entry_listen.handler(
+        mock_ctx, types.SubscriptionsListenRequestParams(notifications=filter_obj)
+    )
+    assert isinstance(listen_result, types.SubscriptionsListenResult)
+
+    # Test resources/unsubscribe handler
+    assert "resources/unsubscribe" in lowlevel._request_handlers
+    handler_entry_unsub = lowlevel._request_handlers["resources/unsubscribe"]
+    unsub_result = await handler_entry_unsub.handler(
+        mock_ctx, types.UnsubscribeRequestParams(uri=test_uri)
+    )
+    assert isinstance(unsub_result, types.EmptyResult)
+    assert "client" not in server.resources.get_subscribers(test_uri)
